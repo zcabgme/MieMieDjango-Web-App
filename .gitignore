@@ -8,7 +8,7 @@ db.sqlite3
 
 venv/
 
-bin/
+
 build/
 develop-eggs/
 dist/
