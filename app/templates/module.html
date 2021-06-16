@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Module Catalogue</h1>
+        <p><b>Module ID:</b> {{ mod.Module_ID }} </p>
+        <p><b>Module lead:</b> {{ mod.Module_Lead }} </p>
+        <p><b>Module Name:</b> {{ mod.Module_Name }}</p>
+        <p><b>Faculty:</b> {{ mod.Faculty }}</p>
+        <p><b>Department:</b> {{ mod.Department_Name }}</p>
+        <p><b>Department ID:</b> {{ mod.Department_ID }}</p>
+        <p><b></b><a href="{{ mod.Catalogue_Link }}" target="_blank">Link to catalogue</a></p>
+        
+        {% if mod.Description != None %}
+            <p>{{ mod.Description }}</p>
+        {% else %}
+            <p>No description present for this module</p>
+        {% endif %}
+        <hr>
+{% endblock %}

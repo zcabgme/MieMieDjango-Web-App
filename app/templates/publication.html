@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Publication: Scopus</h1>
+        <p><b>Title:</b> {{ pub.title }} </p>
+        <p><b>EID:</b> {{ pub.data.EID }} </p>
+        <p><b>DOI:</b> {{ pub.data.DOI }} </p>
+        <p><b>Year:</b> {{ pub.data.Year }} </p>
+        <p><b>Source:</b> {{ pub.data.Source }} </p>
+        <p><b>Volume:</b> {{ pub.data.Volume }} </p>
+        <p><b>Issue:</b> {{ pub.data.Issue }} </p>
+        <p><b>Page-Start:</b> {{ pub.data.PageStart }} </p>
+        <p><b>Page-End:</b> {{ pub.data.PageEnd }} </p>
+        <p><b>Cited By:</b> {{ pub.data.CitedBy }} </p>
+        <p><b>Link:</b> <a href="{{ pub.data.Link }}" target="_blank">Scopus</a> </p>
+        <p><b>Abstract:</b> {{ pub.data.Abstract }} </p>
+        <p><b>Author Keywords:</b></p>
+        {% for keyword in pub.data.AuthorKeywords %}
+            <ul><li>{{ keyword }}</li></ul>
+        {% endfor %}
+        <p><b>Index Keywords:</b></p>
+        {% for keyword in pub.data.IndexKeywords %}
+            <ul><li>{{ keyword }}</li></ul>
+        {% endfor %}
+        <p><b>Document Type:</b> {{ pub.data.DocumentType }} </p>
+        <p><b>Publication Stage:</b> {{ pub.data.PublicationStage }} </p>
+        <p><b>Open Access:</b> {{ pub.data.OpenAccess }} </p>
+        <p><b>Subject Areas:</b></p>
+        {% for area in pub.data.SubjectAreas %}
+            <ul><li>{{ area }}</li></ul>
+        {% endfor %}
+        <p><b>Authors Data:</b></p>
+        {% for key, val in pub.data.AuthorData.items %}
+            <hr>
+            <p>Author ID: {{ key }}</p>
+            <p>Name: {{ val.Name }}</p>
+            <p>Affiliation ID: {{ val.AffiliationID }}</p>
+            <p>Affiliation Name: {{ val.AffiliationName }}</p>
+        {% endfor %}
+        <hr>
+{% endblock %}

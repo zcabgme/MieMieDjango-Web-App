@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'app' %}">UCL5 MieMie</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'sdg' %}">NLP Model</a> 
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'universal_SVM' %}">SVM Universal</a> 
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Export
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'export_modules_csv' %}">Export Modules to CSV</a>
+                    <a class="dropdown-item" href="{% url 'export_publications_csv' %}">Export Publications to CSV</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <br>
+
+    {% comment %} <form method="POST"> 
+        
+    </form>  {% endcomment %}
+
+    {% comment %} SEARCH + CHECKBOXES {% endcomment %}
+    <form action="{% url 'app' %}" method="GET" value="{{ request.GET.q }}">
+        <input type="text" name="q" value="{{request.GET.q}}" placeholder="Search query"/> 
+        <input type="submit" name="submit" value="Search"/> 
+
+        <br><br>
+        <form method="post" action="#">
+
+            <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                <input type="checkbox" class="btn-check" id="btncheck1" autocomplete="off" value="clicked" name="modBox" {{ form.modBox }}>
+                <label class="btn btn-outline-primary" for="btncheck1">Modules</label>
+                
+                <input type="checkbox" class="btn-check" id="btncheck2" autocomplete="off" value="clicked" name="pubBox" {{ form.pubBox }}>
+                <label class="btn btn-outline-primary" for="btncheck2">Publications</label>
+            </div>
+        </form>
+    </form>
+
+    <br>
+
+    {% comment %} PUBLICATION DATA DISPLAY TABLE {% endcomment %}
+    {% if form.pubBox == 'checked' %}
+        <h3>Publications found: {{ len_pub }}</h3><br>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in pub %}
+                    <tr>
+                        <td>{{ item.title  }}</td>
+                        <td><a href="{{ item.get_absolute_url }}">More</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <br>
+
+    {% comment %} MODULE DATA DISPLAY TABLE {% endcomment %}
+    {% if form.modBox == 'checked' %}
+        <h3>Modules found: {{ len_mod }}</h3><br>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Module Name</th>
+                    <th scope="col">Module ID</th>
+                    <th scope="col">Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in mod %}
+                    <tr>
+                        <td>{{ item.Module_Name  }}</td>
+                        <td>{{ item.Module_ID }}</td>
+                        <td><a href="{{ item.get_absolute_url }}">More</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

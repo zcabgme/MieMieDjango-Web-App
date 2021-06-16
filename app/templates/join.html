@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Modules: Manual Insertion</h1>
+    <br>
+
+    <form method="POST" action="{% url 'join' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="departmentname" class="form-control" aria-describedby="emailHelp" placeholder="Department Name" name="Department_Name" value="{{ Department_Name }}">
+        </div>
+        <div class="mb-3">
+            <input type="departmentid" class="form-control" placeholder="Department ID" name="Department_ID" value="{{ Department_ID }}">
+        </div>
+        <div class="mb-3">
+            <input type="modulename" class="form-control" placeholder="Module name" name="Module_Name" value="{{ Module_Name }}">
+        </div>
+        <div class="mb-3">
+            <input type="moduleid" class="form-control" placeholder="Module ID" name="Module_ID" value="{{ Module_ID }}">
+        </div>
+        <div class="mb-3">
+            <input type="faculty" class="form-control" placeholder="Faculty" name="Faculty" value="{{ Faculty }}">
+        </div>
+        <div class="mb-3">
+            <input type="creditvalue" class="form-control" placeholder="Credit value" name="Credit_Value" value="{{ Credit_Value }}">
+        </div>
+        <div class="mb-3">
+            <input type="modulelead" class="form-control" placeholder="Module lead" name="Module_Lead" value="{{ Module_Lead }}">
+        </div>
+        <div class="mb-3">
+            <input type="cataloguelink" class="form-control" placeholder="Catalogue link" name="Catalogue_Link" value="{{ Catalogue_Link }}">
+        </div>
+        <div class="mb-3">
+            <input type="moduledescription" class="form-control" placeholder="Description" name="Description" value="{{ Description }}">
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}
+
