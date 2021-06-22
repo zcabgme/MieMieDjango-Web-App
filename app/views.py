@@ -1,9 +1,10 @@
+from django.core import serializers
 from django.shortcuts import render, redirect
 from django.db.models.expressions import RawSQL
-from .models import Module, Publication
+from .models import *
 from .forms import RangeInput
 from django.views import View
-from .forms import ModuleForm
+from .forms import ModuleForm, searchForm
 from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
@@ -24,6 +25,7 @@ matplotlib.use('Agg')
 import io
 from colorsys import hsv_to_rgb
 import numpy as np
+
 
 svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data = None
@@ -84,10 +86,149 @@ def app(request):
     global_context = context
     return render(request, 'index.html', context)
 
+def bubble_chart(request):
+    status_list = Status.objects.all()
+    status_check = False
+    if request.method == "POST":
+        status_checklist = request.POST.getlist('status_checklist')
+        status_check = True
+    approach_list = Approach.objects.all()
+    specialty_list = Specialty.objects.all()
+    approachNum = approach_list.count()
+    verticalLength = approachNum + 1
+    specialtyNum = specialty_list.count()
+    horizontalLength = specialtyNum + 1
+    color_dict = {}
+    approach_dict = {}
+
+    numSpecialty = 0
+    numApproach = 0
+    colors = Color.objects.all()
+    for color in colors:
+        specialty_dict = {}
+        for specialty in Specialty.objects.filter(color=color):
+            specialty_dict[specialty] = numSpecialty
+            numSpecialty += 1
+        color_dict[color] = specialty_dict
+
+    for approach in Approach.objects.all():
+        approach_dict[approach] = numApproach
+        numApproach += 1
+
+    entry_dict = {}
+    if status_check:
+        for status in status_checklist:
+            statusObject = Status.objects.get(name=status)
+            for entry in UserProfile.objects.filter(status=statusObject):
+                for app in entry.approach.all():
+                    for sp in entry.specialty.all():
+                        typeObject = (app, sp)
+                        if typeObject in entry_dict:
+                            entry_dict[typeObject] += 1
+                        else:
+                            entry_dict[typeObject] = 1
+    else:
+        for entry in UserProfile.objects.all():
+            for app in entry.approach.all():
+                for sp in entry.specialty.all():
+                    typeObject = (app, sp)
+                    if typeObject in entry_dict:
+                        entry_dict[typeObject] += 1
+                    else:
+                        entry_dict[typeObject] = 1
+
+    bubble_dict = {}
+    for typeObject, areaNum in entry_dict.items():
+        if areaNum != 0:
+            approach_index = approach_dict[typeObject[0]]
+            specialty_index = color_dict[typeObject[1].color][typeObject[1]]
+            color = typeObject[1].color
+
+            if areaNum == 1:
+                bubbleList = [(specialty_index * 45)+13,
+                              (approach_index * 45)+11, 9, color]
+            elif areaNum == 2:
+                bubbleList = [(specialty_index * 45)+12,
+                              (approach_index * 45)+10, 12, color]
+            elif areaNum == 3:
+                bubbleList = [(specialty_index * 45)+11,
+                              (approach_index * 45)+8, 15, color]
+            elif areaNum == 4:
+                bubbleList = [(specialty_index * 45)+9,
+                              (approach_index * 45)+7, 18, color]
+            elif areaNum == 5:
+                bubbleList = [(specialty_index * 45)+8,
+                              (approach_index * 45)+5, 21, color]
+            elif areaNum == 6:
+                bubbleList = [(specialty_index * 45)+6,
+                              (approach_index * 45)+4, 24, color]
+            elif areaNum == 7:
+                bubbleList = [(specialty_index * 45)+4,
+                              (approach_index * 45)+3, 27, color]
+            elif areaNum == 8:
+                bubbleList = [(specialty_index * 45)+3,
+                              (approach_index * 45)+2, 30, color]
+            elif areaNum == 9:
+                bubbleList = [(specialty_index * 45)+1,
+                              (approach_index * 45)+2, 33, color]
+            elif areaNum == 10:
+                bubbleList = [(specialty_index * 45)+1,
+                              (approach_index * 45)-1, 36, color]
+            elif areaNum == 11:
+                bubbleList = [(specialty_index * 45)-2,
+                              (approach_index * 45)-2, 39, color]
+            elif areaNum == 12:
+                bubbleList = [(specialty_index * 45)-3,
+                              (approach_index * 45)-4, 42, color]
+            else:
+                bubbleList = [(specialty_index * 45)-4,
+                              (approach_index * 45)-5, 45, color]
+            bubble_dict[typeObject] = bubbleList
+    if 'checked' not in request.session:
+        context = {'status_list':status_list,'entry':entry,'bubble_dict':bubble_dict,'approach_dict':approach_dict, 'color_dict':color_dict, 'verticalLength': verticalLength,'horizontalLength': horizontalLength}
+        
+        # tmpJson = serializers.serialize("json", context)
+        # tmpObj = json.loads(tmpJson)
+        print(context)
+
+        return render(request, 'bubble_chart.html', context)
+    else:
+        try:
+            entry = UserProfile.objects.get(email=request.session['email'])
+        except:
+            del request.session['checked']
+        return render(request, 'bubble_chart.html', context)
+
+
+def searchBubble(request, pk=None, pk_alt=None):
+    check = False
+    if pk != None:
+        if request.method == "POST":
+            check = True
+            form = searchForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                app = Approach.objects.get(name=data['approach'])
+                sp = Specialty.objects.get(name=data['specialty'])
+                entry_list = []
+                for entry in UserProfile.objects.all():
+                    if (app in entry.approach.all()) and (sp in entry.specialty.all()):
+                        entry_list.append(entry)
+                return render(request, 'searchBubble.html', {'entry_list': entry_list, 'check': check, 'form': form})
+        check = True
+        form = searchForm(initial={"approach": Approach.objects.get(pk=pk), "specialty": Specialty.objects.get(pk=pk_alt)})
+        app = Approach.objects.get(pk=pk)
+        sp = Specialty.objects.get(pk=pk_alt)
+        entry_list = []
+        for entry in UserProfile.objects.all():
+            if (app in entry.approach.all()) and (sp in entry.specialty.all()):
+                entry_list.append(entry)
+        return render(request, 'searchBubble.html', {'entry_list': entry_list, 'check': check, 'form': form})
+
 def getDB():
     # SERVER LOGIN DETAILS
-    server = 'miemie.database.windows.net'
-    database = 'MainDB'
+    server = 'summermiemieservver.database.windows.net'
+    database = 'summermiemiedb'
     username = 'miemie_login'
     password = 'e_Paswrd?!'
     driver = '{ODBC Driver 17 for SQL Server}'
@@ -367,7 +508,7 @@ def loadSDG_Data_PUBLICATION():
             for sdg, weight in p:
                 if weight >= lda_threshold:
                     validWeights.append(sdg)
-
+            
             publication_SDG_assignments['DOI'] = i
             publication_SDG_assignments["Validation"] = getPublication_validation(scopusValidation, i)
             publication_SDG_assignments['ModelResult'] = ",".join(validWeights)

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Module, Publication
+from .models import Module, Publication, Approach, Specialty
 
 class ModuleForm(forms.ModelForm):
     class Meta:
@@ -13,3 +13,7 @@ class CheckBoxForm(forms.Form):
 class RangeInput(forms.Form):
     publication_range = forms.IntegerField(max_value=Publication.objects.count())
     module_range = forms.IntegerField(max_value=Module.objects.count())
+
+class searchForm(forms.Form):
+	approach = forms.ModelChoiceField(queryset=Approach.objects.all())
+	specialty = forms.ModelChoiceField(queryset=Specialty.objects.all())
