@@ -51,27 +51,33 @@
       <div style="position: absolute; top: calc({{ numApproach }} * 45px);">{{ approach.name }}</div>
     {% endfor %}
   </div>
+  {% comment %} <div>
+    {% for approach in approach_list %}
+      {% for speciality in speciality_list %}
+          <h4>{{ approach }}</h4>
+    {% endfor %}
+  </div> {% endcomment %}
 
-  <div>
+  {% comment %} <div>
     <div class="hr-grid">
     {% for approach, numApproach in approach_dict.items %}
         <div class="h1" style="position: absolute; top: calc({{ numApproach }} * 45px); width: calc({{ horizontalLength }} * 45px);">
         </div>
     {% endfor %}
    </div>
-  </div>
+  </div> {% endcomment %}
 
-  <div class="grid">
+  {% comment %} <div class="grid">
     {% for color, specialty_dict in color_dict.items %}
        {% for specialty, numSpecialty in specialty_dict.items %}
          <div class="v1" style="position: absolute; left: calc({{ numSpecialty }} * 45px); height: calc({{ verticalLength }} * 45px);">
            </div>
      {% endfor %}
    {% endfor %}
- </div>
+ </div> {% endcomment %}
 
 
-<div class="bubble-box">
+{% comment %} <div class="bubble-box">
   <div class="bubble">
    {% for typeObject, bubbleList in bubble_dict.items %}
       <div>
@@ -80,7 +86,7 @@
     {% endfor %}
 
   </div>
-</div>
+</div> {% endcomment %}
 
 </div>
 
