@@ -91,12 +91,15 @@ def bubble_chart(request):
     approach_list = Approach.objects.all()
     specialty_list = Specialty.objects.all()
     colors = Color.objects.all()
+
+    bubbles = Bubble.objects.all()
     
     approachNum = approach_list.count()
     specialtyNum = specialty_list.count()
 
     color_dict = {}
     approach_dict = {}
+    bubble_dict = {}
 
     numSpecialty, numApproach = 0, 0
     
@@ -111,89 +114,54 @@ def bubble_chart(request):
         approach_dict[approach] = numApproach
         numApproach += 1
 
-    entry_dict = {}
-    for entry in UserProfile.objects.all():
-        for app in entry.approach.all():
-            for sp in entry.specialty.all():
-                typeObject = (app, sp)
-                if typeObject in entry_dict:
-                    entry_dict[typeObject] += 1
-                else:
-                    entry_dict[typeObject] = 1
+    
+    # total_num_of_people = UserProfile.objects.all().count()
+        
+    for bubble in bubbles:
+        specialty_index = color_dict[bubble.color][bubble.coordinate_speciality]
+        approach_index = approach_dict[bubble.coordinate_approach]  
+        areaNum = len(bubble.list_of_people.split(','))
 
-    bubble_dict = {}
-    for typeObject, areaNum in entry_dict.items():
-        if areaNum != 0:
-            approach_index = approach_dict[typeObject[0]]
-            specialty_index = color_dict[typeObject[1].color][typeObject[1]]
-            color = typeObject[1].color
-
-            if areaNum == 1:
-                bubbleList = [(specialty_index * 45)+13, (approach_index * 45)+11, 9, color]
-            elif areaNum == 2:
-                bubbleList = [(specialty_index * 45)+12, (approach_index * 45)+10, 12, color]
-            elif areaNum == 3:
-                bubbleList = [(specialty_index * 45)+11, (approach_index * 45)+8, 15, color]
-            elif areaNum == 4:
-                bubbleList = [(specialty_index * 45)+9, (approach_index * 45)+7, 18, color]
-            elif areaNum == 5:
-                bubbleList = [(specialty_index * 45)+8, (approach_index * 45)+5, 21, color]
-            elif areaNum == 6:
-                bubbleList = [(specialty_index * 45)+6, (approach_index * 45)+4, 24, color]
-            elif areaNum == 7:
-                bubbleList = [(specialty_index * 45)+4, (approach_index * 45)+3, 27, color]
-            elif areaNum == 8:
-                bubbleList = [(specialty_index * 45)+3, (approach_index * 45)+2, 30, color]
-            elif areaNum == 9:
-                bubbleList = [(specialty_index * 45)+1, (approach_index * 45)+2, 33, color]
-            elif areaNum == 10:
-                bubbleList = [(specialty_index * 45)+1, (approach_index * 45)-1, 36, color]
-            elif areaNum == 11:
-                bubbleList = [(specialty_index * 45)-2, (approach_index * 45)-2, 39, color]
-            elif areaNum == 12:
-                bubbleList = [(specialty_index * 45)-3, (approach_index * 45)-4, 42, color]
-            else:
-                bubbleList = [(specialty_index * 45)-4, (approach_index * 45)-5, 45, color]
-            bubble_dict[typeObject] = bubbleList
-
-
+        if areaNum == 1:
+            bubbleList = [(specialty_index * 45)+13, (approach_index * 45)+11, 9]
+        elif areaNum == 2:
+            bubbleList = [(specialty_index * 45)+12, (approach_index * 45)+10, 12]
+        elif areaNum == 3:
+            bubbleList = [(specialty_index * 45)+11,(approach_index * 45)+8, 15]
+        elif areaNum == 4:
+            bubbleList = [(specialty_index * 45)+9, (approach_index * 45)+7, 18]
+        elif areaNum == 5:
+            bubbleList = [(specialty_index * 45)+8, (approach_index * 45)+5, 21]
+        elif areaNum == 6:
+            bubbleList = [(specialty_index * 45)+6, (approach_index * 45)+4, 24]
+        elif areaNum == 7:
+            bubbleList = [(specialty_index * 45)+4, (approach_index * 45)+3, 27]
+        elif areaNum == 8:
+            bubbleList = [(specialty_index * 45)+3, (approach_index * 45)+2, 30]
+        elif areaNum == 9:
+            bubbleList = [(specialty_index * 45)+1, (approach_index * 45)+2, 33]
+        elif areaNum == 10:
+            bubbleList = [(specialty_index * 45)+1, (approach_index * 45)-1, 36]
+        elif areaNum == 11:
+            bubbleList = [(specialty_index * 45)-2, (approach_index * 45)-2, 39]
+        elif areaNum == 12:
+            bubbleList = [(specialty_index * 45)-3, (approach_index * 45)-4, 42]
+        else:
+            bubbleList = [(specialty_index * 45)-4, (approach_index * 45)-5, 45]
+        
+        bubble_dict[bubble] = bubbleList
+        
     context = {'status_list': status_list, 'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
                'color_dict': color_dict, 'verticalLength': approachNum + 1, 'horizontalLength': specialtyNum + 1}
-        # print(list(status_list))
-        # print(list(bubble_dict))
-        # print(list(approach_dict))
-        # print(list(color_dict))
-        # print(verticalLength)
-        # print(horizontalLength)
+
     return render(request, 'bubble_chart.html', context)
     
-
-
 def searchBubble(request, pk=None, pk_alt=None):
-    check = False
-    if pk != None:
-        if request.method == "POST":
-            check = True
-            form = searchForm(request.POST)
-            if form.is_valid():
-                data = form.cleaned_data
-                app = Approach.objects.get(name=data['approach'])
-                sp = Specialty.objects.get(name=data['specialty'])
-                entry_list = []
-                for entry in UserProfile.objects.all():
-                    if (app in entry.approach.all()) and (sp in entry.specialty.all()):
-                        entry_list.append(entry)
-                return render(request, 'searchBubble.html', {'entry_list': entry_list, 'check': check, 'form': form})
-        check = True
-        form = searchForm(initial={"approach": Approach.objects.get(pk=pk), "specialty": Specialty.objects.get(pk=pk_alt)})
-        app = Approach.objects.get(pk=pk)
-        sp = Specialty.objects.get(pk=pk_alt)
-        entry_list = []
-        for entry in UserProfile.objects.all():
-            if (app in entry.approach.all()) and (sp in entry.specialty.all()):
-                entry_list.append(entry)
-        return render(request, 'searchBubble.html', {'entry_list': entry_list, 'check': check, 'form': form})
-
+    obj = Bubble.objects.get(coordinate_approach=pk, coordinate_speciality=pk_alt)
+    list_of_emails = obj.list_of_people.split(',')
+    entry_list = [UserProfile.objects.get(email=i) for i in list_of_emails]
+    return render(request, 'searchBubble.html', {"entry_list": entry_list})
+    
 def getDB():
     # SERVER LOGIN DETAILS
     server = 'summermiemieservver.database.windows.net'

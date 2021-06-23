@@ -71,7 +71,7 @@
  </div>
 
 
-<div class="bubble-box">
+{% comment %} <div class="bubble-box">
   <div class="bubble">
    {% for typeObject, bubbleList in bubble_dict.items %}
       <div>
@@ -79,6 +79,25 @@
       </div>
     {% endfor %}
 
+  </div>
+</div> {% endcomment %}
+
+{% comment %} {% for bubble, lst in bubble_dict.items %} 
+  <div>
+    <h4>{{ bubble }}</h4>
+    <h4>{{ lst }}</h4>
+    <h4>{{ bubble_dict.bubble }}</h4>
+  </div>
+{% endfor %} {% endcomment %}
+
+
+<div class="bubble-box">
+  <div class="bubble">
+    {% for bubble, lst in bubble_dict.items %} 
+      <div>
+        <a href= "{% url 'searchBubble' bubble.coordinate_approach.pk bubble.coordinate_speciality.pk %}" data-position="bottom" data-delay="50" class="button tooltipped" style="background-color:{{ bubble.color }}; position: absolute; left:calc({{ lst.0 }}px); top:calc({{ lst.1 }}px); width:{{ lst.2 }}px; height: {{ lst.2 }}px;"></a>
+      </div>
+    {% endfor %}
   </div>
 </div>
 

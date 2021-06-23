@@ -140,3 +140,11 @@ class Status(models.Model):
     class Meta:
         verbose_name = 'Status'
         verbose_name_plural = 'Status'
+
+
+class Bubble(models.Model):
+    coordinate_approach = models.ForeignKey('Approach', null=True, on_delete=models.CASCADE)
+    coordinate_speciality = models.ForeignKey('Specialty', null=True, on_delete=models.CASCADE)
+    color = models.ForeignKey('Color', on_delete=models.CASCADE)
+    list_of_people = models.TextField(null=True, blank=True)  # csv formatted email list
+    

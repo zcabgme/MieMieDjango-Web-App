@@ -8,7 +8,7 @@
 	});
 </script>
 
-<form method="post">
+{% comment %} <form method="post">
 	{% csrf_token %}
 	{% for field in form %}
 			{{ field.label_tag }}
@@ -16,31 +16,28 @@
 	{% endfor %}
 
 	<button class="waves-effect waves-light btn grey darken-4" type="submit">Search</button>
-</form>
+</form> {% endcomment %}
 
 <div class="row">
-	{% if check %}
-			<table class="bordered stripped highlight responsive-table">
-			    <tr>
-			        <th> Full Name</th>
-			        <th> Email</th>
-			        <th>Department</th>
-			        <th>IRIS Link</th>
-			    </tr>
-			    {% for entry in entry_list %}
-			    <tr>
-			        <td>{{ entry.fullName }}</td>
-			      	<td>{{ entry.email }}</td>
-			      	<td>{{ entry.faculty }}</td>
-			        <td>
-								<a href='{{ entry.irisLink }}' target="_blank">{{ entry.irisLink }}</a>
-							</td>
-
-			    </tr>
-	    		{% endfor %}
+	{% comment %} {% if check %} {% endcomment %}
+		<table class="bordered stripped highlight responsive-table">
+			<tr>
+				<th>Full Name</th>
+				<th>Email</th>
+				<th>Department</th>
+				<th>IRIS Link</th>
+			</tr>
+			{% for entry in entry_list %}
+				<tr>
+					<td>{{ entry.fullName }}</td>
+					<td>{{ entry.email }}</td>
+					<td>{{ entry.faculty }}</td>
+					<td><a href='{{ entry.irisLink }}' target="_blank">{{ entry.irisLink }}</a></td>
+				</tr>
+			{% endfor %}
 		</table>
-	{% else %}
+	{% comment %} {% else %}
 		<p>choose the fields you would like to search</p>
-	{% endif %}
+	{% endif %} {% endcomment %}
 </div>
 {% endblock %}
