@@ -8,15 +8,6 @@
 	});
 </script>
 
-{% comment %} <form method="post">
-	{% csrf_token %}
-	{% for field in form %}
-			{{ field.label_tag }}
-			{{ field }}
-	{% endfor %}
-
-	<button class="waves-effect waves-light btn grey darken-4" type="submit">Search</button>
-</form> {% endcomment %}
 
 <div class="row">
 	{% comment %} {% if check %} {% endcomment %}
@@ -36,8 +27,5 @@
 				</tr>
 			{% endfor %}
 		</table>
-	{% comment %} {% else %}
-		<p>choose the fields you would like to search</p>
-	{% endif %} {% endcomment %}
 </div>
 {% endblock %}

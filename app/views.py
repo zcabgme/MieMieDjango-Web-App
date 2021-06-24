@@ -86,7 +86,60 @@ def app(request):
     global_context = context
     return render(request, 'index.html', context)
 
+
+def create_bubble():
+    # b = Bubble()
+    # b.coordinate_approach = ""
+    # b.coordinate_speciality = ""
+    # b.color = ""
+    # b.list_of_people = []
+    # b.save()
+    pass
+
+def update_bubble_chart_data(request):
+    status_list = Status.objects.all()
+    approach_list = Approach.objects.all()
+    specialty_list = Specialty.objects.all()
+    colors = Color.objects.all()
+
+    with open('data.json') as json_file:
+        data = json.load(json_file)
+    
+    # approaches = {}
+    # specialities = {}
+
+    # new_bubble = {
+    #     "coordinate_approach" : "",
+    #     "coordinate_speciality" : "",
+    #     "color": "",
+    #     "list_of_people" : []
+    # }
+
+
+    new_bubble = {}
+
+    for i in approach_list:
+        for j in specialty_list:
+            # tuple_appr_spec_color = (i, j, j.color)
+            # print(tuple_appr_spec_color)
+            new_bubble[(i, j)] = j.color
+
+    for i in data:
+        if i['model'] == 'digitalhealth.userprofile':
+            email = i['pk']
+            approach = i['fields']['approach']
+            speciality = i['fields']['specialty']
+
+            for app in approach:
+                for spe in speciality:
+                    print(email, app, spe)
+
+            break
+
 def bubble_chart(request):
+    if request.method == "POST":
+        update_bubble_chart_data(request)
+
     status_list = Status.objects.all()
     approach_list = Approach.objects.all()
     specialty_list = Specialty.objects.all()
@@ -116,38 +169,32 @@ def bubble_chart(request):
 
     
     # total_num_of_people = UserProfile.objects.all().count()
-        
     for bubble in bubbles:
         specialty_index = color_dict[bubble.color][bubble.coordinate_speciality]
         approach_index = approach_dict[bubble.coordinate_approach]  
         areaNum = len(bubble.list_of_people.split(','))
 
-        if areaNum == 1:
-            bubbleList = [(specialty_index * 45)+13, (approach_index * 45)+11, 9]
-        elif areaNum == 2:
-            bubbleList = [(specialty_index * 45)+12, (approach_index * 45)+10, 12]
-        elif areaNum == 3:
-            bubbleList = [(specialty_index * 45)+11,(approach_index * 45)+8, 15]
-        elif areaNum == 4:
-            bubbleList = [(specialty_index * 45)+9, (approach_index * 45)+7, 18]
-        elif areaNum == 5:
-            bubbleList = [(specialty_index * 45)+8, (approach_index * 45)+5, 21]
-        elif areaNum == 6:
-            bubbleList = [(specialty_index * 45)+6, (approach_index * 45)+4, 24]
-        elif areaNum == 7:
-            bubbleList = [(specialty_index * 45)+4, (approach_index * 45)+3, 27]
-        elif areaNum == 8:
-            bubbleList = [(specialty_index * 45)+3, (approach_index * 45)+2, 30]
-        elif areaNum == 9:
-            bubbleList = [(specialty_index * 45)+1, (approach_index * 45)+2, 33]
-        elif areaNum == 10:
-            bubbleList = [(specialty_index * 45)+1, (approach_index * 45)-1, 36]
-        elif areaNum == 11:
-            bubbleList = [(specialty_index * 45)-2, (approach_index * 45)-2, 39]
-        elif areaNum == 12:
-            bubbleList = [(specialty_index * 45)-3, (approach_index * 45)-4, 42]
+        const_1 = 45
+        case = {
+            # num_of_researchers: [left, top, bubble_size]
+            1: [(specialty_index * const_1)+13, (approach_index * const_1)+11, 9],
+            2: [(specialty_index * const_1)+12, (approach_index * const_1)+10, 12],
+            3: [(specialty_index * const_1)+11, (approach_index * const_1)+8, 15],
+            4: [(specialty_index * const_1)+9, (approach_index * const_1)+7, 18],
+            5: [(specialty_index * const_1)+8, (approach_index * const_1)+5, 21],
+            6: [(specialty_index * const_1)+6, (approach_index * const_1)+4, 24],
+            7: [(specialty_index * const_1)+4, (approach_index * const_1)+3, 27],
+            8: [(specialty_index * const_1)+3, (approach_index * const_1)+2, 30],
+            9: [(specialty_index * const_1)+1, (approach_index * const_1)+2, 33],
+            10:[(specialty_index * const_1)+1, (approach_index * const_1)-1, 36],
+            11: [(specialty_index * const_1)-2, (approach_index * const_1)-2, 39],
+            12: [(specialty_index * const_1)-3, (approach_index * const_1)-4, 42]
+        }
+
+        if areaNum not in case:
+            bubbleList = [(specialty_index * const_1)-3, (approach_index * const_1)-4, 42]
         else:
-            bubbleList = [(specialty_index * 45)-4, (approach_index * 45)-5, 45]
+            bubbleList = case[areaNum]
         
         bubble_dict[bubble] = bubbleList
         
