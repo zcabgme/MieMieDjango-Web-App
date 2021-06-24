@@ -168,7 +168,7 @@ def bubble_chart(request):
     # print(t3)
 
 
-    const_1 = 45
+    CONST_1 = 45
     case = {
         # num_of_researchers: [left, top, bubble_size]
         1: [13, 11, 9],
@@ -186,15 +186,14 @@ def bubble_chart(request):
     }
 
     for bubble in bubbles:
-        specialty_index = color_dict[bubble.color][bubble.coordinate_speciality]
-        approach_index = approach_dict[bubble.coordinate_approach]  
+        specialty_index = color_dict[bubble.color][bubble.coordinate_speciality] * CONST_1
+        approach_index = approach_dict[bubble.coordinate_approach] * CONST_1
         areaNum = bubble.list_of_people.count(',') + 1
 
-        if areaNum not in case: bubbleList = [(specialty_index * const_1)-4, (approach_index * const_1)-5, 45]
-        else: bubbleList = [case[areaNum][0] + (specialty_index * const_1), case[areaNum][1] + (approach_index * const_1), case[areaNum][2]]
+        if areaNum not in case: bubble_dict[bubble] = [specialty_index - 4, approach_index - 5, 45]
+        else: bubble_dict[bubble] = [case[areaNum][0] + specialty_index, case[areaNum][1] + approach_index, case[areaNum][2]]
  
         # else: bubbleList = case[areaNum]
-        bubble_dict[bubble] = bubbleList
         
     context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
                'color_dict': color_dict, 'verticalLength': approachNum + 1, 'horizontalLength': specialtyNum + 1}
