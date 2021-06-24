@@ -36,10 +36,10 @@
   });
 </script>
 
-<form action="{% url 'bubble_chart' %}" method="POST">
+{% comment %} <form action="{% url 'bubble_chart' %}" method="POST">
     {% csrf_token %}
     <button style="margin-left: 30px" class="btn btn-primary" type="submit" value='Click' name="update_bubble_chart_data">Sync Data</button>   
-</form>
+</form> {% endcomment %}
 
 <div class="display">
 

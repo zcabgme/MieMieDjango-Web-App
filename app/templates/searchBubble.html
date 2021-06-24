@@ -1,22 +1,50 @@
 {% extends "base.html" %}
 {% load static %}
+
+
 {% block content %}
+	<script>
+		$(document).ready(function(){
+			$('select').material_select();
+		});
+	</script>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a class="nav-link" href="{% url 'app' %}">UCL5 MieMie</a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="{% url 'sdg' %}">NLP Model</a> 
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="{% url 'universal_SVM' %}">SVM Universal</a> 
+					</li>
+					<li class="nav-item active">
+							<a class="nav-link" href="{% url 'bubble_chart' %}">Bubble Chart</a> 
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							Visualizations
+						</a>
+						<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+						<a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
+						<a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</nav>
 
-<script>
-	$(document).ready(function(){
-		$('select').material_select();
-	});
-</script>
+		<br>  
+		<br> 
 
-
-<div class="row">
-	{% comment %} {% if check %} {% endcomment %}
-		<table class="bordered stripped highlight responsive-table">
+		<table class="table table-striped">
 			<tr>
-				<th>Full Name</th>
-				<th>Email</th>
-				<th>Department</th>
-				<th>IRIS Link</th>
+				<th scope="col">Full Name</th>
+				<th scope="col">Email</th>
+				<th scope="col">Department</th>
+				<th scope="col">IRIS Link</th>
 			</tr>
 			{% for entry in entry_list %}
 				<tr>
@@ -27,5 +55,4 @@
 				</tr>
 			{% endfor %}
 		</table>
-</div>
 {% endblock %}

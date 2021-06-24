@@ -27,14 +27,13 @@ from colorsys import hsv_to_rgb
 import numpy as np
 
 
+import time, json
+
 svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
-Module_CSV_Data = None
-Publication_CSV_Data = None
+Module_CSV_Data, Publication_CSV_Data = None, None
 global_context = {}
-global_display_limit = 150
 UCL_AffiliationID = "60022148"
-lda_threshold = 30
-svm_threshold = 30
+lda_threshold, svm_threshold, global_display_limit = 30, 30, 150
 
 def app(request):
     global Module_CSV_Data
@@ -86,15 +85,20 @@ def app(request):
     global_context = context
     return render(request, 'index.html', context)
 
-
-def create_bubble():
-    # b = Bubble()
-    # b.coordinate_approach = ""
-    # b.coordinate_speciality = ""
-    # b.color = ""
-    # b.list_of_people = []
-    # b.save()
-    pass
+def create_bubble(contents):
+    for i in contents:
+        if len(contents[i]['list_of_people']) != 0:
+            list_of_ppl = str(contents[i]['list_of_people']).replace('[', '').replace(']', '').replace(' ', '')
+            temp = i.replace('(', '').replace(')', '')
+            elem = tuple(map(int, temp.split(', ')))
+            # print(elem, elem[0], elem[1], type(elem))
+            # print(list_of_ppl)
+            obj, created = Bubble.objects.get_or_create(
+                coordinate_approach_id=elem[0],
+                coordinate_speciality_id=elem[1],
+                color=contents[i]['color'],
+                list_of_people=list_of_ppl.replace('\'', '')
+            )
 
 def update_bubble_chart_data(request):
     status_list = Status.objects.all()
@@ -105,24 +109,15 @@ def update_bubble_chart_data(request):
     with open('data.json') as json_file:
         data = json.load(json_file)
     
-    # approaches = {}
-    # specialities = {}
-
-    # new_bubble = {
-    #     "coordinate_approach" : "",
-    #     "coordinate_speciality" : "",
-    #     "color": "",
-    #     "list_of_people" : []
-    # }
-
-
     new_bubble = {}
+
+    print("STARTED SYNC")
 
     for i in approach_list:
         for j in specialty_list:
-            # tuple_appr_spec_color = (i, j, j.color)
-            # print(tuple_appr_spec_color)
-            new_bubble[(i, j)] = j.color
+            new_bubble[str((i.id, j.id))] = {}
+            new_bubble[str((i.id, j.id))]['color'] = j.color
+            new_bubble[str((i.id, j.id))]['list_of_people'] = []
 
     for i in data:
         if i['model'] == 'digitalhealth.userprofile':
@@ -132,19 +127,17 @@ def update_bubble_chart_data(request):
 
             for app in approach:
                 for spe in speciality:
-                    print(email, app, spe)
-
-            break
+                    new_bubble[str((app, spe))]['list_of_people'].append(email)
+    create_bubble(new_bubble)
 
 def bubble_chart(request):
-    if request.method == "POST":
-        update_bubble_chart_data(request)
+    # if request.method == "POST":
+    #     update_bubble_chart_data(request)
+    t0 = time.time()
 
-    status_list = Status.objects.all()
     approach_list = Approach.objects.all()
     specialty_list = Specialty.objects.all()
     colors = Color.objects.all()
-
     bubbles = Bubble.objects.all()
     
     approachNum = approach_list.count()
@@ -156,6 +149,8 @@ def bubble_chart(request):
 
     numSpecialty, numApproach = 0, 0
     
+    # t1 = time.time()-t0
+    # print(t1)
     for color in colors:
         specialty_dict = {}
         for specialty in specialty_list.filter(color=color):
@@ -163,44 +158,49 @@ def bubble_chart(request):
             numSpecialty += 1
         color_dict[color] = specialty_dict
 
+    # t2 = time.time()-t1
+    # print(t2)
     for approach in approach_list:
         approach_dict[approach] = numApproach
         numApproach += 1
 
-    
-    # total_num_of_people = UserProfile.objects.all().count()
+    # t3 = time.time()-t2
+    # print(t3)
+
+
+    const_1 = 45
+    case = {
+        # num_of_researchers: [left, top, bubble_size]
+        1: [13, 11, 9],
+        2: [12, 10, 12],
+        3: [11, 8, 15],
+        4: [9, 7, 18],
+        5: [8, 5, 21],
+        6: [6, 4, 24],
+        7: [4, 3, 27],
+        8: [3, 2, 30],
+        9: [1, 2, 33],
+        10:[1, -1, 36],
+        11: [-2, -2, 39],
+        12: [-3, -4, 42]
+    }
+
     for bubble in bubbles:
         specialty_index = color_dict[bubble.color][bubble.coordinate_speciality]
         approach_index = approach_dict[bubble.coordinate_approach]  
-        areaNum = len(bubble.list_of_people.split(','))
+        areaNum = bubble.list_of_people.count(',') + 1
 
-        const_1 = 45
-        case = {
-            # num_of_researchers: [left, top, bubble_size]
-            1: [(specialty_index * const_1)+13, (approach_index * const_1)+11, 9],
-            2: [(specialty_index * const_1)+12, (approach_index * const_1)+10, 12],
-            3: [(specialty_index * const_1)+11, (approach_index * const_1)+8, 15],
-            4: [(specialty_index * const_1)+9, (approach_index * const_1)+7, 18],
-            5: [(specialty_index * const_1)+8, (approach_index * const_1)+5, 21],
-            6: [(specialty_index * const_1)+6, (approach_index * const_1)+4, 24],
-            7: [(specialty_index * const_1)+4, (approach_index * const_1)+3, 27],
-            8: [(specialty_index * const_1)+3, (approach_index * const_1)+2, 30],
-            9: [(specialty_index * const_1)+1, (approach_index * const_1)+2, 33],
-            10:[(specialty_index * const_1)+1, (approach_index * const_1)-1, 36],
-            11: [(specialty_index * const_1)-2, (approach_index * const_1)-2, 39],
-            12: [(specialty_index * const_1)-3, (approach_index * const_1)-4, 42]
-        }
-
-        if areaNum not in case:
-            bubbleList = [(specialty_index * const_1)-3, (approach_index * const_1)-4, 42]
-        else:
-            bubbleList = case[areaNum]
-        
+        if areaNum not in case: bubbleList = [(specialty_index * const_1)-4, (approach_index * const_1)-5, 45]
+        else: bubbleList = [case[areaNum][0] + (specialty_index * const_1), case[areaNum][1] + (approach_index * const_1), case[areaNum][2]]
+ 
+        # else: bubbleList = case[areaNum]
         bubble_dict[bubble] = bubbleList
         
-    context = {'status_list': status_list, 'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
+    context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
                'color_dict': color_dict, 'verticalLength': approachNum + 1, 'horizontalLength': specialtyNum + 1}
 
+    t4 = time.time()-t0
+    print(t4)
     return render(request, 'bubble_chart.html', context)
     
 def searchBubble(request, pk=None, pk_alt=None):
@@ -405,7 +405,7 @@ def getModule_validation(module):
             similarityRGB = data_[module]['Similarity']
             data_[module]['ColorRed'], data_[module]['ColorGreen'], data_[module]['ColorBlue'] = pseudocolor(similarityRGB*100, 0, 100)
             data_[module]['StringCount'] = normalise(data_[module]['SDG_Keyword_Counts'])
-
+            
             return data_[module]
 
 def getPublication_validation(data_, publication):
@@ -598,6 +598,12 @@ def sdg(request):
         # Record the query results numbers
         context['lenMod'] = context['mod'].count()
         context['lenPub'] = context['pub'].count()
+
+        # for item in context['pub']:
+        #     item['assignedSDG'] = item['assignedSDG'][1:-1]
+
+            
+            # item['assignedSDG'] = item['assignedSDG'][1:] + item['assignedSDG'][:]
 
         context['pub'] = context['pub'][:global_display_limit]
         context['mod'] = context['mod'][:global_display_limit]
