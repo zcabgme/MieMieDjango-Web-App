@@ -30,11 +30,6 @@
         </div>
     </nav>
 
-    <form action="{% url 'sdg' %}" method="POST">
-        {% csrf_token %}
-        <button style="margin-left: 30px" class="btn btn-primary" type="submit" value='Click' name="updateModuleData">Sync Data</button>   
-    </form>
-
     <br>
     
     <form action="{% url 'sdg' %}" method="GET" value="{{ request.GET.b }}">
@@ -96,7 +91,9 @@
                     <th title="Pharmacology & Pharmaceuticals" scope="col">IHE 8</th>
                     {% comment %} <th scope="col">Tissue Engineering</th> {% endcomment %}
                     <th title="Tissue Engineering" scope="col">IHE 9</th>
+                    <th title="Regenerative Medicine" scope="col">IHE 10</th>
                     <th scope="col">Predictions</th>
+
                     {% comment %} <th title="Predictions" scope="col">IHE 10</th> {% endcomment %}
                 </tr>
             </thead>
@@ -115,6 +112,7 @@
                             <td>{{ item.assignedSDG.IHE.6 }}</td>
                             <td>{{ item.assignedSDG.IHE.7 }}</td>
                             <td>{{ item.assignedSDG.IHE.8 }}</td>
+                            <td>{{ item.assignedSDG.IHE.9 }}</td>
                             {% comment %} {% if item.assignedSDG.ModelResult != ""%} {% endcomment %}
                             <td>{{ item.assignedSDG.IHE_Prediction }}</td>
                             {% comment %} {% else %}

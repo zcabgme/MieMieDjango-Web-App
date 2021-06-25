@@ -10,7 +10,6 @@ urlpatterns = [
     path('', views.app, name='app'),
     path('bubble_chart', views.bubble_chart, name='bubble_chart'),
     url(r'searchBubble/(?P<pk>\d+)/(?P<pk_alt>\d+)/$', views.searchBubble, name='searchBubble'),
-    path('join', views.join, name='join'),
     path('sdg', views.sdg, name='sdg'),
     path('svm_universal', views.universal_SVM, name='universal_SVM'),
     path('iheVisualisation', views.iheVisualisation, name='iheVisualisation'),
