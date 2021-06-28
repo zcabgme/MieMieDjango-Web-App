@@ -399,6 +399,8 @@ def sdg(request):
         except EmptyPage:
             ihes = ihe_paginator.page(mod_paginator.num_pages)
 
+        print(type(ihes.paginator.page_range))
+
         context['publications'] = publications
         context['modules'] = modules
         context['ihes'] = ihes

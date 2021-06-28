@@ -127,21 +127,21 @@
         {% if ihes.has_other_pages %}
             <ul class="pagination">
                 {% if ihes.has_previous %}
-                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.previous_page_number }}&{{ urlString }}">&laquo;&nbsp;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&laquo;&nbsp;</span></li>
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ 1 }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.previous_page_number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
                 {% endif %}
                 {% for i in ihes.paginator.page_range %}
-                    {% if ihes.number == i %}
-                        <li class="active"><span>{{ i }}&nbsp;<span class="sr-only">(current)</span></span></li>
-                    {% else %}
-                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ i }}&{{ urlString }}">{{ i }}&nbsp;</a></li>
+                    {% if i <= ihes.number|add:5 and i >= ihes.number|add:-5 %}
+                        {% if ihes.number == i %}
+                            <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+                        {% else %}
+                            <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ i }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
                 {% if ihes.has_next %}
-                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.next_page_number }}&{{ urlString }}">&raquo;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&raquo;</span></li>
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.next_page_number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.paginator.num_pages }}&{{ urlString }}">...Last ({{ ihes.paginator.num_pages }})</a></li>
                 {% endif %}
             </ul>
         {% endif %}
@@ -258,21 +258,21 @@
         {% if publications.has_other_pages %}
             <ul class="pagination">
                 {% if publications.has_previous %}
-                    <li><a href="?pubPage={{ publications.previous_page_number }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">&laquo;&nbsp;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&laquo;&nbsp;</span></li>
+                    <li><a href="?pubPage={{ 1 }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.previous_page_number }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
                 {% endif %}
                 {% for i in publications.paginator.page_range %}
-                    {% if publications.number == i %}
-                        <li class="active"><span>{{ i }}&nbsp;<span class="sr-only">(current)</span></span></li>
-                    {% else %}
-                        <li><a href="?pubPage={{ i }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">{{ i }}&nbsp;</a></li>
+                    {% if i <= publications.number|add:5 and i >= publications.number|add:-5 %}
+                        {% if publications.number == i %}
+                            <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+                        {% else %}
+                            <li><a href="?pubPage={{ i }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
                 {% if publications.has_next %}
-                    <li><a href="?pubPage={{ publications.next_page_number }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">&raquo;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&raquo;</span></li>
+                    <li><a href="?pubPage={{ publications.next_page_number }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.paginator.num_pages }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">...Last ({{ publications.paginator.num_pages }})</a></li>
                 {% endif %}
             </ul>
         {% endif %}
@@ -386,21 +386,21 @@
         {% if modules.has_other_pages %}
             <ul class="pagination">
                 {% if modules.has_previous %}
-                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.previous_page_number }}&ihePage={{ ihes.number }}&{{ urlString }}">&laquo;&nbsp;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&laquo;&nbsp;</span></li>
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ 1 }}&ihePage={{ ihes.number }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.previous_page_number }}&ihePage={{ ihes.number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
                 {% endif %}
                 {% for i in modules.paginator.page_range %}
-                    {% if modules.number == i %}
-                        <li class="active"><span>{{ i }}&nbsp;<span class="sr-only">(current)</span></span></li>
-                    {% else %}
-                        <li><a href="?pubPage={{ publications.number }}&modPage={{ i }}&ihePage={{ ihes.number }}&{{ urlString }}">{{ i }}&nbsp;</a></li>
+                    {% if i <= modules.number|add:5 and i >= modules.number|add:-5 %}
+                        {% if modules.number == i %}
+                            <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+                        {% else %}
+                            <li><a href="?pubPage={{ publications.number }}&modPage={{ i }}&ihePage={{ ihes.number }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
                 {% if modules.has_next %}
-                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.next_page_number }}&ihePage={{ ihes.number }}&{{ urlString }}">&laquo;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&raquo;</span></li>
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.next_page_number }}&ihePage={{ ihes.number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.paginator.num_pages }}&ihePage={{ ihes.number }}&{{ urlString }}">...Last ({{ modules.paginator.num_pages }})</a></li>
                 {% endif %}
             </ul>
         {% endif %}
