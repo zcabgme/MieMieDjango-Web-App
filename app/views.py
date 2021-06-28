@@ -205,44 +205,9 @@ def searchBubble(request, pk=None, pk_alt=None):
     list_of_emails = obj.list_of_people.split(',')
     entry_list = [UserProfile.objects.get(email=i) for i in list_of_emails]
     return render(request, 'searchBubble.html', {"entry_list": entry_list})
-    
-def getDB():
-    # SERVER LOGIN DETAILS
-    server = 'summermiemieservver.database.windows.net'
-    database = 'summermiemiedb'
-    username = 'miemie_login'
-    password = 'e_Paswrd?!'
-    driver = '{ODBC Driver 17 for SQL Server}'
-    # CONNECT TO DATABASE
-    myConnection = pyodbc.connect('DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
-    curr = myConnection.cursor()
-    curr.execute("SELECT * FROM [dbo].[ModuleData]")
-    result = curr.fetchall()
-    return result
-
-def updateModuleData(request):
-    new_data = getDB()
-    for i in new_data:
-        obj, created = Module.objects.get_or_create(Department_Name=i[0], Department_ID=i[1], Module_Name=i[2], Module_ID=i[3], Faculty=i[4], Credit_Value=i[5], Module_Lead=i[6], Catalogue_Link=i[7], Description=i[8])
 
 def clearEmptySDG_assignments():
     Publication.objects.filter(assignedSDG__isnull=True).delete()
-
-def updatePublicationsFromMongoDB(request):
-    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-    db = client.Scopus
-    col = db.Data
-    data = col.find(batch_size=10)
-    c = 0
-    for i in data:
-        i = json.loads(json_util.dumps(i))
-        obj, created = Publication.objects.get_or_create(title=i['Title'])
-        obj.title = i['Title']
-        obj.data = i
-        obj.save()
-        c += 1
-        print("Loaded", c, "/", "25830", i["DOI"])
-    client.close()
 
 def getCheckBoxState(request, form):
     # For SDG section, function reused (checkboxes and drop-down menu)
@@ -327,10 +292,30 @@ def returnQuery(request, form, query, all_modules, all_publications):
     return context
 
 def iheVisualisation(request):
-    return render(request, "visualisations/IHE/pyldavis.html", {})
+    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.Scopus
+    col = db.Visualisations
+    data = list(col.find())[0]
+    
+    context = {
+        "pylda": data['PyLDA_ihe'],
+        "tsne": data['TSNE_ihe']
+    }
+    client.close()
+    return render(request, "visualisations/IHE/pyldavis.html", context)
 
 def sdgVisualisation(request):
-    return render(request, "visualisations/SDG/pyldavis.html", {})
+    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.Scopus
+    col = db.Visualisations
+    data = list(col.find())[1]
+
+    context = {
+        "pylda": data['PyLDA_sdg'],
+        "tsne": data['TSNE_sdg']
+    }
+    client.close()
+    return render(request, "visualisations/SDG/pyldavis.html", context)
 
 def sortSDG_results(form, obj, ascending):
     return obj.order_by('assignedSDG__Validation__Similarity') if ascending else obj.order_by('-assignedSDG__Validation__Similarity')
@@ -518,7 +503,7 @@ def drawDonutChart(results):
               "SDG 7", "SDG 8", "SDG 9", "SDG 10", "SDG 11", "SDG 12",
               "SDG 13", "SDG 14", "SDG 15", "SDG 16", "SDG 17", "Misc"]
    
-   
+    
     wedges, texts = ax.pie(results, wedgeprops=dict(width=0.5), startangle=-40)
     bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
     kw = dict(arrowprops=dict(arrowstyle="-"),bbox=bbox_props, zorder=0, va="center")
