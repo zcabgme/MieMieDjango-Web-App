@@ -98,7 +98,7 @@
                 </tr>
             </thead>
             <tbody style="text-align: center; vertical-align: middle;">
-                {% for item in pub %}
+                {% for item in ihes %}
                     {% if item.assignedSDG %}
                         <tr style="border-bottom: 1pt solid black">
                             <td><a href="{{ item.get_absolute_url }}">{{ item.assignedSDG.DOI|truncatechars:10 }}</a></td>
@@ -123,6 +123,28 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if ihes.has_other_pages %}
+            <ul class="pagination">
+                {% if ihes.has_previous %}
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.previous_page_number }}&{{ urlString }}">&laquo;&nbsp;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo;&nbsp;</span></li>
+                {% endif %}
+                {% for i in ihes.paginator.page_range %}
+                    {% if ihes.number == i %}
+                        <li class="active"><span>{{ i }}&nbsp;<span class="sr-only">(current)</span></span></li>
+                    {% else %}
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ i }}&{{ urlString }}">{{ i }}&nbsp;</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if ihes.has_next %}
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.next_page_number }}&{{ urlString }}">&raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+            </ul>
+        {% endif %}
     {% endif %}
 
     {% comment %} PUBLICATION DATA DISPLAY TABLE {% endcomment %}
@@ -157,7 +179,7 @@
                 </tr>
             </thead>
             <tbody style="text-align: center; vertical-align: middle;">
-                {% for item in pub %}
+                {% for item in publications %}
                     {% if item.assignedSDG %}
                         <tr>
                             {% if item.assignedSDG != None %}
@@ -232,6 +254,28 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if publications.has_other_pages %}
+            <ul class="pagination">
+                {% if publications.has_previous %}
+                    <li><a href="?pubPage={{ publications.previous_page_number }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">&laquo;&nbsp;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo;&nbsp;</span></li>
+                {% endif %}
+                {% for i in publications.paginator.page_range %}
+                    {% if publications.number == i %}
+                        <li class="active"><span>{{ i }}&nbsp;<span class="sr-only">(current)</span></span></li>
+                    {% else %}
+                        <li><a href="?pubPage={{ i }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">{{ i }}&nbsp;</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if publications.has_next %}
+                    <li><a href="?pubPage={{ publications.next_page_number }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">&raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+            </ul>
+        {% endif %}
     {% endif %}
 
     {% comment %} MODULE DATA DISPLAY TABLE {% endcomment %}
@@ -266,7 +310,7 @@
                 </tr>
             </thead>
             <tbody style="text-align: center; vertical-align: middle;">
-                {% for item in mod %}
+                {% for item in modules %}
                     <tr style="border-bottom: 1pt solid black">
                         {% if item.assignedSDG != None %}
                             <td style="border-right: 1pt solid black; border-left: 1pt solid black fill; background-color:rgba({{item.assignedSDG.Validation.ColorRed}}, {{item.assignedSDG.Validation.ColorGreen}}, {{item.assignedSDG.Validation.ColorBlue}}, 1);"></td>
@@ -338,6 +382,28 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if modules.has_other_pages %}
+            <ul class="pagination">
+                {% if modules.has_previous %}
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.previous_page_number }}&ihePage={{ ihes.number }}&{{ urlString }}">&laquo;&nbsp;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo;&nbsp;</span></li>
+                {% endif %}
+                {% for i in modules.paginator.page_range %}
+                    {% if modules.number == i %}
+                        <li class="active"><span>{{ i }}&nbsp;<span class="sr-only">(current)</span></span></li>
+                    {% else %}
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ i }}&ihePage={{ ihes.number }}&{{ urlString }}">{{ i }}&nbsp;</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if modules.has_next %}
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.next_page_number }}&ihePage={{ ihes.number }}&{{ urlString }}">&laquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+            </ul>
+        {% endif %}
     {% endif %}
 
 {% endblock %}
