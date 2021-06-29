@@ -114,8 +114,6 @@ def create_bubble(contents):
             list_of_ppl = str(contents[i]['list_of_people']).replace('[', '').replace(']', '').replace(' ', '')
             temp = i.replace('(', '').replace(')', '')
             elem = tuple(map(int, temp.split(', ')))
-            # print(elem, elem[0], elem[1], type(elem))
-            # print(list_of_ppl)
             obj, created = Bubble.objects.get_or_create(
                 coordinate_approach_id=elem[0],
                 coordinate_speciality_id=elem[1],
@@ -154,8 +152,6 @@ def update_bubble_chart_data(request):
     create_bubble(new_bubble)
 
 def bubble_chart(request):
-    # if request.method == "POST":
-    #     update_bubble_chart_data(request)
     t0 = time.time()
 
     approach_list = Approach.objects.all()
@@ -346,7 +342,7 @@ def sortSDG_results(form, obj, ascending):
     return obj.order_by('assignedSDG__Validation__Similarity') if ascending else obj.order_by('-assignedSDG__Validation__Similarity')
 
 def sdg(request):
-    form = {"modBox": "unchecked", "pubBox": "unchecked", "iheBox": "unchecked",
+    form = {"modBox": "unchecked", "pubBox": "unchecked",
                 "Default": "unselected", "ASC": "unselected", "DESC": "unselected"}
     context = {
         'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__IHE_Prediction=''),
@@ -621,4 +617,31 @@ def universal_SVM(request):
     return render(request, 'svm.html', svm_context)
 
 def ihe(request):
+    form = {"iheBox": "unchecked"}
+    context = {
+        'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__IHE_Prediction=''),
+        'lenPub': Publication.objects.count(),
+        'form': form,
+    }
+
+    if request.method == 'GET':
+        query = request.GET.get('b')
+        context['form'] = getCheckBoxState(request, form)
+
+        url_string = "b=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
+        
+        if request.GET.get('iheBox') == "clicked":
+            url_string = url_string + "&iheBox=clicked"
+        url_string = url_string + "&sorting=" + str(request.GET.get('sorting'))
+        context['urlString'] = url_string
+
+        ihe_paginator = Paginator(context['pub'], 10)
+        ihe_page = request.GET.get('ihePage')
+        try:
+            ihes = ihe_paginator.page(ihe_page)
+        except PageNotAnInteger:
+            ihes = ihe_paginator.page(1)
+        context['ihes'] = ihes
+        return render(request, 'ihe.html', context)
+
     return render(request, 'ihe.html', {})
