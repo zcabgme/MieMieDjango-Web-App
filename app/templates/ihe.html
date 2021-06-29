@@ -114,21 +114,21 @@
     {% if ihes.has_other_pages %}
         <ul class="pagination">
             {% if ihes.has_previous %}
-                <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ 1 }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
-                <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.previous_page_number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
+                <li><a href="?ihePage={{ 1 }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                <li><a href="?ihePage={{ ihes.previous_page_number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
             {% endif %}
             {% for i in ihes.paginator.page_range %}
                 {% if i <= ihes.number|add:5 and i >= ihes.number|add:-5 %}
                     {% if ihes.number == i %}
                         <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
                     {% else %}
-                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ i }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+                        <li><a href="?ihePage={{ i }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
                     {% endif %}
                 {% endif %}
             {% endfor %}
             {% if ihes.has_next %}
-                <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.next_page_number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
-                <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.paginator.num_pages }}&{{ urlString }}">...Last ({{ ihes.paginator.num_pages }})</a></li>
+                <li><a href="?ihePage={{ ihes.next_page_number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                <li><a href="?ihePage={{ ihes.paginator.num_pages }}&{{ urlString }}">...Last ({{ ihes.paginator.num_pages }})</a></li>
             {% endif %}
         </ul>
     {% endif %}

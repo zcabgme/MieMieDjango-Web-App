@@ -686,8 +686,6 @@ def ihe(request):
 
         url_string = "b=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
         
-        if request.GET.get('iheBox') == "clicked":
-            url_string = url_string + "&iheBox=clicked"
         url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
         context['urlString'] = url_string
 
@@ -697,6 +695,8 @@ def ihe(request):
             ihes = ihe_paginator.page(ihe_page)
         except PageNotAnInteger:
             ihes = ihe_paginator.page(1)
+        except EmptyPage:
+            ihes = ihe_paginator.page(ihe_paginator.num_pages)
         context['ihes'] = ihes
         
         return render(request, 'ihe.html', context)
