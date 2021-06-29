@@ -146,30 +146,6 @@
     {% comment %} <table class="table table-striped">
         <thead style="text-align: center">
             <tr>
-                <th scope="col">Topic</th>
-                <th scope="col">Papers</th>
-                <th scope="col">People</th>
-            </tr>
-        </thead>
-        <tbody style="text-align: center; vertical-align: middle;">
-            {% for item in ihes %}
-                {% if item.assignedSDG %}
-                    {% for person, details in item.data.AuthorData.items %}
-                        <tr style="border-bottom: 1pt solid black">
-                            <td>{{ details.Name }}</td>
-                            <td>{{ item.assignedSDG.IHE_Prediction }}</td>
-                            <td><a href="{{ item.get_absolute_url }}">{{ item.assignedSDG.DOI|truncatechars:30 }}</a></td>
-                        </tr>
-
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-        </tbody>
-    </table> {% endcomment %}
-
-    <table class="table table-striped">
-        <thead style="text-align: center">
-            <tr>
                 <th scope="col">Name</th>
                 <th scope="col">Predicted</th>
                 <th scope="col">Department</th>
@@ -191,6 +167,6 @@
                 {% endif %}
             {% endfor %}
         </tbody>
-    </table>
+    </table> {% endcomment %}
 
 {% endblock %}

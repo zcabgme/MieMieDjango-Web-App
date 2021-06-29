@@ -306,14 +306,6 @@ def returnQuery(request, form, query, all_modules, all_publications):
     global_context = context
     return context
 
-def returnQueryIHE(request, form, query):
-    myFilter = Publication.objects.filter(data__icontains=query).distinct()
-    return {
-        'pub': myFilter,
-        'len_pub': myFilter.count(),
-        'form': form
-    }
-
 def iheVisualisation(request):
     client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     db = client.Scopus
@@ -673,7 +665,7 @@ def ihe(request):
         form[str(i)] = 'unselected'
 
     context = {
-        'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__IHE_Prediction=''),
+        'pub': Publication.objects.filter(assignedSDG__isnull=False),
         'lenPub': Publication.objects.count(),
         'form': form,
         'ihe_lookup': lookup
@@ -684,7 +676,7 @@ def ihe(request):
         context['form'] = getCheckBoxState_ihe(request, form, number_of_ihe)
 
         if query is not None and query != '' and len(query) != 0:
-            context = returnQueryIHE(request, form, query)
+            context['pub'] = context['pub'].filter(data__icontains=query).distinct()
 
         for key, val in form.items():
             if val == "selected" and key != "Default":
