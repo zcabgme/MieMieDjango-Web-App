@@ -74,7 +74,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for item in pub %}
+                {% for item in publications %}
                     <tr>
                         <td>{{ item.title  }}</td>
                         <td><a href="{{ item.get_absolute_url }}">More</a></td>
@@ -82,6 +82,28 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if publications.has_other_pages %}
+            <ul class="pagination">
+                {% if publications.has_previous %}
+                    <li><a href="?pubPage={{ 1 }}&modPage={{ modules.number }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.previous_page_number }}&modPage={{ modules.number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
+                {% endif %}
+                {% for i in publications.paginator.page_range %}
+                    {% if i <= publications.number|add:5 and i >= publications.number|add:-5 %}
+                        {% if publications.number == i %}
+                            <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+                        {% else %}
+                            <li><a href="?pubPage={{ i }}&modPage={{ modules.number }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if publications.has_next %}
+                    <li><a href="?pubPage={{ publications.next_page_number }}&modPage={{ modules.number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.paginator.num_pages }}&modPage={{ modules.number }}&{{ urlString }}">...Last ({{ publications.paginator.num_pages }})</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
     {% endif %}
 
     <br>
@@ -98,7 +120,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for item in mod %}
+                {% for item in modules %}
                     <tr>
                         <td>{{ item.Module_Name  }}</td>
                         <td>{{ item.Module_ID }}</td>
@@ -107,5 +129,27 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if modules.has_other_pages %}
+            <ul class="pagination">
+                {% if modules.has_previous %}
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ 1 }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.previous_page_number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
+                {% endif %}
+                {% for i in modules.paginator.page_range %}
+                    {% if i <= modules.number|add:5 and i >= modules.number|add:-5 %}
+                        {% if modules.number == i %}
+                            <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+                        {% else %}
+                            <li><a href="?pubPage={{ publications.number }}&modPage={{ i }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if modules.has_next %}
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.next_page_number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.paginator.num_pages }}&{{ urlString }}">...Last ({{ modules.paginator.num_pages }})</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
     {% endif %}
 {% endblock %}

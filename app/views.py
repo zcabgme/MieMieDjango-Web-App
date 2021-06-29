@@ -39,8 +39,8 @@ def app(request):
     global Publication_CSV_Data
     global global_context
 
-    all_modules = Module.objects.all()[:global_display_limit]
-    all_publications = Publication.objects.all()[:global_display_limit]
+    all_modules = Module.objects.all()
+    all_publications = Publication.objects.all()
 
 
     form = {"modBox": "unchecked", "pubBox": "unchecked", "ASC": "selected", "DESC": ""}
@@ -65,6 +65,31 @@ def app(request):
             Module_CSV_Data = None
             Publication_CSV_Data = None
 
+        url_string = "q=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
+        if request.GET.get('modBox') == "clicked":
+            url_string = url_string + "&modBox=clicked"
+        if request.GET.get('pubBox') == "clicked":
+            url_string = url_string + "&pubBox=clicked"
+
+        pub_paginator = Paginator(all_publications, 15)
+        mod_paginator = Paginator(all_modules, 15)
+
+        pub_page = request.GET.get('pubPage')
+        try:
+            publications = pub_paginator.page(pub_page)
+        except PageNotAnInteger:
+            publications = pub_paginator.page(1)
+        except EmptyPage:
+            publications = pub_paginator.page(pub_paginator.num_pages)
+
+        mod_page = request.GET.get('modPage')
+        try:
+            modules = mod_paginator.page(mod_page)
+        except PageNotAnInteger:
+            modules = mod_paginator.page(1)
+        except EmptyPage:
+            modules = mod_paginator.page(mod_paginator.num_pages)
+
     len_mod = Module.objects.count()
     len_pub = Publication.objects.count()
     context = {
@@ -73,7 +98,10 @@ def app(request):
         'len_mod': len_mod,
         'len_pub': len_pub,
         'len_total': len_mod + len_pub,
-        'form': form
+        'form': form,
+        'publications': publications,
+        'modules': modules,
+        'urlString': url_string
     }
     Module_CSV_Data = None
     Publication_CSV_Data = None
@@ -380,8 +408,6 @@ def sdg(request):
         except EmptyPage:
             ihes = ihe_paginator.page(mod_paginator.num_pages)
 
-        # print(type(ihes.paginator.page_range))
-
         context['publications'] = publications
         context['modules'] = modules
         context['ihes'] = ihes
@@ -559,6 +585,10 @@ def drawDonutChart(results):
     graphic = base64.b64encode(image_png)
     graphic = graphic.decode('utf-8')
     return graphic
+
+def truncate(n:float, decimals:int =0) -> float:
+    multiplier = 10 ** decimals
+    return int(n * multiplier) / multiplier
 
 def universal_SVM(request):
     global svm_context
