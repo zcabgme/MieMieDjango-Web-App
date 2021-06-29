@@ -636,7 +636,7 @@ def export_ihe_csv(request):
 
     if not IHE_CSV_Data:
         messages.success(request, ("No IHE publications to export! Please try again."))
-        return render(request, 'ihe.html', global_context)
+        return render(request, 'ihe.html', {})
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="ihe_publications.csv"'
@@ -646,7 +646,7 @@ def export_ihe_csv(request):
         writer.writerow(["Name", "Prediction", "DOI", "Abstract"])
     except:
         messages.success(request, ("No IHE publications to export! Please try again."))
-        return render(request, 'ihe.html', global_context)
+        return render(request, 'ihe.html', {})
 
     for paper in IHE_CSV_Data:
         first = True
