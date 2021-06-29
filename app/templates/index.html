@@ -6,16 +6,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'app' %}">UCL5 MieMie</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'sdg' %}">NLP Model</a> 
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'universal_SVM' %}">SVM Universal</a> 
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'bubble_chart' %}">Bubble Chart</a> 
+                    <a class="nav-link" href="{% url 'app' %}">Search Engine</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -26,25 +17,33 @@
                     <a class="dropdown-item" href="{% url 'export_publications_csv' %}">Export Publications to CSV</a>
                     </div>
                 </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        SDG
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'sdg' %}" target="_blank">View Data</a>
+                    <a class="dropdown-item" href="{% url 'universal_SVM' %}" target="_blank">SDG: SVM Universal</a>
+                    <a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        IHE
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'ihe' %}" target="_blank">View Data</a>
+                    <a class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart</a>
+                    <a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
+                    </div>
+                </li>
             </ul>
         </div>
     </nav>
-
-    <br>
-
-    <form action="{% url 'app' %}" method="POST">
-        {% csrf_token %}
-        <button style="margin-left: 30px" class="btn btn-primary" type="submit" value='Click' name="updateModuleData">Sync mod</button> 
-        <button style="margin-left: 30px" class="btn btn-primary" type="submit" value='Click' name="updatePublicationsFromMongoDB">Sync pub</button>
-    </form>
     
     <br>
+    <br>
 
-    {% comment %} <form method="POST"> 
-        
-    </form>  {% endcomment %}
-
-    {% comment %} SEARCH + CHECKBOXES {% endcomment %}
     <form action="{% url 'app' %}" method="GET" value="{{ request.GET.q }}">
         <input type="text" name="q" value="{{request.GET.q}}" placeholder="Search query"/> 
         <input type="submit" name="submit" value="Search"/> 

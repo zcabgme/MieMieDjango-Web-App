@@ -6,23 +6,25 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'app' %}">UCL5 MieMie</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'sdg' %}">NLP Model</a> 
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'universal_SVM' %}">SVM Universal</a> 
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'bubble_chart' %}">Bubble Chart</a> 
+                    <a class="nav-link" href="{% url 'app' %}">Search Engine</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Visualizations
+                    <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        SDG
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'sdg' %}" target="_blank">View Data</a>
+                    <a class="dropdown-item" href="{% url 'universal_SVM' %}" target="_blank">SDG: SVM Universal</a>
                     <a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        IHE
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'ihe' %}" target="_blank">View Data</a>
+                    <a class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart</a>
                     <a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
                     </div>
                 </li>
@@ -44,9 +46,6 @@
                 
                 <input type="checkbox" class="btn-check" id="btncheck2" autocomplete="off" value="clicked" name="pubBox" {{ form.pubBox }}>
                 <label class="btn btn-outline-primary" for="btncheck2">SDG Publications</label>
-
-                <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off" value="clicked" name="iheBox" {{ form.iheBox }}>
-                <label class="btn btn-outline-primary" for="btncheck3">IHE Publications</label>
             </div>
             <select name="sorting" class="form-select" aria-label="Default select example">
                 {% for opt, val in form.items %}
@@ -60,70 +59,11 @@
                     {% endif %}
                 {% endfor %}
             </select>
-            
         </form>
     </form>
 
     <br>  
     <br> 
-
-    {% if form.iheBox == 'checked' %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">DOI</th>
-                    <th></th>
-                    {% comment %} <th scope="col">AI & ML</th> {% endcomment %}
-                    <th title="AI & ML" scope="col">IHE 1</th>
-                    {% comment %} <th scope="col">Bioinformatics</th> {% endcomment %}
-                    <th title="Bioinformatics" scope="col">IHE 2</th>
-                    {% comment %} <th scope="col">Cybersecurity</th> {% endcomment %}
-                    <th title="Cybersecurity" scope="col">IHE 3</th>
-                    {% comment %} <th scope="col">Data Sciences</th> {% endcomment %}
-                    <th title="Data Sciences" scope="col">IHE 4</th>
-                    {% comment %} <th scope="col">Software Engineering</th> {% endcomment %}
-                    <th title="Software Engineering" scope="col">IHE 5</th>
-                    {% comment %} <th scope="col">Robotics</th> {% endcomment %}
-                    <th title="Robotics" scope="col">IHE 6</th>
-                    {% comment %} <th scope="col">Synthetic Biology</th> {% endcomment %}
-                    <th title="Synthetic Biology" scope="col">IHE 7</th>
-                    {% comment %} <th scope="col">Pharmacology & Pharmaceuticals</th> {% endcomment %}
-                    <th title="Pharmacology & Pharmaceuticals" scope="col">IHE 8</th>
-                    {% comment %} <th scope="col">Tissue Engineering</th> {% endcomment %}
-                    <th title="Tissue Engineering" scope="col">IHE 9</th>
-                    <th title="Regenerative Medicine" scope="col">IHE 10</th>
-                    <th scope="col">Predictions</th>
-
-                    {% comment %} <th title="Predictions" scope="col">IHE 10</th> {% endcomment %}
-                </tr>
-            </thead>
-            <tbody style="text-align: center; vertical-align: middle;">
-                {% for item in pub %}
-                    {% if item.assignedSDG %}
-                        <tr style="border-bottom: 1pt solid black">
-                            <td><a href="{{ item.get_absolute_url }}">{{ item.assignedSDG.DOI|truncatechars:10 }}</a></td>
-                            <td>LDA</td>
-                            <td>{{ item.assignedSDG.IHE.0 }}</td>
-                            <td>{{ item.assignedSDG.IHE.1 }}</td>
-                            <td>{{ item.assignedSDG.IHE.2 }}</td>
-                            <td>{{ item.assignedSDG.IHE.3 }}</td>
-                            <td>{{ item.assignedSDG.IHE.4 }}</td>
-                            <td>{{ item.assignedSDG.IHE.5 }}</td>
-                            <td>{{ item.assignedSDG.IHE.6 }}</td>
-                            <td>{{ item.assignedSDG.IHE.7 }}</td>
-                            <td>{{ item.assignedSDG.IHE.8 }}</td>
-                            <td>{{ item.assignedSDG.IHE.9 }}</td>
-                            {% comment %} {% if item.assignedSDG.ModelResult != ""%} {% endcomment %}
-                            <td>{{ item.assignedSDG.IHE_Prediction }}</td>
-                            {% comment %} {% else %}
-                                <td>None</td>
-                            {% endif %} {% endcomment %}
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
 
     {% comment %} PUBLICATION DATA DISPLAY TABLE {% endcomment %}
     {% if form.pubBox == 'checked' %}
@@ -157,7 +97,7 @@
                 </tr>
             </thead>
             <tbody style="text-align: center; vertical-align: middle;">
-                {% for item in pub %}
+                {% for item in publications %}
                     {% if item.assignedSDG %}
                         <tr>
                             {% if item.assignedSDG != None %}
@@ -232,6 +172,28 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if publications.has_other_pages %}
+            <ul class="pagination">
+                {% if publications.has_previous %}
+                    <li><a href="?pubPage={{ 1 }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.previous_page_number }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
+                {% endif %}
+                {% for i in publications.paginator.page_range %}
+                    {% if i <= publications.number|add:5 and i >= publications.number|add:-5 %}
+                        {% if publications.number == i %}
+                            <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+                        {% else %}
+                            <li><a href="?pubPage={{ i }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if publications.has_next %}
+                    <li><a href="?pubPage={{ publications.next_page_number }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.paginator.num_pages }}&modPage={{ modules.number }}&ihePage={{ ihes.number }}&{{ urlString }}">...Last ({{ publications.paginator.num_pages }})</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
     {% endif %}
 
     {% comment %} MODULE DATA DISPLAY TABLE {% endcomment %}
@@ -266,7 +228,7 @@
                 </tr>
             </thead>
             <tbody style="text-align: center; vertical-align: middle;">
-                {% for item in mod %}
+                {% for item in modules %}
                     <tr style="border-bottom: 1pt solid black">
                         {% if item.assignedSDG != None %}
                             <td style="border-right: 1pt solid black; border-left: 1pt solid black fill; background-color:rgba({{item.assignedSDG.Validation.ColorRed}}, {{item.assignedSDG.Validation.ColorGreen}}, {{item.assignedSDG.Validation.ColorBlue}}, 1);"></td>
@@ -338,6 +300,28 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if modules.has_other_pages %}
+            <ul class="pagination">
+                {% if modules.has_previous %}
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ 1 }}&ihePage={{ ihes.number }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.previous_page_number }}&ihePage={{ ihes.number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
+                {% endif %}
+                {% for i in modules.paginator.page_range %}
+                    {% if i <= modules.number|add:5 and i >= modules.number|add:-5 %}
+                        {% if modules.number == i %}
+                            <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+                        {% else %}
+                            <li><a href="?pubPage={{ publications.number }}&modPage={{ i }}&ihePage={{ ihes.number }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if modules.has_next %}
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.next_page_number }}&ihePage={{ ihes.number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.paginator.num_pages }}&ihePage={{ ihes.number }}&{{ urlString }}">...Last ({{ modules.paginator.num_pages }})</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
     {% endif %}
 
 {% endblock %}

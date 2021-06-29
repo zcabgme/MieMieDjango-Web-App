@@ -11,6 +11,7 @@ urlpatterns = [
     path('bubble_chart', views.bubble_chart, name='bubble_chart'),
     url(r'searchBubble/(?P<pk>\d+)/(?P<pk_alt>\d+)/$', views.searchBubble, name='searchBubble'),
     path('sdg', views.sdg, name='sdg'),
+    path('ihe', views.ihe, name='ihe'),
     path('svm_universal', views.universal_SVM, name='universal_SVM'),
     path('iheVisualisation', views.iheVisualisation, name='iheVisualisation'),
     path('sdgVisualisation', views.sdgVisualisation, name='sdgVisualisation'),

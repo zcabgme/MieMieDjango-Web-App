@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'app' %}">Search Engine</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        SDG
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'universal_SVM' %}" target="_blank">SDG: SVM Universal</a>
+                    <a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        IHE
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart</a>
+                    <a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+
+    <br>
+    
+    <form action="{% url 'sdg' %}" method="GET" value="{{ request.GET.b }}">
+        <input type="text" name="b" value="{{request.GET.q}}" placeholder="Search query"/> 
+        <input type="submit" name="submit" value="Search"/>
+
+        <br><br>
+        <form method="POST" action="#">
+             <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off" value="clicked" name="iheBox" {{ form.iheBox }}>
+                <label class="btn btn-outline-primary" for="btncheck3">IHE Publications</label>
+            </div>
+            {% comment %} <select name="sorting" class="form-select" aria-label="Default select example">
+                {% for opt, val in form.items %}
+                    {% if val == "selected" %}
+                        <option>{{ opt }}</option>
+                    {% endif %}
+                {% endfor %}
+                {% for opt, val in form.items %}
+                    {% if val == "unselected" %}
+                        <option>{{ opt }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select> {% endcomment %}
+            
+        </form>
+    </form>
+
+    <br>  
+    <br> 
+
+    {% if form.iheBox == 'checked' %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">DOI</th>
+                    <th></th>
+                    {% comment %} <th scope="col">AI & ML</th> {% endcomment %}
+                    <th title="AI & ML" scope="col">IHE 1</th>
+                    {% comment %} <th scope="col">Bioinformatics</th> {% endcomment %}
+                    <th title="Bioinformatics" scope="col">IHE 2</th>
+                    {% comment %} <th scope="col">Cybersecurity</th> {% endcomment %}
+                    <th title="Cybersecurity" scope="col">IHE 3</th>
+                    {% comment %} <th scope="col">Data Sciences</th> {% endcomment %}
+                    <th title="Data Sciences" scope="col">IHE 4</th>
+                    {% comment %} <th scope="col">Software Engineering</th> {% endcomment %}
+                    <th title="Software Engineering" scope="col">IHE 5</th>
+                    {% comment %} <th scope="col">Robotics</th> {% endcomment %}
+                    <th title="Robotics" scope="col">IHE 6</th>
+                    {% comment %} <th scope="col">Synthetic Biology</th> {% endcomment %}
+                    <th title="Synthetic Biology" scope="col">IHE 7</th>
+                    {% comment %} <th scope="col">Pharmacology & Pharmaceuticals</th> {% endcomment %}
+                    <th title="Pharmacology & Pharmaceuticals" scope="col">IHE 8</th>
+                    {% comment %} <th scope="col">Tissue Engineering</th> {% endcomment %}
+                    <th title="Tissue Engineering" scope="col">IHE 9</th>
+                    <th title="Regenerative Medicine" scope="col">IHE 10</th>
+                    <th scope="col">Predictions</th>
+                </tr>
+            </thead>
+            <tbody style="text-align: center; vertical-align: middle;">
+                {% for item in ihes %}
+                    {% if item.assignedSDG %}
+                        <tr style="border-bottom: 1pt solid black">
+                            <td><a href="{{ item.get_absolute_url }}">{{ item.assignedSDG.DOI|truncatechars:10 }}</a></td>
+                            <td>LDA</td>
+                            <td>{{ item.assignedSDG.IHE.0 }}</td>
+                            <td>{{ item.assignedSDG.IHE.1 }}</td>
+                            <td>{{ item.assignedSDG.IHE.2 }}</td>
+                            <td>{{ item.assignedSDG.IHE.3 }}</td>
+                            <td>{{ item.assignedSDG.IHE.4 }}</td>
+                            <td>{{ item.assignedSDG.IHE.5 }}</td>
+                            <td>{{ item.assignedSDG.IHE.6 }}</td>
+                            <td>{{ item.assignedSDG.IHE.7 }}</td>
+                            <td>{{ item.assignedSDG.IHE.8 }}</td>
+                            <td>{{ item.assignedSDG.IHE.9 }}</td>
+                            <td>{{ item.assignedSDG.IHE_Prediction }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if ihes.has_other_pages %}
+            <ul class="pagination">
+                {% if ihes.has_previous %}
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ 1 }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.previous_page_number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
+                {% endif %}
+                {% for i in ihes.paginator.page_range %}
+                    {% if i <= ihes.number|add:5 and i >= ihes.number|add:-5 %}
+                        {% if ihes.number == i %}
+                            <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+                        {% else %}
+                            <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ i }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if ihes.has_next %}
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.next_page_number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.paginator.num_pages }}&{{ urlString }}">...Last ({{ ihes.paginator.num_pages }})</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    {% endif %}
+
+{% endblock %}

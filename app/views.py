@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from NLP.PREPROCESSING.preprocessor import Preprocessor
 from NLP.PREPROCESSING.module_preprocessor import ModuleCataloguePreprocessor
 from NLP.SVM.sdg_svm import SdgSvm
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 import pyodbc, json, os, csv
 import pymongo
@@ -41,10 +42,6 @@ def app(request):
     all_modules = Module.objects.all()[:global_display_limit]
     all_publications = Publication.objects.all()[:global_display_limit]
 
-    if request.method == "POST":
-        updatePublicationsFromMongoDB(request)
-        updateModuleData(request)
-        return redirect('app')
 
     form = {"modBox": "unchecked", "pubBox": "unchecked", "ASC": "selected", "DESC": ""}
     len_mod = Module.objects.count()
@@ -324,11 +321,11 @@ def sdg(request):
     form = {"modBox": "unchecked", "pubBox": "unchecked", "iheBox": "unchecked",
                 "Default": "unselected", "ASC": "unselected", "DESC": "unselected"}
     context = {
-        'pub': Publication.objects.filter(assignedSDG__isnull=False),
+        'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__IHE_Prediction=''),
         'mod': Module.objects.filter(Description__isnull=False),
         'lenPub': Publication.objects.count(),
         'lenMod': Module.objects.count(),
-        'form': form
+        'form': form,
     }
 
     if request.method == 'GET':
@@ -345,18 +342,54 @@ def sdg(request):
             context['pub'] = sortSDG_results(form, context['pub'], ascending=False)
             context['mod'] = sortSDG_results(form, context['mod'], ascending=False)
 
+        url_string = "b=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
+        if request.GET.get('modBox') == "clicked":
+            url_string = url_string + "&modBox=clicked"
+        if request.GET.get('pubBox') == "clicked":
+            url_string = url_string + "&pubBox=clicked"
+        if request.GET.get('iheBox') == "clicked":
+            url_string = url_string + "&iheBox=clicked"
+        url_string = url_string + "&sorting=" + str(request.GET.get('sorting'))
+        context['urlString'] = url_string
+
+        pub_paginator = Paginator(context['pub'], 10)
+        mod_paginator = Paginator(context['mod'], 10)
+        ihe_paginator = Paginator(context['pub'], 10)
+
+        pub_page = request.GET.get('pubPage')
+        try:
+            publications = pub_paginator.page(pub_page)
+        except PageNotAnInteger:
+            publications = pub_paginator.page(1)
+        except EmptyPage:
+            publications = pub_paginator.page(pub_paginator.num_pages)
+
+        mod_page = request.GET.get('modPage')
+        try:
+            modules = mod_paginator.page(mod_page)
+        except PageNotAnInteger:
+            modules = mod_paginator.page(1)
+        except EmptyPage:
+            modules = mod_paginator.page(mod_paginator.num_pages)
+
+        ihe_page = request.GET.get('ihePage')
+        try:
+            ihes = ihe_paginator.page(ihe_page)
+        except PageNotAnInteger:
+            ihes = ihe_paginator.page(1)
+        except EmptyPage:
+            ihes = ihe_paginator.page(mod_paginator.num_pages)
+
+        # print(type(ihes.paginator.page_range))
+
+        context['publications'] = publications
+        context['modules'] = modules
+        context['ihes'] = ihes
+
+
         # Record the query results numbers
         context['lenMod'] = context['mod'].count()
         context['lenPub'] = context['pub'].count()
-
-        # for item in context['pub']:
-        #     item['assignedSDG'] = item['assignedSDG'][1:-1]
-
-            
-            # item['assignedSDG'] = item['assignedSDG'][1:] + item['assignedSDG'][:]
-
-        context['pub'] = context['pub'][:global_display_limit]
-        context['mod'] = context['mod'][:global_display_limit]
 
     return render(request, 'sdg.html', context)
 
@@ -556,3 +589,6 @@ def universal_SVM(request):
             return render(request, 'svm.html', {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None})
     
     return render(request, 'svm.html', svm_context)
+
+def ihe(request):
+    return render(request, 'ihe.html', {})
