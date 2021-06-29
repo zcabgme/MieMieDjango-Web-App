@@ -42,18 +42,6 @@
 
         <br><br>
         <form method="POST" action="#">
-             {% comment %} <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
-                <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off" value="clicked" name="iheBox" {{ form.iheBox }}>
-                <label class="btn btn-outline-primary" for="btncheck3">IHE Publications</label>
-            </div> {% endcomment %}
-            <br>
-            {% comment %} <select class="form-select" aria-label="Default select example">
-            <option selected>Select Predicted IHE</option>
-            <option value="1">IHE 1</option>
-            <option value="2">IHE 2</option>
-            <option value="3">IHE 3</option>
-            </select> {% endcomment %}
-
             <select name="prediction" class="form-select" aria-label="Default select example">
                 {% for opt, val in form.items %}
                     {% if val == "selected" %}
@@ -73,78 +61,103 @@
     <br>  
     <br> 
 
-    {% comment %} {% if form.iheBox == 'checked' %} {% endcomment %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">DOI</th>
-                    <th></th>
-                    {% comment %} <th scope="col">AI & ML</th> {% endcomment %}
-                    <th title="AI & ML" scope="col">IHE 1</th>
-                    {% comment %} <th scope="col">Bioinformatics</th> {% endcomment %}
-                    <th title="Bioinformatics" scope="col">IHE 2</th>
-                    {% comment %} <th scope="col">Cybersecurity</th> {% endcomment %}
-                    <th title="Cybersecurity" scope="col">IHE 3</th>
-                    {% comment %} <th scope="col">Data Sciences</th> {% endcomment %}
-                    <th title="Data Sciences" scope="col">IHE 4</th>
-                    {% comment %} <th scope="col">Software Engineering</th> {% endcomment %}
-                    <th title="Software Engineering" scope="col">IHE 5</th>
-                    {% comment %} <th scope="col">Robotics</th> {% endcomment %}
-                    <th title="Robotics" scope="col">IHE 6</th>
-                    {% comment %} <th scope="col">Synthetic Biology</th> {% endcomment %}
-                    <th title="Synthetic Biology" scope="col">IHE 7</th>
-                    {% comment %} <th scope="col">Pharmacology & Pharmaceuticals</th> {% endcomment %}
-                    <th title="Pharmacology & Pharmaceuticals" scope="col">IHE 8</th>
-                    {% comment %} <th scope="col">Tissue Engineering</th> {% endcomment %}
-                    <th title="Tissue Engineering" scope="col">IHE 9</th>
-                    <th title="Regenerative Medicine" scope="col">IHE 10</th>
-                    <th scope="col">Predictions</th>
-                </tr>
-            </thead>
-            <tbody style="text-align: center; vertical-align: middle;">
-                {% for item in ihes %}
-                    {% if item.assignedSDG %}
-                        <tr style="border-bottom: 1pt solid black">
-                            <td><a href="{{ item.get_absolute_url }}">{{ item.assignedSDG.DOI|truncatechars:10 }}</a></td>
-                            <td>LDA</td>
-                            <td>{{ item.assignedSDG.IHE.0 }}</td>
-                            <td>{{ item.assignedSDG.IHE.1 }}</td>
-                            <td>{{ item.assignedSDG.IHE.2 }}</td>
-                            <td>{{ item.assignedSDG.IHE.3 }}</td>
-                            <td>{{ item.assignedSDG.IHE.4 }}</td>
-                            <td>{{ item.assignedSDG.IHE.5 }}</td>
-                            <td>{{ item.assignedSDG.IHE.6 }}</td>
-                            <td>{{ item.assignedSDG.IHE.7 }}</td>
-                            <td>{{ item.assignedSDG.IHE.8 }}</td>
-                            <td>{{ item.assignedSDG.IHE.9 }}</td>
-                            <td>{{ item.assignedSDG.IHE_Prediction }}</td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
+    <table class="table table-striped">
+        <thead style="text-align: center">
+            <tr>
+                <th scope="col">DOI</th>
+                <th></th>
+                {% comment %} <th scope="col">AI & ML</th> {% endcomment %}
+                <th title="AI & ML" scope="col">IHE 1</th>
+                {% comment %} <th scope="col">Bioinformatics</th> {% endcomment %}
+                <th title="Bioinformatics" scope="col">IHE 2</th>
+                {% comment %} <th scope="col">Cybersecurity</th> {% endcomment %}
+                <th title="Cybersecurity" scope="col">IHE 3</th>
+                {% comment %} <th scope="col">Data Sciences</th> {% endcomment %}
+                <th title="Data Sciences" scope="col">IHE 4</th>
+                {% comment %} <th scope="col">Software Engineering</th> {% endcomment %}
+                <th title="Software Engineering" scope="col">IHE 5</th>
+                {% comment %} <th scope="col">Robotics</th> {% endcomment %}
+                <th title="Robotics" scope="col">IHE 6</th>
+                {% comment %} <th scope="col">Synthetic Biology</th> {% endcomment %}
+                <th title="Synthetic Biology" scope="col">IHE 7</th>
+                {% comment %} <th scope="col">Pharmacology & Pharmaceuticals</th> {% endcomment %}
+                <th title="Pharmacology & Pharmaceuticals" scope="col">IHE 8</th>
+                {% comment %} <th scope="col">Tissue Engineering</th> {% endcomment %}
+                <th title="Tissue Engineering" scope="col">IHE 9</th>
+                <th title="Regenerative Medicine" scope="col">IHE 10</th>
+                <th scope="col">Prediction</th>
+            </tr>
+        </thead>
+        <tbody style="text-align: center; vertical-align: middle;">
+            {% for item in ihes %}
+                {% if item.assignedSDG %}
+                    <tr style="border-bottom: 1pt solid black">
+                        <td><a href="{{ item.get_absolute_url }}">{{ item.assignedSDG.DOI|truncatechars:10 }}</a></td>
+                        <td>LDA</td>
+                        <td>{{ item.assignedSDG.IHE.0 }}</td>
+                        <td>{{ item.assignedSDG.IHE.1 }}</td>
+                        <td>{{ item.assignedSDG.IHE.2 }}</td>
+                        <td>{{ item.assignedSDG.IHE.3 }}</td>
+                        <td>{{ item.assignedSDG.IHE.4 }}</td>
+                        <td>{{ item.assignedSDG.IHE.5 }}</td>
+                        <td>{{ item.assignedSDG.IHE.6 }}</td>
+                        <td>{{ item.assignedSDG.IHE.7 }}</td>
+                        <td>{{ item.assignedSDG.IHE.8 }}</td>
+                        <td>{{ item.assignedSDG.IHE.9 }}</td>
+                        <td>{{ item.assignedSDG.IHE_Prediction }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
 
-        {% if ihes.has_other_pages %}
-            <ul class="pagination">
-                {% if ihes.has_previous %}
-                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ 1 }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
-                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.previous_page_number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
-                {% endif %}
-                {% for i in ihes.paginator.page_range %}
-                    {% if i <= ihes.number|add:5 and i >= ihes.number|add:-5 %}
-                        {% if ihes.number == i %}
-                            <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
-                        {% else %}
-                            <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ i }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
-                        {% endif %}
+    {% if ihes.has_other_pages %}
+        <ul class="pagination">
+            {% if ihes.has_previous %}
+                <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ 1 }}&{{ urlString }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+                <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.previous_page_number }}&{{ urlString }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
+            {% endif %}
+            {% for i in ihes.paginator.page_range %}
+                {% if i <= ihes.number|add:5 and i >= ihes.number|add:-5 %}
+                    {% if ihes.number == i %}
+                        <li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+                    {% else %}
+                        <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ i }}&{{ urlString }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
                     {% endif %}
-                {% endfor %}
-                {% if ihes.has_next %}
-                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.next_page_number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
-                    <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.paginator.num_pages }}&{{ urlString }}">...Last ({{ ihes.paginator.num_pages }})</a></li>
                 {% endif %}
-            </ul>
-        {% endif %}
-    {% comment %} {% endif %} {% endcomment %}
+            {% endfor %}
+            {% if ihes.has_next %}
+                <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.next_page_number }}&{{ urlString }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+                <li><a href="?pubPage={{ publications.number }}&modPage={{ modules.number }}&ihePage={{ ihes.paginator.num_pages }}&{{ urlString }}">...Last ({{ ihes.paginator.num_pages }})</a></li>
+            {% endif %}
+        </ul>
+    {% endif %}
+    
+    <br>  
+    <br> 
+
+    <table class="table table-striped">
+        <thead style="text-align: center">
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Prediction</th>
+                <th scope="col">DOI</th>
+            </tr>
+        </thead>
+        <tbody style="text-align: center; vertical-align: middle;">
+            {% for item in ihes %}
+                {% if item.assignedSDG %}
+                    {% for person, details in item.data.AuthorData.items %}
+                        <tr style="border-bottom: 1pt solid black">
+                            <td>{{ details.Name }}</td>
+                            <td>{{ item.assignedSDG.IHE_Prediction }}</td>
+                            <td><a href="{{ item.get_absolute_url }}">{{ item.assignedSDG.DOI|truncatechars:30 }}</a></td>
+                        </tr>
+
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock %}

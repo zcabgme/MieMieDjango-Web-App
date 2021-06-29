@@ -307,12 +307,17 @@ def returnQuery(request, form, query, all_modules, all_publications):
         context = allSearch(request, query, all_modules, all_publications, form)
         Module_CSV_Data = context["mod"]
         Publication_CSV_Data = context["pub"]
-    elif form['iheBox'] == "checked" and form['pubBox'] == "unchecked":
-        context = publicationSearch(request, query, all_modules, form)
-        Module_CSV_Data = None
 
     global_context = context
     return context
+
+def returnQueryIHE(request, form, query):
+    myFilter = Publication.objects.filter(data__icontains=query).distinct()
+    return {
+        'pub': myFilter,
+        'len_pub': myFilter.count(),
+        'form': form
+    }
 
 def iheVisualisation(request):
     client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
@@ -644,11 +649,10 @@ def ihe(request):
         context['form'] = getCheckBoxState_ihe(request, form, number_of_ihe)
 
         if query is not None and query != '' and len(query) != 0:
-            context = returnQuery(request, form, query, None, context['pub'])
+            context = returnQueryIHE(request, form, query)
 
         for key, val in form.items():
             if val == "selected" and key != "Default":
-                print(key, val)
                 context['pub'] = filter_ihe_by_prediction(context['pub'], key)
 
         url_string = "b=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
