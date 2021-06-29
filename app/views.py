@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template.defaulttags import register
 
 import pyodbc, json, os, csv, time
 from io import BytesIO, StringIO
@@ -658,10 +659,27 @@ def export_ihe_csv(request):
 
     return response
 
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
 def ihe(request):
     global IHE_CSV_Data
     form = {"Default": "unselected"}
     number_of_ihe = 10
+
+    lookup = {
+        "1": "AI and Machine Learning",
+        "2": "Bioinformatics",
+        "3": "Cybersecurity",
+        "4": "Data Sciences",
+        "5": "Software Engineering",
+        "6": "Robotics",
+        "7": "Synthetic Biology",
+        "8": "Pharmacology & Pharmaceuticals",
+        "9": "Tissue Engineering",
+        "10": "Regenerative Medicine"
+    }
 
     for i in range(1, number_of_ihe+1):
         form[str(i)] = 'unselected'
@@ -670,6 +688,7 @@ def ihe(request):
         'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__IHE_Prediction=''),
         'lenPub': Publication.objects.count(),
         'form': form,
+        'ihe_lookup': lookup
     }
 
     if request.method == 'GET':
