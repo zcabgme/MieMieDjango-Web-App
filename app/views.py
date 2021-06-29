@@ -29,7 +29,7 @@ import numpy as np
 import time, json
 
 svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
-Module_CSV_Data, Publication_CSV_Data = None, None
+Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 global_context = {}
 UCL_AffiliationID = "60022148"
 lda_threshold, svm_threshold, global_display_limit = 30, 30, 150
@@ -631,7 +631,41 @@ def getCheckBoxState_ihe(request, form, number_of_ihe):
 def filter_ihe_by_prediction(context, key):
     return context.filter(assignedSDG__IHE_Prediction=key)
 
+def export_ihe_csv(request):
+    global IHE_CSV_Data
+
+    if not IHE_CSV_Data:
+        messages.success(request, ("No IHE publications to export! Please try again."))
+        return render(request, 'ihe.html', global_context)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="ihe_publications.csv"'
+
+    try:
+        writer = csv.writer(response)
+        writer.writerow(["Name", "Prediction", "DOI", "Abstract"])
+    except:
+        messages.success(request, ("No IHE publications to export! Please try again."))
+        return render(request, 'ihe.html', global_context)
+
+    for paper in IHE_CSV_Data:
+        first = True
+        author_data = paper.data['AuthorData']
+        Prediction = paper.assignedSDG['IHE_Prediction']
+        DOI = paper.data['DOI']
+        Abstract = paper.data['Abstract']
+
+        for author_id, values in author_data.items():
+            if first:
+                writer.writerow([values['Name'], Prediction, DOI, Abstract])
+                first = False
+            else:
+                writer.writerow([values['Name'], "", "", ""])
+
+    return response
+
 def ihe(request):
+    global IHE_CSV_Data
     form = {"Default": "unselected"}
     number_of_ihe = 10
 
@@ -655,11 +689,13 @@ def ihe(request):
             if val == "selected" and key != "Default":
                 context['pub'] = filter_ihe_by_prediction(context['pub'], key)
 
+        IHE_CSV_Data = context['pub']
+
         url_string = "b=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
         
         if request.GET.get('iheBox') == "clicked":
             url_string = url_string + "&iheBox=clicked"
-        url_string = url_string + "&sorting=" + str(request.GET.get('sorting'))
+        url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
         context['urlString'] = url_string
 
         ihe_paginator = Paginator(context['pub'], 10)
@@ -669,6 +705,7 @@ def ihe(request):
         except PageNotAnInteger:
             ihes = ihe_paginator.page(1)
         context['ihes'] = ihes
+        
         return render(request, 'ihe.html', context)
 
     return render(request, 'ihe.html', {})
