@@ -233,8 +233,10 @@ def clearEmptySDG_assignments():
 def getCheckBoxState(request, form):
     # For SDG section, function reused (checkboxes and drop-down menu)
     form['Default'] = "selected" if request.GET.get('sorting') == "Default" else "unselected"
-    form['ASC'] = "selected" if request.GET.get('sorting') == "ASC" else "unselected"
-    form['DESC'] = "selected" if request.GET.get('sorting') == "DESC" else "unselected"
+    if 'ASC' in form:
+        form['ASC'] = "selected" if request.GET.get('sorting') == "ASC" else "unselected"
+    if 'DESC' in form:
+        form['DESC'] = "selected" if request.GET.get('sorting') == "DESC" else "unselected"
 
     # For main page checkboxes
     form['modBox'] = "checked" if request.GET.get('modBox') == "clicked" else "unchecked"
@@ -616,8 +618,21 @@ def universal_SVM(request):
     
     return render(request, 'svm.html', svm_context)
 
+def getCheckBoxState_ihe(request, form, number_of_ihe):
+    for i in range(1, number_of_ihe+1):
+        form[str(i)] = "selected" if request.GET.get('prediction') == str(i) else "unselected"
+    return form
+
+def filter_ihe_by_prediction(context, key):
+    return context.filter(assignedSDG__IHE_Prediction=key)
+
 def ihe(request):
-    form = {"iheBox": "unchecked"}
+    form = {"Default": "unselected"}
+    number_of_ihe = 10
+
+    for i in range(1, number_of_ihe+1):
+        form[str(i)] = 'unselected'
+
     context = {
         'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__IHE_Prediction=''),
         'lenPub': Publication.objects.count(),
@@ -625,8 +640,16 @@ def ihe(request):
     }
 
     if request.method == 'GET':
-        query = request.GET.get('b')
-        context['form'] = getCheckBoxState(request, form)
+        query = request.GET.get('c')
+        context['form'] = getCheckBoxState_ihe(request, form, number_of_ihe)
+
+        if query is not None and query != '' and len(query) != 0:
+            context = returnQuery(request, form, query, None, context['pub'])
+
+        for key, val in form.items():
+            if val == "selected" and key != "Default":
+                print(key, val)
+                context['pub'] = filter_ihe_by_prediction(context['pub'], key)
 
         url_string = "b=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
         

@@ -13,6 +13,7 @@
                         SDG
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'sdg' %}" target="_blank">View Data</a>
                     <a class="dropdown-item" href="{% url 'universal_SVM' %}" target="_blank">SDG: SVM Universal</a>
                     <a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
                     </div>
@@ -22,6 +23,7 @@
                         IHE
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'ihe' %}" target="_blank">View Data</a>
                     <a class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart</a>
                     <a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
                     </div>
@@ -32,18 +34,27 @@
     </nav>
 
     <br>
+
     
-    <form action="{% url 'ihe' %}" method="GET" value="{{ request.GET.b }}">
-        <input type="text" name="b" value="{{request.GET.q}}" placeholder="Search query"/> 
+    <form action="{% url 'ihe' %}" method="GET" value="{{ request.GET.c }}">
+        <input type="text" name="c" value="{{request.GET.q}}" placeholder="Search query"/> 
         <input type="submit" name="submit" value="Search"/>
 
         <br><br>
         <form method="POST" action="#">
-             <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+             {% comment %} <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
                 <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off" value="clicked" name="iheBox" {{ form.iheBox }}>
                 <label class="btn btn-outline-primary" for="btncheck3">IHE Publications</label>
-            </div>
-            {% comment %} <select name="sorting" class="form-select" aria-label="Default select example">
+            </div> {% endcomment %}
+            <br>
+            {% comment %} <select class="form-select" aria-label="Default select example">
+            <option selected>Select Predicted IHE</option>
+            <option value="1">IHE 1</option>
+            <option value="2">IHE 2</option>
+            <option value="3">IHE 3</option>
+            </select> {% endcomment %}
+
+            <select name="prediction" class="form-select" aria-label="Default select example">
                 {% for opt, val in form.items %}
                     {% if val == "selected" %}
                         <option>{{ opt }}</option>
@@ -54,7 +65,7 @@
                         <option>{{ opt }}</option>
                     {% endif %}
                 {% endfor %}
-            </select> {% endcomment %}
+            </select>
             
         </form>
     </form>
@@ -62,7 +73,7 @@
     <br>  
     <br> 
 
-    {% if form.iheBox == 'checked' %}
+    {% comment %} {% if form.iheBox == 'checked' %} {% endcomment %}
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -134,6 +145,6 @@
                 {% endif %}
             </ul>
         {% endif %}
-    {% endif %}
+    {% comment %} {% endif %} {% endcomment %}
 
 {% endblock %}
