@@ -24,7 +24,8 @@ import matplotlib
 matplotlib.use('Agg')
 
 
-global_context, svm_context = {}, {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
+global_context = {}
+svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, global_display_limit = 30, 30, 150
 
@@ -54,8 +55,7 @@ def app(request):
         query = request.GET.get('q')
         form = getCheckBoxState(request, form)
         if query is not None and query != '' and len(query) != 0:
-            c = returnQuery(request, form, query, all_modules, all_publications)
-            return render(request, 'index.html', c)
+            context = returnQuery(request, form, query, all_modules, all_publications)
         else:
             Module_CSV_Data = None
             Publication_CSV_Data = None
@@ -65,9 +65,9 @@ def app(request):
             url_string = url_string + "&modBox=clicked"
         if request.GET.get('pubBox') == "clicked":
             url_string = url_string + "&pubBox=clicked"
-
-        pub_paginator = Paginator(all_publications, 15)
-        mod_paginator = Paginator(all_modules, 15)
+    
+        pub_paginator = Paginator(context['pub'], 15)
+        mod_paginator = Paginator(context['mod'], 15)
 
         pub_page = request.GET.get('pubPage')
         try:
@@ -88,8 +88,6 @@ def app(request):
     len_mod = Module.objects.count()
     len_pub = Publication.objects.count()
     context = {
-        'mod': all_modules,
-        'pub': all_publications,
         'len_mod': len_mod,
         'len_pub': len_pub,
         'len_total': len_mod + len_pub,
@@ -227,7 +225,8 @@ def clearEmptySDG_assignments():
 
 def getCheckBoxState(request, form):
     # For SDG section, function reused (checkboxes and drop-down menu)
-    form['Default'] = "selected" if request.GET.get('sorting') == "Default" else "unselected"
+    if 'Default' in form:
+        form['Default'] = "selected" if request.GET.get('sorting') == "Default" else "unselected"
     if 'ASC' in form:
         form['ASC'] = "selected" if request.GET.get('sorting') == "ASC" else "unselected"
     if 'DESC' in form:
@@ -259,7 +258,8 @@ def moduleSearch(request, query, all_publications, form):
 def publicationSearch(request, query, all_modules, form):
     myFilter = Publication.objects.filter(data__icontains=query).distinct()
     len_mod = Module.objects.count()
-    len_pub = myFilter.count()
+    len_pub = myFilter.count()    
+
     return {
         'mod': all_modules,
         'pub': myFilter,
@@ -347,7 +347,7 @@ def sdg(request):
     form = {"modBox": "unchecked", "pubBox": "unchecked",
                 "Default": "unselected", "ASC": "unselected", "DESC": "unselected"}
     context = {
-        'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__IHE_Prediction=''),
+        'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__SVM_Prediction=''),
         'mod': Module.objects.filter(Description__isnull=False),
         'lenPub': Publication.objects.count(),
         'lenMod': Module.objects.count(),
@@ -373,14 +373,12 @@ def sdg(request):
             url_string = url_string + "&modBox=clicked"
         if request.GET.get('pubBox') == "clicked":
             url_string = url_string + "&pubBox=clicked"
-        if request.GET.get('iheBox') == "clicked":
-            url_string = url_string + "&iheBox=clicked"
+
         url_string = url_string + "&sorting=" + str(request.GET.get('sorting'))
         context['urlString'] = url_string
 
         pub_paginator = Paginator(context['pub'], 10)
         mod_paginator = Paginator(context['mod'], 10)
-        ihe_paginator = Paginator(context['pub'], 10)
 
         pub_page = request.GET.get('pubPage')
         try:
@@ -398,18 +396,8 @@ def sdg(request):
         except EmptyPage:
             modules = mod_paginator.page(mod_paginator.num_pages)
 
-        ihe_page = request.GET.get('ihePage')
-        try:
-            ihes = ihe_paginator.page(ihe_page)
-        except PageNotAnInteger:
-            ihes = ihe_paginator.page(1)
-        except EmptyPage:
-            ihes = ihe_paginator.page(mod_paginator.num_pages)
-
         context['publications'] = publications
         context['modules'] = modules
-        context['ihes'] = ihes
-
 
         # Record the query results numbers
         context['lenMod'] = context['mod'].count()
