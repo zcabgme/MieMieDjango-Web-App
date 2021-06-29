@@ -684,7 +684,7 @@ def ihe(request):
 
         IHE_CSV_Data = context['pub']
 
-        url_string = "b=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
+        url_string = "c=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
         
         url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
         context['urlString'] = url_string
