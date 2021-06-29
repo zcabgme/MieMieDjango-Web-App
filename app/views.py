@@ -1,3 +1,7 @@
+from NLP.SVM.sdg_svm import SdgSvm
+from NLP.PREPROCESSING.module_preprocessor import ModuleCataloguePreprocessor
+from NLP.PREPROCESSING.preprocessor import Preprocessor
+
 from django.core import serializers
 from django.shortcuts import render, redirect
 from django.db.models.expressions import RawSQL
@@ -6,33 +10,23 @@ from django.views import View
 from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
-from NLP.PREPROCESSING.preprocessor import Preprocessor
-from NLP.PREPROCESSING.module_preprocessor import ModuleCataloguePreprocessor
-from NLP.SVM.sdg_svm import SdgSvm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-import pyodbc, json, os, csv
-import pymongo
-import pickle
+import pyodbc, json, os, csv, time
 from io import BytesIO, StringIO
-import base64
-from bson import json_util
+from colorsys import hsv_to_rgb
 import matplotlib.pyplot as plt
+from bson import json_util
+import pymongo, pickle, base64
+import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 
-import io
-from colorsys import hsv_to_rgb
-import numpy as np
 
-
-import time, json
-
-svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
+global_context, svm_context = {}, {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
-global_context = {}
-UCL_AffiliationID = "60022148"
 lda_threshold, svm_threshold, global_display_limit = 30, 30, 150
+
 
 def app(request):
     global Module_CSV_Data
@@ -519,7 +513,7 @@ def export_publications_csv(request):
                 name = AuthorData[id_]['Name']
                 affiliationID = AuthorData[id_]['AffiliationID']
                 affiliationName = AuthorData[id_]['AffiliationName']
-                if affiliationID  == UCL_AffiliationID:
+                if affiliationID == "60022148":
                     if affiliationName:
                         UCLAuthorsData.append(name + "(" + affiliationName + ")")
                     else:
@@ -544,9 +538,9 @@ def unpickle_svm_model():
     with open("NLP/SVM/model.pkl", "rb") as input_file:
         return pickle.load(input_file)
 
-svm = unpickle_svm_model()
-
 def make_SVM_prediction(text, processor):
+    svm = unpickle_svm_model()
+
     if processor == "module":
         preprocessor = ModuleCataloguePreprocessor()
     else:
