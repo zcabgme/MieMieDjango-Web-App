@@ -1,67 +1,109 @@
 {
-    "1": 5.1,
-    "2": 5.1,
-    "3": 9.5,
-    "4": 5.1,
-    "5": 5.1,
-    "6": 5.1,
-    "7": 5.1,
-    "8": 5.1,
-    "9": 5.1,
-    "10": 5.1,
-    "11": 8.4,
-    "12": 5.1,
-    "13": 5.1,
-    "14": 5.1,
-    "15": 5.1,
-    "16": 5.1,
-    "17": 5.1,
-    "18": 5.1,
-    "SVM": [
-        4.7,
-        3.6,
-        14.3,
-        1.7,
-        2.1,
-        2.6,
-        6.0,
-        4.1,
-        2.5,
-        3.5,
-        24.7,
-        2.5,
-        5.5,
-        2.3,
-        10.7,
-        3.6,
-        2.3,
-        2.3
-    ],
-    "Module_ID": "SURG0011",
-    "Validation": {
-        "Similarity": 0.6248372656597262,
-        "SDG_Keyword_Counts": [
-            1,
-            1,
-            2,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            3,
-            1,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1
-        ]
+    "Art": {
+        "No": null
     },
-    "ModelResult": "",
-    "StringResult": "10",
-    "SVM_Prediction": ""
+    "DOI": "10.1016/j.vaccine.2015.10.081",
+    "EID": "2-s2.0-84951567361",
+    "Link": "https://www.scopus.com/inward/record.uri?partnerID=HzOxMe3b&scp=84951567361&origin=inward",
+    "Year": 2015,
+    "Issue": 48,
+    "Title": "Functional anti-polysaccharide IgG titres induced by unadjuvanted pneumococcal-conjugate vaccine when delivered by microprojection-based skin patch",
+    "Source": "Vaccine",
+    "Volume": "33",
+    "CitedBy": 11,
+    "PageEnd": 6683,
+    "Abstract": "© 2015 Elsevier Ltd.Adequate access to effective and affordable vaccines is essential for the prevention of mortality due to infectious disease. Pneumonia - a consequence of Streptococcus pneumoniae infection - is the world's leading cause of death in children aged under 5 years. The development of a needle-free, thermostable pneumococcal-conjugate vaccine (PCV) could revolutionise the field by reducing cold-chain and delivery constraints. Skin patches have been used to deliver a range of vaccines, with some inducing significantly higher vaccine-specific immunogenicity than needle-injected controls in pre-clinical models, though they have yet to be used to deliver a PCV. We dry-coated a licensed PCV onto a microprojection-based patch (the Nanopatch) and delivered it to mouse skin. We analysed resulting anti-polysaccharide IgG responses. With and without adjuvant, anti-polysaccharide IgG titres induced by Nanopatch immunisation were significantly higher than dose-matched intramuscular controls. These improved responses were primarily obtained against pneumococcal serotypes 4 and 14. Importantly, capsule-specific IgG correlated with functionality in an opsonophagocytic killing assay. We demonstrate enhanced anti-PCV immunogenicity when delivered by Nanopatch over intramuscular injection. As the first study of a PCV delivered by a skin vaccination technology, this report indicates the potential for reduced costs and greater global distribution of such a vaccine.",
+    "PageStart": 6675,
+    "AuthorData": {
+        "7102190212": {
+            "Name": "Goldblatt D.",
+            "AuthorID": "7102190212",
+            "AffiliationID": "60012662, 60022148",
+            "AffiliationName": "WHO Pneumococcal Serology Reference Laboratory, Immunobiology Section, University College London, Institute of Child Health"
+        },
+        "7201638728": {
+            "Name": "Kendall M.A.F.",
+            "AuthorID": "7201638728",
+            "AffiliationID": "60031004, 60028435, 60110780",
+            "AffiliationName": "Faculty of Medicine and Biomedical Sciences, University of Queensland, Centre for Clinical Research, Royal Brisbane and Women's Hospital"
+        },
+        "22137139800": {
+            "Name": "Zancolli M.",
+            "AuthorID": "22137139800",
+            "AffiliationID": "60012662, 60022148",
+            "AffiliationName": "WHO Pneumococcal Serology Reference Laboratory, Immunobiology Section, University College London, Institute of Child Health"
+        },
+        "26023657200": {
+            "Name": "Pearson F.E.",
+            "AuthorID": "26023657200",
+            "AffiliationID": "60031004",
+            "AffiliationName": "University of Queensland, Delivery of Drugs and Genes Group, Australian Institute for Bioengineering and Nanotechnology"
+        },
+        "56270806300": {
+            "Name": "Roalfe L.",
+            "AuthorID": "56270806300",
+            "AffiliationID": "60012662, 60022148",
+            "AffiliationName": "WHO Pneumococcal Serology Reference Laboratory, Immunobiology Section, University College London, Institute of Child Health"
+        },
+        "57205673245": {
+            "Name": "Muller D.A.",
+            "AuthorID": "57205673245",
+            "AffiliationID": "60031004",
+            "AffiliationName": "University of Queensland, Delivery of Drugs and Genes Group, Australian Institute for Bioengineering and Nanotechnology"
+        }
+    },
+    "OpenAccess": 0,
+    "DocumentType": "Journal",
+    "SubjectAreas": [
+        [
+            "Molecular Medicine",
+            "BIOC",
+            "1313"
+        ],
+        [
+            "Immunology and Microbiology (all)",
+            "IMMU",
+            "2400"
+        ],
+        [
+            "Veterinary (all)",
+            "VETE",
+            "3400"
+        ],
+        [
+            "Public Health, Environmental and Occupational Health",
+            "MEDI",
+            "2739"
+        ],
+        [
+            "Infectious Diseases",
+            "MEDI",
+            "2725"
+        ]
+    ],
+    "IndexKeywords": [
+        "Adjuvants, Immunologic",
+        "Administration, Cutaneous",
+        "Animals",
+        "Antibodies, Bacterial",
+        "Female",
+        "Immunoglobulin G",
+        "Injections, Intramuscular",
+        "Mice, Inbred BALB C",
+        "Opsonin Proteins",
+        "Phagocytosis",
+        "Pneumococcal Vaccines",
+        "Polysaccharides, Bacterial",
+        "Streptococcus pneumoniae",
+        "Vaccines, Conjugate"
+    ],
+    "AuthorKeywords": [
+        "Microprojection",
+        "Opsonophagocytic killing assay",
+        "Pneumococcal-conjugate vaccine",
+        "Polysaccharide",
+        "Skin vaccination",
+        "Vaccine delivery"
+    ],
+    "PublicationStage": null
 }

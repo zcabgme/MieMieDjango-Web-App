@@ -101,49 +101,6 @@ def app(request):
     global_context = context
     return render(request, 'index.html', context)
 
-def create_bubble(contents):
-    for i in contents:
-        if len(contents[i]['list_of_people']) != 0:
-            list_of_ppl = str(contents[i]['list_of_people']).replace('[', '').replace(']', '').replace(' ', '')
-            temp = i.replace('(', '').replace(')', '')
-            elem = tuple(map(int, temp.split(', ')))
-            obj, created = Bubble.objects.get_or_create(
-                coordinate_approach_id=elem[0],
-                coordinate_speciality_id=elem[1],
-                color=contents[i]['color'],
-                list_of_people=list_of_ppl.replace('\'', '')
-            )
-
-def update_bubble_chart_data(request):
-    status_list = Status.objects.all()
-    approach_list = Approach.objects.all()
-    specialty_list = Specialty.objects.all()
-    colors = Color.objects.all()
-
-    with open('data.json') as json_file:
-        data = json.load(json_file)
-    
-    new_bubble = {}
-
-    print("STARTED SYNC")
-
-    for i in approach_list:
-        for j in specialty_list:
-            new_bubble[str((i.id, j.id))] = {}
-            new_bubble[str((i.id, j.id))]['color'] = j.color
-            new_bubble[str((i.id, j.id))]['list_of_people'] = []
-
-    for i in data:
-        if i['model'] == 'digitalhealth.userprofile':
-            email = i['pk']
-            approach = i['fields']['approach']
-            speciality = i['fields']['specialty']
-
-            for app in approach:
-                for spe in speciality:
-                    new_bubble[str((app, spe))]['list_of_people'].append(email)
-    create_bubble(new_bubble)
-
 def bubble_chart(request):
     t0 = time.time()
 
@@ -161,8 +118,6 @@ def bubble_chart(request):
 
     numSpecialty, numApproach = 0, 0
     
-    # t1 = time.time()-t0
-    # print(t1)
     for color in colors:
         specialty_dict = {}
         for specialty in specialty_list.filter(color=color):
@@ -170,15 +125,9 @@ def bubble_chart(request):
             numSpecialty += 1
         color_dict[color] = specialty_dict
 
-    # t2 = time.time()-t1
-    # print(t2)
     for approach in approach_list:
         approach_dict[approach] = numApproach
         numApproach += 1
-
-    # t3 = time.time()-t2
-    # print(t3)
-
 
     CONST_1 = 45
     case = {
@@ -204,16 +153,69 @@ def bubble_chart(request):
 
         if areaNum not in case: bubble_dict[bubble] = [specialty_index - 4, approach_index - 5, 45]
         else: bubble_dict[bubble] = [case[areaNum][0] + specialty_index, case[areaNum][1] + approach_index, case[areaNum][2]]
- 
-        # else: bubbleList = case[areaNum]
         
     context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
                'color_dict': color_dict, 'verticalLength': approachNum + 1, 'horizontalLength': specialtyNum + 1}
 
-    t4 = time.time()-t0
-    print(t4)
-    return render(request, 'bubble_chart.html', context)
-    
+    return render(request, 'bubble_chart.html', context)    
+
+def bubble_chart_act(request):
+    approach_list = ApproachAct.objects.all()
+    specialty_list = SpecialtyAct.objects.all()
+    colors = ColorAct.objects.all()
+    bubbles = BubbleAct.objects.all()
+    people = UserProfileAct.objects.all().count()
+
+    approachNum = approach_list.count()
+    specialtyNum = specialty_list.count()
+
+    color_dict = {}
+    approach_dict = {}
+    bubble_dict = {}
+
+    numSpecialty, numApproach = 0, 0
+
+    for color in colors:
+        specialty_dict = {}
+        for specialty in specialty_list.filter(color=color):
+            specialty_dict[specialty] = numSpecialty
+            numSpecialty += 1
+        color_dict[color] = specialty_dict
+
+    for approach in approach_list:
+        approach_dict[approach] = numApproach
+        numApproach += 1
+
+    CONST_1 = 45
+    curr_max = 0
+    for i in bubbles:
+        if i.list_of_people.count(',') + 1 > curr_max:
+            curr_max = i.list_of_people.count(',') + 1
+
+    for bubble in bubbles:
+        specialty_index = color_dict[bubble.color][bubble.coordinate_speciality] * CONST_1
+        approach_index = approach_dict[bubble.coordinate_approach] * CONST_1
+        areaNum = bubble.list_of_people.count(',') + 1
+        size_raw = areaNum / curr_max
+
+        z = ((size_raw) * (45 - 9)) + 9
+        const = (z-9) / 36
+        x = (-17 * const) + 13 + specialty_index
+        y = (-16 * const) + 11 + approach_index
+
+        bubble_dict[bubble] = [x, y, z]
+
+    context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
+               'color_dict': color_dict, 'verticalLength': approachNum + 1, 'horizontalLength': specialtyNum + 1}
+
+    return render(request, 'bubble_chart_act.html', context)
+
+def searchBubbleAct(request, pk=None, pk_alt=None):
+    obj = BubbleAct.objects.get(coordinate_approach=pk,coordinate_speciality=pk_alt)
+    list_of_emails = obj.list_of_people.split(',')
+    entry_list = [UserProfileAct.objects.get(author_id=i) for i in list_of_emails]
+    return render(request, 'searchBubble.html', {"entry_list": entry_list})
+
 def searchBubble(request, pk=None, pk_alt=None):
     obj = Bubble.objects.get(coordinate_approach=pk, coordinate_speciality=pk_alt)
     list_of_emails = obj.list_of_people.split(',')
@@ -702,3 +704,6 @@ def ihe(request):
         return render(request, 'ihe.html', context)
 
     return render(request, 'ihe.html', {})
+
+def tableauVisualisation(request):
+    return render(request, 'tableau_vis.html', {})

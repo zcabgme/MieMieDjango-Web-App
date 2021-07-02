@@ -9,8 +9,9 @@
 
 {% block content %}
 
-<br><br>
 
+
+<br><br>
 {% comment %} <a href="#" data-activates="slide-out" class="button-collapse waves-effect waves-light btn grey darken-4">Filter By</a> {% endcomment %}
 
 {% comment %} <div>
@@ -35,10 +36,6 @@
   });
 </script>
 
-<form action="{% url 'bubble_chart' %}" method="POST">
-    {% csrf_token %}
-    <button style="margin-left: 30px" class="btn btn-primary" type="submit" value='Click' name="update_bubble_chart_data">Sync Data</button>   
-</form> 
 
 <div class="display">
 
@@ -99,7 +96,7 @@
   <div class="bubble">
     {% for bubble, lst in bubble_dict.items %} 
       <div>
-        <a href= "{% url 'searchBubble' bubble.coordinate_approach.pk bubble.coordinate_speciality.pk %}" data-position="bottom" data-delay="50" class="button tooltipped" style="background-color:{{ bubble.color }}; position: absolute; left:calc({{ lst.0 }}px); top:calc({{ lst.1 }}px); width:{{ lst.2 }}px; height: {{ lst.2 }}px;"></a>
+        <a href= "{% url 'searchBubbleAct' bubble.coordinate_approach.id bubble.coordinate_speciality.id %}" data-position="bottom" data-delay="50" class="button tooltipped" style="background-color:{{ bubble.color }}; position: absolute; left:calc({{ lst.0 }}px); top:calc({{ lst.1 }}px); width:{{ lst.2 }}px; height: {{ lst.2 }}px;"></a>
       </div>
     {% endfor %}
   </div>

@@ -13,3 +13,10 @@ admin.site.register(Specialty)
 admin.site.register(Status)
 
 admin.site.register(Bubble)
+
+
+admin.site.register(BubbleAct)
+admin.site.register(ApproachAct)
+admin.site.register(SpecialtyAct)
+admin.site.register(ColorAct)
+admin.site.register(UserProfileAct)

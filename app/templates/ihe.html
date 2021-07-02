@@ -16,6 +16,7 @@
                     <a class="dropdown-item" href="{% url 'sdg' %}" target="_blank">View Data</a>
                     <a class="dropdown-item" href="{% url 'universal_SVM' %}" target="_blank">SDG: SVM Universal</a>
                     <a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
+                    <a class="dropdown-item" href="{% url 'tableauVisualisation' %}" target="_blank">Tableau Visualizations</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -24,7 +25,8 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                     <a class="dropdown-item" href="{% url 'ihe' %}" target="_blank">View Data</a>
-                    <a class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart</a>
+                    <a class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart (Sudo)</a>
+                    <a class="dropdown-item" href="{% url 'bubble_chart_act' %}" target="_blank">Bubble Chart (Acct)</a>
                     <a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
                     </div>
                 </li>
@@ -90,23 +92,21 @@
         </thead>
         <tbody style="text-align: center; vertical-align: middle;">
             {% for item in ihes %}
-                {% if item.assignedSDG %}
-                    <tr style="border-bottom: 1pt solid black">
-                        <td><a href="{{ item.get_absolute_url }}">{{ item.assignedSDG.DOI|truncatechars:10 }}</a></td>
-                        <td>LDA</td>
-                        <td>{{ item.assignedSDG.IHE.0 }}</td>
-                        <td>{{ item.assignedSDG.IHE.1 }}</td>
-                        <td>{{ item.assignedSDG.IHE.2 }}</td>
-                        <td>{{ item.assignedSDG.IHE.3 }}</td>
-                        <td>{{ item.assignedSDG.IHE.4 }}</td>
-                        <td>{{ item.assignedSDG.IHE.5 }}</td>
-                        <td>{{ item.assignedSDG.IHE.6 }}</td>
-                        <td>{{ item.assignedSDG.IHE.7 }}</td>
-                        <td>{{ item.assignedSDG.IHE.8 }}</td>
-                        <td>{{ item.assignedSDG.IHE.9 }}</td>
-                        <td>{{ item.assignedSDG.IHE_Prediction }}</td>
-                    </tr>
-                {% endif %}
+                <tr style="border-bottom: 1pt solid black">
+                    <td><a href="{{ item.get_absolute_url }}">{{ item.data.DOI|truncatechars:10 }}</a></td>
+                    <td>LDA</td>
+                    <td>{{ item.assignedSDG.IHE.0 }}</td>
+                    <td>{{ item.assignedSDG.IHE.1 }}</td>
+                    <td>{{ item.assignedSDG.IHE.2 }}</td>
+                    <td>{{ item.assignedSDG.IHE.3 }}</td>
+                    <td>{{ item.assignedSDG.IHE.4 }}</td>
+                    <td>{{ item.assignedSDG.IHE.5 }}</td>
+                    <td>{{ item.assignedSDG.IHE.6 }}</td>
+                    <td>{{ item.assignedSDG.IHE.7 }}</td>
+                    <td>{{ item.assignedSDG.IHE.8 }}</td>
+                    <td>{{ item.assignedSDG.IHE.9 }}</td>
+                    <td>{{ item.assignedSDG.IHE_Prediction }}</td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -143,7 +143,7 @@
     <br> 
     <br>
 
-    {% comment %} <table class="table table-striped">
+    <table class="table table-striped">
         <thead style="text-align: center">
             <tr>
                 <th scope="col">Name</th>
@@ -160,13 +160,13 @@
                             <td>{{ details.Name }}</td>
                             <td>{{ ihe_lookup|get_item:item.assignedSDG.IHE_Prediction }}</td>
                             <td>{{ details.AffiliationName }}</td>
-                            <td><a href="{{ item.get_absolute_url }}">{{ item.assignedSDG.DOI|truncatechars:10 }}</a></td>
+                            <td><a href="{{ item.get_absolute_url }}">{{ item.data.DOI|truncatechars:10 }}</a></td>
                         </tr>
 
                     {% endfor %}
                 {% endif %}
             {% endfor %}
         </tbody>
-    </table> {% endcomment %}
+    </table>
 
 {% endblock %}
