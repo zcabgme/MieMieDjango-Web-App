@@ -705,7 +705,6 @@ def ihe(request):
 
     return render(request, 'ihe.html', {})
 
-
 def getSQL_connection():
     server = 'summermiemieservver.database.windows.net'
     database = 'summermiemiedb'
