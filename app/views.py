@@ -733,9 +733,17 @@ def tableauVisualisation(request):
     curr.execute(query)
     department_bubble_sdg = curr.fetchall() # (department name, num of modules, sdg coverage, num of students)
     
+    query = """
+        SELECT TestModAssign.SDG, TestModAssign.Module_ID, StudentsPerModule.NumberOfStudents
+        FROM [dbo].[TestModAssign]
+        INNER JOIN StudentsPerModule ON TestModAssign.Module_ID=StudentsPerModule.ModuleID"""
+    curr.execute(query)
+    module_bubble_sdg = curr.fetchall() # (assigned sdg, module id, number of students)
+
     context = {
         'Faculty_SDG_Bubble': faculty_bubble_sdg,
-        'Department_SDG_Bubble': department_bubble_sdg
+        'Department_SDG_Bubble': department_bubble_sdg,
+        'Module_SDG_Bubble': module_bubble_sdg
     }
 
     return render(request, 'tableau_vis.html', context)
