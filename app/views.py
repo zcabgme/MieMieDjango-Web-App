@@ -719,25 +719,37 @@ def tableauVisualisation(request):
     curr = getSQL_connection().cursor()
     checkboxes = {'value1': '', 'value2': '', 'value3': ''}
 
-    # hue = random.randrange(0, 360)
-    # saturation = random.uniform(0, 1)
-    # luminance = random.uniform(30, 70)
-    # rgb = colorsys.hsv_to_rgb(hue, saturation, luminance)
+    hue = random.randrange(0, 360)
+    saturation = random.uniform(0, 1)
+    luminance = random.uniform(30, 70)
+    rgb = colorsys.hsv_to_rgb(hue, saturation, luminance)
 
     if request.method == 'GET':
         query = request.GET.get('exampleRadios')
 
         if query == "sdg_bubble":
             query = """
-                SELECT TestModAssign.SDG, TestModAssign.Module_ID, StudentsPerModule.NumberOfStudents
+                SELECT TestModAssign.SDG, COUNT(DISTINCT TestModAssign.Module_ID), SUM(StudentsPerModule.NumberOfStudents)
                 FROM [dbo].[TestModAssign]
-                INNER JOIN StudentsPerModule ON TestModAssign.Module_ID=StudentsPerModule.ModuleID"""
-            curr.execute(query) # (assigned sdg, module id, number of students)
-            module_bubble_sdg = curr.fetchall()
+                INNER JOIN StudentsPerModule ON TestModAssign.Module_ID=StudentsPerModule.ModuleID 
+                GROUP BY TestModAssign.SDG"""
+            curr.execute(query)
+            sdg_bubbles = curr.fetchall() # (assigned sdg, module id, number of students)
+            module_bubble_list = list()
+            for sdg in sdg_bubbles:
+                module_bubble_list.append({
+                    'SDG': str(sdg[0]),
+                    'Number_Students': sdg[2],
+                    'Number_Modules': sdg[1]
+                })
+            # module_bubble_sdg = json.dumps(sdg_bubble_list)
+            with open('static/js/bubble.json', 'w') as f:
+                json.dump(module_bubble_list, f)
+
             checkboxes['value1'] = 'checked'
             checkboxes['value2'] = ''
             checkboxes['value3'] = ''
-            return render(request, 'tableau_vis.html', {'module_bubble_sdg': module_bubble_sdg, 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'modules', 'radios': checkboxes})
 
         if query == "department_sdg_bubble":
             query = """
@@ -747,10 +759,22 @@ def tableauVisualisation(request):
                 GROUP BY ModuleData.Department_Name"""
             curr.execute(query)
             department_bubble_sdg = curr.fetchall() # (department name, num of modules, sdg coverage, num of students)
+            department_bubble_list = list()
+            for departments in department_bubble_sdg:
+                print(departments[0])
+                department_bubble_list.append({
+                    'Department': departments[0],
+                    'Number_Modules': departments[1],
+                    'SDG_Count': departments[2],
+                    'Number_Students': departments[3]
+                })
+            with open('static/js/bubble.json', 'w') as f:
+                json.dump(department_bubble_list, f)
+
             checkboxes['value1'] = ''
             checkboxes['value2'] = 'checked'
             checkboxes['value3'] = ''
-            return render(request, 'tableau_vis.html', {'Department_SDG_Bubble': department_bubble_sdg, 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'departments', 'radios': checkboxes})
 
         if query == "faculty_sdg_bubble":
             query = """
@@ -763,6 +787,4 @@ def tableauVisualisation(request):
             checkboxes['value1'] = ''
             checkboxes['value2'] = ''
             checkboxes['value3'] = 'checked'
-            return render(request, 'tableau_vis.html', {'Faculty_SDG_Bubble': faculty_bubble_sdg, 'radios': checkboxes})
-
-    return render(request, 'tableau_vis.html', {})
+            return render(request, 'tableau_vis.html', {'selector': faculty_bubble_sdg, 'radios': checkboxes})
