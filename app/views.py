@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from bson import json_util
 import pymongo, pickle, base64
 import numpy as np
+import colorsys, random
 import matplotlib
 matplotlib.use('Agg')
 import colorsys, random
@@ -771,10 +772,18 @@ def tableauVisualisation(request):
             with open('static/js/bubble.json', 'w') as f:
                 json.dump(department_bubble_list, f)
 
+            colour_dict = {}
+            for departments in department_bubble_list:
+                h,s,l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
+                r,g,b = [int(256*i) for i in colorsys.hls_to_rgb(h,l,s)]
+                rgb = (round(r), round(g), round(b))
+                colour_dict[str(departments['Department'])] = '#%02x%02x%02x' % rgb
+
+            print(colour_dict)
             checkboxes['value1'] = ''
             checkboxes['value2'] = 'checked'
             checkboxes['value3'] = ''
-            return render(request, 'tableau_vis.html', {'selector': 'departments', 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'departments', 'colours': colour_dict, 'radios': checkboxes})
 
         if query == "faculty_sdg_bubble":
             query = """
@@ -788,3 +797,5 @@ def tableauVisualisation(request):
             checkboxes['value2'] = ''
             checkboxes['value3'] = 'checked'
             return render(request, 'tableau_vis.html', {'selector': faculty_bubble_sdg, 'radios': checkboxes})
+
+    return render(request, 'tableau_vis.html', {})
