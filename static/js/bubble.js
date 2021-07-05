@@ -23,6 +23,8 @@ const generateChart = data => {
         .data(root.children)
         .enter().append('g')
         .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+    console.log(node)
     
     const circle = node.append('circle')
         .style('fill', d => colors[d.data.category])

@@ -6,24 +6,49 @@
 <h1>Hello World!</h1>
 
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>💭 Bubble chart with D3.js</title>
-        <link rel="stylesheet" href="/static/css/styles.css"/>
+        {% comment %} <meta charset="UTF-8" /> {% endcomment %}
+        {% comment %} <meta name="viewport" content="width=device-width, initial-scale=1.0" /> {% endcomment %}
+        {% comment %} <title>💭 Bubble chart with D3.js</title>{% endcomment %}
+        <link rel="stylesheet" href="/static/css/styles.css"/> 
     </head>
-    <body style="margin-left:auto;margin-right:auto;text-align:center">
-        
-        <svg id="bubble-chart"></svg>
-        <div class="tooltip">
-            <img alt="" />
-            <div>
-                <a></a>
-                <span></span>
-            </div>
-        </div>  
-        <script src="https://d3js.org/d3.v6.js"></script>
-        <script src="/static/js/bubble.js"></script>
+    <body>
+
+        <form action="{% url 'tableauVisualisation' %}" method="GET" value="{{ request.GET.radios }}">
+            <br><br>
+            <form method="POST" action="#">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="sdg_bubble" {{ radios.value1 }}>
+                    <label class="form-check-label" for="exampleRadios1">
+                        SDG Bubble
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="department_sdg_bubble" {{ radios.value2 }}>
+                    <label class="form-check-label" for="exampleRadios2">
+                        Department SDG Bubble
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="faculty_sdg_bubble" {{ radios.value3 }}>
+                    <label class="form-check-label" for="exampleRadios2">
+                        Faculty SDG Bubble
+                    </label>
+                </div>
+                <br>
+                <input type="submit" name="submit" value="View"/> 
+            </form>
+            
+            {% if module_bubble_sdg %}
+                <p>One</p>
+            {% endif %}
+            {% if Department_SDG_Bubble %}
+                <p>Two</p>
+            {% endif %}
+            {% if Faculty_SDG_Bubble %}
+                <p>Three</p>
+            {% endif %}
+        </form>
+
+
     </body>
-
-
 {% endblock %}

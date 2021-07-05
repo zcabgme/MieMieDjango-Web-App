@@ -716,34 +716,47 @@ def getSQL_connection():
 
 def tableauVisualisation(request):
     curr = getSQL_connection().cursor()
+    checkboxes = {'value1': '', 'value2': '', 'value3': ''}
 
-    query = """
-        SELECT ModuleData.Faculty, SUM(StudentsPerModule.NumberOfStudents), COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)) FROM [dbo].[StudentsPerModule]
-        INNER JOIN ModuleData ON StudentsPerModule.ModuleID = ModuleData.Module_ID
-        INNER JOIN TestModAssign ON StudentsPerModule.ModuleID = TestModAssign.Module_ID
-        GROUP BY ModuleData.Faculty"""
-    curr.execute(query)
-    faculty_bubble_sdg = curr.fetchall() # (faculty name, num of students, num of modules, sdg coverage)
+    if request.method == 'GET':
+        query = request.GET.get('exampleRadios')
 
-    query = """
-        SELECT ModuleData.Department_Name, COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)), SUM(StudentsPerModule.NumberOfStudents) FROM [dbo].[ModuleData]
-        INNER JOIN TestModAssign ON ModuleData.Module_ID = TestModAssign.Module_ID
-        INNER JOIN StudentsPerModule ON ModuleData.Module_ID = StudentsPerModule.ModuleID
-        GROUP BY ModuleData.Department_Name"""
-    curr.execute(query)
-    department_bubble_sdg = curr.fetchall() # (department name, num of modules, sdg coverage, num of students)
-    
-    query = """
-        SELECT TestModAssign.SDG, TestModAssign.Module_ID, StudentsPerModule.NumberOfStudents
-        FROM [dbo].[TestModAssign]
-        INNER JOIN StudentsPerModule ON TestModAssign.Module_ID=StudentsPerModule.ModuleID"""
-    curr.execute(query)
-    module_bubble_sdg = curr.fetchall() # (assigned sdg, module id, number of students)
+        if query == "sdg_bubble":
+            query = """
+                SELECT TestModAssign.SDG, TestModAssign.Module_ID, StudentsPerModule.NumberOfStudents
+                FROM [dbo].[TestModAssign]
+                INNER JOIN StudentsPerModule ON TestModAssign.Module_ID=StudentsPerModule.ModuleID"""
+            curr.execute(query) # (assigned sdg, module id, number of students)
+            module_bubble_sdg = curr.fetchall()
+            checkboxes['value1'] = 'checked'
+            checkboxes['value2'] = ''
+            checkboxes['value3'] = ''
+            return render(request, 'tableau_vis.html', {'module_bubble_sdg': module_bubble_sdg, 'radios': checkboxes})
 
-    context = {
-        'Faculty_SDG_Bubble': faculty_bubble_sdg,
-        'Department_SDG_Bubble': department_bubble_sdg,
-        'Module_SDG_Bubble': module_bubble_sdg
-    }
+        if query == "department_sdg_bubble":
+            query = """
+                SELECT ModuleData.Department_Name, COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)), SUM(StudentsPerModule.NumberOfStudents) FROM [dbo].[ModuleData]
+                INNER JOIN TestModAssign ON ModuleData.Module_ID = TestModAssign.Module_ID
+                INNER JOIN StudentsPerModule ON ModuleData.Module_ID = StudentsPerModule.ModuleID
+                GROUP BY ModuleData.Department_Name"""
+            curr.execute(query)
+            department_bubble_sdg = curr.fetchall() # (department name, num of modules, sdg coverage, num of students)
+            checkboxes['value1'] = ''
+            checkboxes['value2'] = 'checked'
+            checkboxes['value3'] = ''
+            return render(request, 'tableau_vis.html', {'Department_SDG_Bubble': department_bubble_sdg, 'radios': checkboxes})
 
-    return render(request, 'tableau_vis.html', context)
+        if query == "faculty_sdg_bubble":
+            query = """
+                SELECT ModuleData.Faculty, SUM(StudentsPerModule.NumberOfStudents), COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)) FROM [dbo].[StudentsPerModule]
+                INNER JOIN ModuleData ON StudentsPerModule.ModuleID = ModuleData.Module_ID
+                INNER JOIN TestModAssign ON StudentsPerModule.ModuleID = TestModAssign.Module_ID
+                GROUP BY ModuleData.Faculty"""
+            curr.execute(query)
+            faculty_bubble_sdg = curr.fetchall() # (faculty name, num of students, num of modules, sdg coverage)
+            checkboxes['value1'] = ''
+            checkboxes['value2'] = ''
+            checkboxes['value3'] = 'checked'
+            return render(request, 'tableau_vis.html', {'Faculty_SDG_Bubble': faculty_bubble_sdg, 'radios': checkboxes})
+
+    return render(request, 'tableau_vis.html', {})
