@@ -142,12 +142,14 @@
                     })();
                 </script>
             {% endif %}
+            
             {% if selector == "departments" %}
                 <script type="text/javascript">
                     const file = 'static/js/bubble.json';
                     const width = window.innerWidth;
                     const height = window.innerHeight;
-                    const colors = {}
+                    const colors = {{ colours|safe }}
+                    console.log(colors)
 
                     const generateChart = data => {
                         const bubble = data => d3.pack()
