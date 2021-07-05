@@ -3,243 +3,68 @@
 
 {% block content %}
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'app' %}">Search Engine</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        SDG
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <a class="dropdown-item" href="{% url 'sdg' %}">View Data</a>
-                    <a class="dropdown-item" href="{% url 'universal_SVM' %}">SDG: SVM Universal</a>
-                    <a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
-                    <a class="dropdown-item" href="{% url 'tableauVisualisation' %}" target="_blank">Tableau Visualizations</a>
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        IHE
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <a class="dropdown-item" href="{% url 'ihe' %}" target="_blank">View Data</a>
-                    <a class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart (Sudo)</a>
-                    <a class="dropdown-item" href="{% url 'bubble_chart_act' %}" target="_blank">Bubble Chart (Acct)</a>
-                    <a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
-                    </div>
-                </li>
-
-            </ul>
-        </div>
-    </nav>
-
-    <body style="margin-left:auto;margin-right:auto;text-align:center">
-        <form action="{% url 'tableauVisualisation' %}" method="GET" value="{{ request.GET.radios }}">
-            <br><br>
-            <form method="POST" action="#">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="sdg_bubble" {{ radios.value1 }}>
-                    <label class="form-check-label" for="exampleRadios1">
-                        SDG Bubble
-                    </label>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'app' %}">Search Engine</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    SDG
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="{% url 'sdg' %}">View Data</a>
+                <a class="dropdown-item" href="{% url 'universal_SVM' %}">SDG: SVM Universal</a>
+                <a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
+                <a class="dropdown-item" href="{% url 'tableauVisualisation' %}" target="_blank">Tableau Visualizations</a>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="department_sdg_bubble" {{ radios.value2 }}>
-                    <label class="form-check-label" for="exampleRadios2">
-                        Department SDG Bubble
-                    </label>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    IHE
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="{% url 'ihe' %}" target="_blank">View Data</a>
+                <a class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart (Sudo)</a>
+                <a class="dropdown-item" href="{% url 'bubble_chart_act' %}" target="_blank">Bubble Chart (Acct)</a>
+                <a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="faculty_sdg_bubble" {{ radios.value3 }}>
-                    <label class="form-check-label" for="exampleRadios2">
-                        Faculty SDG Bubble
-                    </label>
-                </div>
-                <br>
-                <input type="submit" name="submit" value="View"/> 
-            </form>
-            <script src="https://d3js.org/d3.v6.js"></script>
-            {% if selector == "modules" %}
-                <script type="text/javascript">
-                    const file = 'static/js/bubble.json';
-                    const width = window.innerWidth;
-                    const height = window.innerHeight;
-                    const colors = {
-                        1: '#E5243B',
-                        2: '#DDA63A',
-                        3: '#4C9F38',
-                        4: '#C5192D',
-                        5: '#FF3A21',
-                        6: '#26BDE2',
-                        7: '#FCC30B',
-                        8: '#A21942',
-                        9: '#FD6925',
-                        10: '#DD1367',
-                        11: '#FD9D24',
-                        12: '#BF8B2E',
-                        13: '#3F7E44',
-                        14: '#0A97D9',
-                        15: '#56C02B',
-                        16: '#00689D',
-                        17: '#19486A',
-                        18: '#CCCC00',
-                    };
+            </li>
 
-                    const generateChart = data => {
-                        const bubble = data => d3.pack()
-                            .size([width, height])
-                            .padding(2)(d3.hierarchy({ children: data }).sum(d => d.Number_Students));
+        </ul>
+    </div>
+</nav>
 
-                        const svg = d3.select('#bubble-chart')
-                            .style('width', width)
-                            .style('height', height);
-                        
-                        const root = bubble(data);
-                        // const tooltip = d3.select('.tooltip');
-                        var tooltip = d3.select("body")
-                            .append("div")
-                            .style("position", "absolute")
-                            .style("z-index", "10")
-                            .style("margin-left", "2%")
-                            .style("background", "#c8c8c8")
-                            .style("visibility", "hidden")
-                            .text("");
 
-                        const node = svg.selectAll()
-                            .data(root.children)
-                            .enter().append('g')
-                            .attr('transform', `translate(${width / 2}, ${height / 2})`);
-                        
-                        const circle = node.append('circle')
-                            .style('fill', d => colors[d.data.SDG])
-                            .on('mouseover', function (e, d) {
-                                // tooltip.select('img').attr('src', d.data.img);
-                                // tooltip.select('a').attr('href', d.data.link).text(d.data.name);
-                                tooltip.text("Number of students:" + d.data.Number_Students);
-                                tooltip.style('visibility', 'visible');
+<head>
+    <link rel="stylesheet" href="/static/css/styles.css"/> 
+</head>
+<body style="margin-left:auto;margin-right:auto;text-align:center">
 
-                                d3.select(this).style('stroke', '#222');
-                            })
-                            .on('mousemove', e => tooltip.style('top', `${e.pageY}px`)
-                                                        .style('left', `${e.pageX + 10}px`))
-                            .on('mouseout', function () {
-                                d3.select(this).style('stroke', 'none');
-                                return tooltip.style('visibility', 'hidden');
-                            })
-                            // .on('click', (e, d) => window.open(d.data.link));
-                        
-                        const label = node.append('text')
-                            .attr('dy', 2)
-                            .text(d => d.data.SDG.substring(0, d.r / 3));
-
-                        node.transition()
-                            .ease(d3.easeExpInOut)
-                            .duration(1000)
-                            .attr('transform', d => `translate(${d.x}, ${d.y})`);
-                        
-                        circle.transition()
-                            .ease(d3.easeExpInOut)
-                            .duration(1000)
-                            .attr('r', d => d.r);
-                        
-                        label.transition()
-                            .delay(700)
-                            .ease(d3.easeExpInOut)
-                            .duration(1000)
-                            .style('opacity', 1)
-                    };
-
-                    (async () => {
-                        data = await d3.json(file).then(data => data);
-                        generateChart(data);
-                    })();
-                </script>
-            {% endif %}
-            
-            {% if selector == "departments" %}
-                <script type="text/javascript">
-                    const file = 'static/js/bubble.json';
-                    const width = window.innerWidth;
-                    const height = window.innerHeight;
-                    const colors = {{ colours|safe }}
-                    console.log(colors)
-
-                    const generateChart = data => {
-                        const bubble = data => d3.pack()
-                            .size([width, height])
-                            .padding(2)(d3.hierarchy({ children: data }).sum(d => d.Number_Students));
-
-                        const svg = d3.select('#bubble-chart')
-                            .style('width', width)
-                            .style('height', height);
-                        
-                        const root = bubble(data);
-                        // const tooltip = d3.select('.tooltip');
-                        var tooltip = d3.select("body")
-                            .append("div")
-                            .style("position", "absolute")
-                            .style("z-index", "10")
-                            .style("margin-left", "2%")
-                            .style("background", "#c8c8c8")
-                            .style("visibility", "hidden")
-                            .text("");
-
-                        const node = svg.selectAll()
-                            .data(root.children)
-                            .enter().append('g')
-                            .attr('transform', `translate(${width / 2}, ${height / 2})`);
-                        
-                        const circle = node.append('circle')
-                            .style('fill', d => colors[d.data.Department])
-                            .on('mouseover', function (e, d) {
-                                // tooltip.select('img').attr('src', d.data.img);
-                                // tooltip.select('a').attr('href', d.data.link).text(d.data.name);
-                                tooltip.text("Number of students:" + d.data.Number_Students);
-                                tooltip.style('visibility', 'visible');
-
-                                d3.select(this).style('stroke', '#222');
-                            })
-                            .on('mousemove', e => tooltip.style('top', `${e.pageY}px`)
-                                                        .style('left', `${e.pageX + 10}px`))
-                            .on('mouseout', function () {
-                                d3.select(this).style('stroke', 'none');
-                                return tooltip.style('visibility', 'hidden');
-                            })
-                            // .on('click', (e, d) => window.open(d.data.link));
-                        
-                        const label = node.append('text')
-                            .attr('dy', 2)
-                            .text(d => d.data.Department.substring(0, d.r / 3));
-
-                        node.transition()
-                            .ease(d3.easeExpInOut)
-                            .duration(1000)
-                            .attr('transform', d => `translate(${d.x}, ${d.y})`);
-                        
-                        circle.transition()
-                            .ease(d3.easeExpInOut)
-                            .duration(1000)
-                            .attr('r', d => d.r);
-                        
-                        label.transition()
-                            .delay(700)
-                            .ease(d3.easeExpInOut)
-                            .duration(1000)
-                            .style('opacity', 1)
-                    };
-
-                    (async () => {
-                        data = await d3.json(file).then(data => data);
-                        generateChart(data);
-                    })();
-                </script>
-            {% endif %}
-            {% if selector == "faculties" %}
-                <p>Three</p>
-            {% endif %}
+    <form action="{% url 'tableauVisualisation' %}" method="GET" value="{{ request.GET.radios }}">
+        <br><br>
+        <form method="POST" action="#">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="sdg_bubble" {{ radios.value1 }}>
+                <label class="form-check-label" for="exampleRadios1">
+                    SDG Bubble
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="department_sdg_bubble" {{ radios.value2 }}>
+                <label class="form-check-label" for="exampleRadios2">
+                    Department SDG Bubble
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="faculty_sdg_bubble" {{ radios.value3 }}>
+                <label class="form-check-label" for="exampleRadios2">
+                    Faculty SDG Bubble
+                </label>
+            </div>
+            <br>
+            <input type="submit" name="submit" value="View"/> 
         </form>
 
         <svg id="bubble-chart"></svg>
@@ -250,7 +75,8 @@
                 <span></span>
             </div>
         </div>
-
+        
+        <script src="https://d3js.org/d3.v6.js"></script>
         {% if selector == "modules" %}
             <script type="text/javascript">
                 const file = 'static/js/bubble.json';
@@ -347,12 +173,13 @@
                 })();
             </script>
         {% endif %}
+
         {% if selector == "departments" %}
             <script type="text/javascript">
                 const file = 'static/js/bubble.json';
                 const width = window.innerWidth;
                 const height = window.innerHeight;
-                const colors = {}
+                const colors = {{ colours|safe }}
 
                 const generateChart = data => {
                     const bubble = data => d3.pack()
@@ -427,6 +254,7 @@
         {% if selector == "faculties" %}
             <p>Three</p>
         {% endif %}
+    </form>
 
-    </body>
+</body>
 {% endblock %}
