@@ -756,7 +756,6 @@ def tableauVisualisation(request):
             department_bubble_sdg = curr.fetchall() # (department name, num of modules, sdg coverage, num of students)
             department_bubble_list = list()
             for departments in department_bubble_sdg:
-                print(departments[0])
                 department_bubble_list.append({
                     'Department': departments[0],
                     'Number_Modules': departments[1],
@@ -773,7 +772,6 @@ def tableauVisualisation(request):
                 rgb = (round(r), round(g), round(b))
                 colour_dict[str(departments['Department'])] = '#%02x%02x%02x' % rgb
 
-            print(colour_dict)
             checkboxes['value1'] = ''
             checkboxes['value2'] = 'checked'
             checkboxes['value3'] = ''
@@ -787,9 +785,27 @@ def tableauVisualisation(request):
                 GROUP BY ModuleData.Faculty"""
             curr.execute(query)
             faculty_bubble_sdg = curr.fetchall() # (faculty name, num of students, num of modules, sdg coverage)
+            faculty_bubble_list = list()
+            for faculties in faculty_bubble_sdg:
+                faculty_bubble_list.append({
+                    'Faculty': faculties[0],
+                    'Number_Modules': faculties[2],
+                    'SDG_Count': faculties[3],
+                    'Number_Students': faculties[1]
+                })
+            with open('static/js/bubble.json', 'w') as f:
+                json.dump(faculty_bubble_list, f)
+
+            colour_dict = {}
+            for faculties in faculty_bubble_list:
+                h,s,l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
+                r,g,b = [int(256*i) for i in colorsys.hls_to_rgb(h,l,s)]
+                rgb = (round(r), round(g), round(b))
+                colour_dict[str(faculties['Faculty'])] = '#%02x%02x%02x' % rgb
+            
             checkboxes['value1'] = ''
             checkboxes['value2'] = ''
             checkboxes['value3'] = 'checked'
-            return render(request, 'tableau_vis.html', {'selector': faculty_bubble_sdg, 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'faculties', 'colours': colour_dict, 'radios': checkboxes})
 
     return render(request, 'tableau_vis.html', {})
