@@ -22,6 +22,7 @@ import pymongo, pickle, base64
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
+import colorsys, random
 
 
 global_context = {}
@@ -717,6 +718,11 @@ def getSQL_connection():
 def tableauVisualisation(request):
     curr = getSQL_connection().cursor()
     checkboxes = {'value1': '', 'value2': '', 'value3': ''}
+
+    # hue = random.randrange(0, 360)
+    # saturation = random.uniform(0, 1)
+    # luminance = random.uniform(30, 70)
+    # rgb = colorsys.hsv_to_rgb(hue, saturation, luminance)
 
     if request.method == 'GET':
         query = request.GET.get('exampleRadios')
