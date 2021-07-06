@@ -743,14 +743,11 @@ def tableauVisualisation(request):
                     'Number_Students': sdg[2],
                     'Number_Modules': sdg[1]
                 })
-            # module_bubble_sdg = json.dumps(sdg_bubble_list)
-            with open('static/js/bubble.json', 'w') as f:
-                json.dump(module_bubble_list, f)
 
             checkboxes['value1'] = 'checked'
             checkboxes['value2'] = ''
             checkboxes['value3'] = ''
-            return render(request, 'tableau_vis.html', {'selector': 'modules', 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'modules', 'bubble_list': module_bubble_list, 'radios': checkboxes})
 
         if query == "department_sdg_bubble":
             query = """
@@ -768,8 +765,6 @@ def tableauVisualisation(request):
                     'SDG_Count': departments[2],
                     'Number_Students': departments[3]
                 })
-            with open('static/js/bubble.json', 'w') as f:
-                json.dump(department_bubble_list, f)
 
             colour_dict = {}
             for departments in department_bubble_list:
@@ -781,7 +776,7 @@ def tableauVisualisation(request):
             checkboxes['value1'] = ''
             checkboxes['value2'] = 'checked'
             checkboxes['value3'] = ''
-            return render(request, 'tableau_vis.html', {'selector': 'departments', 'colours': colour_dict, 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'departments', 'bubble_list': department_bubble_list, 'colours': colour_dict, 'radios': checkboxes})
 
         if query == "faculty_sdg_bubble":
             query = """
@@ -799,8 +794,6 @@ def tableauVisualisation(request):
                     'SDG_Count': faculties[3],
                     'Number_Students': faculties[1]
                 })
-            with open('static/js/bubble.json', 'w') as f:
-                json.dump(faculty_bubble_list, f)
 
             colour_dict = {}
             for faculties in faculty_bubble_list:
@@ -812,6 +805,6 @@ def tableauVisualisation(request):
             checkboxes['value1'] = ''
             checkboxes['value2'] = ''
             checkboxes['value3'] = 'checked'
-            return render(request, 'tableau_vis.html', {'selector': 'faculties', 'colours': colour_dict, 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'faculties', 'bubble_list': faculty_bubble_list, 'colours': colour_dict, 'radios': checkboxes})
 
     return render(request, 'tableau_vis.html', {})
