@@ -111,7 +111,7 @@
                     .style('height', height);
                 
                 const root = bubble(data);
-                // const tooltip = d3.select('.tooltip');
+
                 var tooltip = d3.select("body")
                     .append("div")
                     .style("position", "absolute")
@@ -119,7 +119,6 @@
                     .style("margin-left", "2%")
                     .style("background", "#c8c8c8")
                     .style("visibility", "hidden")
-                    .text("");
 
                 const node = svg.selectAll()
                     .data(root.children)
@@ -129,9 +128,8 @@
                 const circle = node.append('circle')
                     .style('fill', d => colors[d.data.SDG])
                     .on('mouseover', function (e, d) {
-                        // tooltip.select('img').attr('src', d.data.img);
-                        // tooltip.select('a').attr('href', d.data.link).text(d.data.name);
-                        tooltip.text("Number of students:" + d.data.Number_Students);
+                        tooltip.html("Number of students: " + d.data.Number_Students + 
+                        "<br>Number of modules: " + d.data.Number_Modules);
                         tooltip.style('visibility', 'visible');
 
                         d3.select(this).style('stroke', '#222');
@@ -188,7 +186,7 @@
                     .style('height', height);
                 
                 const root = bubble(data);
-                // const tooltip = d3.select('.tooltip');
+
                 var tooltip = d3.select("body")
                     .append("div")
                     .style("position", "absolute")
@@ -206,9 +204,10 @@
                 const circle = node.append('circle')
                     .style('fill', d => colors[d.data.Department])
                     .on('mouseover', function (e, d) {
-                        // tooltip.select('img').attr('src', d.data.img);
-                        // tooltip.select('a').attr('href', d.data.link).text(d.data.name);
-                        tooltip.text("Number of students:" + d.data.Number_Students);
+                        tooltip.html("Department name: " + d.data.Department +
+                        "<br>SDG Count: " + d.data.SDG_Count +
+                        "<br>Number of modules: " + d.data.Number_Modules +
+                        "<br>Number of students: " + d.data.Number_Students);
                         tooltip.style('visibility', 'visible');
 
                         d3.select(this).style('stroke', '#222');
@@ -265,7 +264,7 @@
                     .style('height', height);
                 
                 const root = bubble(data);
-                // const tooltip = d3.select('.tooltip');
+
                 var tooltip = d3.select("body")
                     .append("div")
                     .style("position", "absolute")
@@ -283,9 +282,10 @@
                 const circle = node.append('circle')
                     .style('fill', d => colors[d.data.Faculty])
                     .on('mouseover', function (e, d) {
-                        // tooltip.select('img').attr('src', d.data.img);
-                        // tooltip.select('a').attr('href', d.data.link).text(d.data.name);
-                        tooltip.text("Number of students:" + d.data.Number_Students);
+                        tooltip.html("Faculty name: " + d.data.Faculty +
+                        "<br>SDG Count: " + d.data.SDG_Count +
+                        "<br>Number of modules: " + d.data.Number_Modules +
+                        "<br>Number of students: " + d.data.Number_Students);
                         tooltip.style('visibility', 'visible');
 
                         d3.select(this).style('stroke', '#222');
