@@ -23,7 +23,7 @@ urlpatterns = [
     path('exportMod', views.export_modules_csv, name='export_modules_csv'),
     path('exportPub', views.export_publications_csv,name='export_publications_csv'),
     path('export_ihe_csv', views.export_ihe_csv, name='export_ihe_csv'),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # if settings.DEBUG:
 #     urlpatterns += static(settings.STATIC_URL,
