@@ -78,7 +78,7 @@
     <script src="https://d3js.org/d3.v6.js"></script>
     {% if selector == "modules" %}
         <script type="text/javascript">
-            const file = 'static/js/bubble.json';
+            const file = '{% static 'js/bubble.json' %}';
             const width = window.innerWidth;
             const height = window.innerHeight;
             const colors = {
@@ -175,7 +175,7 @@
 
     {% if selector == "departments" %}
         <script type="text/javascript">
-            const file = 'static/js/bubble.json';
+            const file = '{% static 'js/bubble.json' %}';
             const width = window.innerWidth;
             const height = window.innerHeight;
             const colors = {{ colours|safe }}
@@ -253,7 +253,7 @@
 
     {% if selector == "faculties" %}
         <script type="text/javascript">
-            const file = 'static/js/bubble.json';
+            const file = '{% static 'js/bubble.json' %}';
             const width = window.innerWidth;
             const height = window.innerHeight;
             const colors = {{ colours|safe }}
