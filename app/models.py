@@ -205,7 +205,7 @@ class UserProfileAct(models.Model):
     affiliation = models.TextField(null=True, blank=True)
     approach = models.ManyToManyField('ApproachAct', blank=True)
     specialty = models.ManyToManyField('SpecialtyAct', blank=True)
-
+    
     def __str__(self):
         return self.author_id
 

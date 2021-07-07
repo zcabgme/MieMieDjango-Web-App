@@ -12,24 +12,28 @@
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item active">
-						<a class="nav-link" href="{% url 'app' %}">UCL5 MieMie</a>
-					</li>
-					<li class="nav-item active">
-						<a class="nav-link" href="{% url 'sdg' %}">NLP Model</a> 
-					</li>
-					<li class="nav-item active">
-						<a class="nav-link" href="{% url 'universal_SVM' %}">SVM Universal</a> 
-					</li>
-					<li class="nav-item active">
-							<a class="nav-link" href="{% url 'bubble_chart' %}">Bubble Chart</a> 
+						<a style="font-weight: normal" class="nav-link" href="{% url 'app' %}">Search Engine</a>
 					</li>
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							Visualizations
+						<a style="font-weight: normal" class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							SDG
 						</a>
 						<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-						<a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
-						<a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
+						<a style="font-weight: normal" class="dropdown-item" href="{% url 'sdg' %}">View Data</a>
+						<a style="font-weight: normal" class="dropdown-item" href="{% url 'universal_SVM' %}">SDG: SVM Universal</a>
+						<a style="font-weight: normal" class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
+						<a style="font-weight: normal" class="dropdown-item" href="{% url 'tableauVisualisation' %}" target="_blank">Tableau Visualizations</a>
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a style="font-weight: normal" class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							IHE
+						</a>
+						<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+						<a style="font-weight: normal" class="dropdown-item" href="{% url 'ihe' %}" target="_blank">View Data</a>
+						<a style="font-weight: normal" class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart (Sudo)</a>
+						<a style="font-weight: normal" class="dropdown-item" href="{% url 'bubble_chart_act' %}" target="_blank">Bubble Chart (Acct)</a>
+						<a style="font-weight: normal" class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
 						</div>
 					</li>
 				</ul>
@@ -41,17 +45,21 @@
 
 		<table class="table table-striped">
 			<tr>
+				<th scope="col">Author ID</th>
 				<th scope="col">Full Name</th>
-				<th scope="col">Email</th>
-				<th scope="col">Department</th>
-				<th scope="col">IRIS Link</th>
+				<th scope="col">Affiliation</th>
+				<th scope="col">Approach</th>
+				<th scope="col">Speciality</th>
+				<th scope="col">Scopus Link to Publication</th>
 			</tr>
 			{% for entry in entry_list %}
 				<tr>
+					<td>{{ entry }}</td>
 					<td>{{ entry.fullName }}</td>
-					<td>{{ entry.email }}</td>
-					<td>{{ entry.faculty }}</td>
-					<td><a href='{{ entry.irisLink }}' target="_blank">{{ entry.irisLink }}</a></td>
+					<td>{{ entry.affiliation }}</td>
+					<td>{{ assignments.0 }}</td>
+					<td>{{ assignments.1 }}</td>
+					<td><a href='{{ entry.scopusLink }}' target="_blank">Link</a></td>
 				</tr>
 			{% endfor %}
 		</table>

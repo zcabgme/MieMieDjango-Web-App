@@ -4,34 +4,34 @@
 
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-              <li class="nav-item active">
-                  <a class="nav-link" href="{% url 'app' %}">Search Engine</a>
-              </li>
-              <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      SDG
-                  </a>
-                  <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <a class="dropdown-item" href="{% url 'sdg' %}">View Data</a>
-                  <a class="dropdown-item" href="{% url 'universal_SVM' %}">SDG: SVM Universal</a>
-                  <a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
-                  </div>
-              </li>
-              <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      IHE
-                  </a>
-                  <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <a class="dropdown-item" href="{% url 'ihe' %}">View Data</a>
-                  <a class="dropdown-item" href="{% url 'bubble_chart' %}" target="_blank">Bubble Chart</a>
-                  <a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
-                  </div>
-              </li>
-
-          </ul>
-      </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a style="font-weight: normal" class="nav-link" href="{% url 'app' %}">Search Engine</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a style="font-weight: normal" class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        SDG
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a style="font-weight: normal" class="dropdown-item" href="{% url 'sdg' %}">View Data</a>
+                    <a style="font-weight: normal" class="dropdown-item" href="{% url 'universal_SVM' %}">SDG: SVM Universal</a>
+                    <a style="font-weight: normal" class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
+                    <a style="font-weight: normal" class="dropdown-item" href="{% url 'tableauVisualisation' %}" target="_blank">Tableau Visualizations</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a style="font-weight: normal" class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        IHE
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a style="font-weight: normal" class="dropdown-item" href="{% url 'ihe' %}" target="_blank">View Data</a>
+                    <a style="font-weight: normal" class="dropdown-item" href="{% url 'bubble_chart_act' %}" target="_blank">Bubble Chart</a>
+                    <a style="font-weight: normal" class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </nav>
   
   <br><br>

@@ -12,6 +12,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.defaulttags import register
+from .forms import BubbleChartAdd
 
 import pyodbc, json, os, csv, time
 from io import BytesIO, StringIO
@@ -103,64 +104,6 @@ def app(request):
     global_context = context
     return render(request, 'index.html', context)
 
-def bubble_chart(request):
-    t0 = time.time()
-
-    approach_list = Approach.objects.all()
-    specialty_list = Specialty.objects.all()
-    colors = Color.objects.all()
-    bubbles = Bubble.objects.all()
-    
-    approachNum = approach_list.count()
-    specialtyNum = specialty_list.count()
-
-    color_dict = {}
-    approach_dict = {}
-    bubble_dict = {}
-
-    numSpecialty, numApproach = 0, 0
-    
-    for color in colors:
-        specialty_dict = {}
-        for specialty in specialty_list.filter(color=color):
-            specialty_dict[specialty] = numSpecialty
-            numSpecialty += 1
-        color_dict[color] = specialty_dict
-
-    for approach in approach_list:
-        approach_dict[approach] = numApproach
-        numApproach += 1
-
-    CONST_1 = 45
-    case = {
-        # num_of_researchers: [left, top, bubble_size]
-        1: [13, 11, 9],
-        2: [12, 10, 12],
-        3: [11, 8, 15],
-        4: [9, 7, 18],
-        5: [8, 5, 21],
-        6: [6, 4, 24],
-        7: [4, 3, 27],
-        8: [3, 2, 30],
-        9: [1, 2, 33],
-        10:[1, -1, 36],
-        11: [-2, -2, 39],
-        12: [-3, -4, 42]
-    }
-
-    for bubble in bubbles:
-        specialty_index = color_dict[bubble.color][bubble.coordinate_speciality] * CONST_1
-        approach_index = approach_dict[bubble.coordinate_approach] * CONST_1
-        areaNum = bubble.list_of_people.count(',') + 1
-
-        if areaNum not in case: bubble_dict[bubble] = [specialty_index - 4, approach_index - 5, 45]
-        else: bubble_dict[bubble] = [case[areaNum][0] + specialty_index, case[areaNum][1] + approach_index, case[areaNum][2]]
-        
-    context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
-               'color_dict': color_dict, 'verticalLength': approachNum + 1, 'horizontalLength': specialtyNum + 1}
-
-    return render(request, 'bubble_chart.html', context)    
-
 def bubble_chart_act(request):
     approach_list = ApproachAct.objects.all()
     specialty_list = SpecialtyAct.objects.all()
@@ -215,14 +158,46 @@ def bubble_chart_act(request):
 def searchBubbleAct(request, pk=None, pk_alt=None):
     obj = BubbleAct.objects.get(coordinate_approach=pk,coordinate_speciality=pk_alt)
     list_of_emails = obj.list_of_people.split(',')
-    entry_list = [UserProfileAct.objects.get(author_id=i) for i in list_of_emails]
-    return render(request, 'searchBubble.html', {"entry_list": entry_list})
+    entry_list = [UserProfileAct.objects.get(author_id=i) for i in list_of_emails if i != "null"]
+    app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt)]
+    return render(request, 'searchBubble.html', {"entry_list": entry_list, "assignments": app_spec})
 
-def searchBubble(request, pk=None, pk_alt=None):
-    obj = Bubble.objects.get(coordinate_approach=pk, coordinate_speciality=pk_alt)
-    list_of_emails = obj.list_of_people.split(',')
-    entry_list = [UserProfile.objects.get(email=i) for i in list_of_emails]
-    return render(request, 'searchBubble.html', {"entry_list": entry_list})
+def manual_add(request):
+    approach_list = ApproachAct.objects.all()
+    specialty_list = SpecialtyAct.objects.all()
+    form = BubbleChartAdd()
+
+    approach_select = {"Default": "unselected"}
+    for i in approach_list:
+        approach_select[i] = "unselected"
+
+    speciality_select = {"Default": "unselected"}
+    for i in specialty_list:
+        speciality_select[i] = "unselected"
+
+        
+    if request.method == "POST":
+        form = BubbleChartAdd(request.POST or None)
+
+        if form.is_valid():
+            form.save()
+        else:
+            saved_data = {
+                "author_id": request.POST['author_id'],
+                "fullName": request.POST['fullName'],
+                "affiliation": request.POST['affiliation'],
+                "approach": request.POST['approach'],
+                "specialty": request.POST['specialty'],
+                "form": form
+            }
+            messages.success(request, ("There was an error in your form! Please try again."))
+            return render(request, 'manual_add.html', saved_data)
+
+        messages.success(request, ("Your form has been submitted successfully!"))
+        return redirect('manual_add')
+
+    else:
+        return render(request, 'manual_add.html', {"form": form, "approach_select": approach_select, "speciality_select": speciality_select})
 
 def clearEmptySDG_assignments():
     Publication.objects.filter(assignedSDG__isnull=True).delete()
