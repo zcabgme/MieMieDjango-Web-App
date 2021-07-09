@@ -63,32 +63,39 @@ def app(request):
             Publication_CSV_Data = None
 
         url_string = "q=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
+        modules = None
+        publications = None
+        Module_CSV_Data = None
+        Publication_CSV_Data = None
+
         if request.GET.get('modBox') == "clicked":
             url_string = url_string + "&modBox=clicked"
+            Module_CSV_Data = context['mod']
+
+            mod_paginator = Paginator(context['mod'], 15)
+            mod_page = request.GET.get('modPage')
+            try:
+                modules = mod_paginator.page(mod_page)
+            except PageNotAnInteger:
+                modules = mod_paginator.page(1)
+            except EmptyPage:
+                modules = mod_paginator.page(mod_paginator.num_pages)
         if request.GET.get('pubBox') == "clicked":
             url_string = url_string + "&pubBox=clicked"
+            Publication_CSV_Data = context['pub']
     
-        pub_paginator = Paginator(context['pub'], 15)
-        mod_paginator = Paginator(context['mod'], 15)
+            pub_paginator = Paginator(context['pub'], 15)
+            pub_page = request.GET.get('pubPage')
+            try:
+                publications = pub_paginator.page(pub_page)
+            except PageNotAnInteger:
+                publications = pub_paginator.page(1)
+            except EmptyPage:
+                publications = pub_paginator.page(pub_paginator.num_pages)
 
-        pub_page = request.GET.get('pubPage')
-        try:
-            publications = pub_paginator.page(pub_page)
-        except PageNotAnInteger:
-            publications = pub_paginator.page(1)
-        except EmptyPage:
-            publications = pub_paginator.page(pub_paginator.num_pages)
+    len_mod = len(context['mod'])
+    len_pub = len(context['pub'])
 
-        mod_page = request.GET.get('modPage')
-        try:
-            modules = mod_paginator.page(mod_page)
-        except PageNotAnInteger:
-            modules = mod_paginator.page(1)
-        except EmptyPage:
-            modules = mod_paginator.page(mod_paginator.num_pages)
-
-    len_mod = Module.objects.count()
-    len_pub = Publication.objects.count()
     context = {
         'len_mod': len_mod,
         'len_pub': len_pub,
@@ -98,8 +105,6 @@ def app(request):
         'modules': modules,
         'urlString': url_string
     }
-    Module_CSV_Data = None
-    Publication_CSV_Data = None
     global_context = context
     return render(request, 'index.html', context)
 
