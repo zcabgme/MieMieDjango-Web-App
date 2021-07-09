@@ -62,15 +62,15 @@ def app(request):
             Module_CSV_Data = None
             Publication_CSV_Data = None
 
-        url_string = "q=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
-        modules = None
-        publications = None
-        Module_CSV_Data = None
-        Publication_CSV_Data = None
+        publications, modules = None, None
+        Module_CSV_Data, Publication_CSV_Data = None, None
+        len_mod, len_pub = 0, 0
 
+        url_string = "q=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
         if request.GET.get('modBox') == "clicked":
             url_string = url_string + "&modBox=clicked"
             Module_CSV_Data = context['mod']
+            len_mod = len(context['mod'])
 
             mod_paginator = Paginator(context['mod'], 15)
             mod_page = request.GET.get('modPage')
@@ -83,6 +83,7 @@ def app(request):
         if request.GET.get('pubBox') == "clicked":
             url_string = url_string + "&pubBox=clicked"
             Publication_CSV_Data = context['pub']
+            len_pub = len(context['pub'])
     
             pub_paginator = Paginator(context['pub'], 15)
             pub_page = request.GET.get('pubPage')
@@ -92,9 +93,6 @@ def app(request):
                 publications = pub_paginator.page(1)
             except EmptyPage:
                 publications = pub_paginator.page(pub_paginator.num_pages)
-
-    len_mod = len(context['mod'])
-    len_pub = len(context['pub'])
 
     context = {
         'len_mod': len_mod,
