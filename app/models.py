@@ -2,7 +2,7 @@ from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.postgres.fields import ArrayField
 import json
-
+from jsonfield import JSONField
 
 class JSONField(models.TextField):
     """
@@ -203,6 +203,7 @@ class UserProfileAct(models.Model):
     fullName = models.CharField(default="", max_length=100)
     scopusLink = models.URLField(default="", null=True)
     affiliation = models.TextField(null=True, blank=True)
+    affiliationID = models.CharField(default="", max_length=200)
     approach = models.ManyToManyField('ApproachAct', blank=True)
     specialty = models.ManyToManyField('SpecialtyAct', blank=True)
     

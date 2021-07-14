@@ -156,11 +156,48 @@ def bubble_chart_act(request):
     return render(request, 'bubble_chart_act.html', context)
 
 def searchBubbleAct(request, pk=None, pk_alt=None):
+    form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}
+    ucl_id = '60022148'
     obj = BubbleAct.objects.get(coordinate_approach=pk,coordinate_speciality=pk_alt)
     list_of_emails = obj.list_of_people.split(',')
-    entry_list = [UserProfileAct.objects.get(author_id=i) for i in list_of_emails if i != "null"]
+    entry_list = []
+
+    if request.method == 'POST':
+        people = UserProfileAct.objects.all()
+        query = request.POST.get('author_selection')
+        
+        if query == 'UCL Authors':
+            form['UCL Authors'] = "selected"
+            form['OTHER Authors'] = "unselected"
+            form['ALL'] = "unselected"
+            ok = people.exclude(affiliationID="")
+            for i in ok:
+                if i != "null":
+                    if ucl_id in i.affiliationID and i.author_id in list_of_emails:
+                        entry_list.append(i)
+
+        elif query == 'OTHER Authors':
+            form['OTHER Authors'] = "selected"
+            form['UCL Authors'] = "unselected"
+            form['ALL'] = "unselected"
+            ok = people.exclude(affiliationID="")
+            for i in ok:
+                if i != "null":
+                    if ucl_id not in i.affiliationID and i.author_id in list_of_emails:
+                        entry_list.append(i)
+                      
+        elif query == 'ALL':
+            form['OTHER Authors'] = "unselected"
+            form['UCL Authors'] = "unselected"
+            form['ALL'] = "selected"
+            ok = people.exclude(affiliationID="")
+            for i in ok:
+                if i != "null" and i.author_id in list_of_emails:
+                    entry_list.append(i)
+
+    num_of_people = len(entry_list)
     app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt)]
-    return render(request, 'searchBubble.html', {"entry_list": entry_list, "assignments": app_spec})
+    return render(request, 'searchBubbleAct.html', {"form": form, "entry_list": entry_list, "assignments": app_spec, "num_of_people": num_of_people})
 
 def manual_add(request):
     approach_list = ApproachAct.objects.all()
