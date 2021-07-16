@@ -42,8 +42,7 @@
 
 	<br>  
 	<br>
-
-	<form method="POST" action="#">
+	<form action="{% url 'searchBubbleAct' pk=assignments.2 pk_alt=assignments.3 %}" method="GET" value="{{ request.GET.author_selection }}">
 		{% csrf_token %}
 		<select name="author_selection" class="form-select" aria-label="Default select example">
 			{% for opt, val in form.items %}
@@ -60,7 +59,6 @@
 		<br>
 		<input type="submit" name="submit" value="Search"/>
 	</form>
-
 	<br>  
 	<br>
 
@@ -90,4 +88,26 @@
 			</tr>
 		{% endfor %}
 	</table>
+
+	{% if entry_list.has_other_pages %}
+		<ul class="pagination">
+			{% if entry_list.has_previous %}
+				<li><a href="?{{ url_string }}&page={{ 1 }}">First...</a></li>&nbsp;&nbsp;&nbsp;
+				<li><a href="?{{ url_string }}&page={{ entry_list.previous_page_number }}">Previous</a></li>&nbsp;&nbsp;&nbsp;
+			{% endif %}
+			{% for i in entry_list.paginator.page_range %}
+				{% if i <= entry_list.number|add:5 and i >= entry_list.number|add:-5 %}
+					{% if entry_list.number == i %}
+						<li class="active"><span>{{ i }}<span class="sr-only">(current)</span></span></li>&nbsp;&nbsp;&nbsp;
+					{% else %}
+						<li><a href="?{{ url_string }}&page={{ i }}">{{ i }}</a></li>&nbsp;&nbsp;&nbsp;
+					{% endif %}
+				{% endif %}
+			{% endfor %}
+			{% if entry_list.has_next %}
+				<li><a href="?{{ url_string }}&page={{ entry_list.next_page_number }}">Next</a></li>&nbsp;&nbsp;&nbsp;
+				<li><a href="?{{ url_string }}&page={{ entry_list.paginator.num_pages }}">...Last ({{ entry_list.paginator.num_pages }})</a></li>
+			{% endif %}
+		</ul>
+	{% endif %}
 {% endblock %}
