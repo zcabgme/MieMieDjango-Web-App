@@ -9,25 +9,41 @@
 
 {% block content %}
 
-
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'app' %}">Search Engine</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    SDG
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="{% url 'sdg' %}">View Data</a>
+                <a class="dropdown-item" href="{% url 'universal_SVM' %}">SDG: SVM Universal</a>
+                <a class="dropdown-item" href="{% url 'sdgVisualisation' %}" target="_blank">SDG Visualizations</a>
+                <a class="dropdown-item" href="{% url 'tableauVisualisation' %}" target="_blank">Tableau Visualizations</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="{% url 'sdg' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    IHE
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="{% url 'ihe' %}">View Data</a>
+                <a class="dropdown-item" href="{% url 'bubble_chart_act' %}" target="_blank">Bubble Chart</a>
+                <a class="dropdown-item" href="{% url 'iheVisualisation' %}" target="_blank">IHE Visualizations</a>
+                </div>
+            </li>
+        </ul>
+        <button type="button" class="btn btn-primary">
+          <a style="color: white;" href="{% url 'manual_add' %}" target="_blank">Manual Add</a>
+        </button>
+    </div>
+</nav>
 
 <br><br>
-{% comment %} <a href="#" data-activates="slide-out" class="button-collapse waves-effect waves-light btn grey darken-4">Filter By</a> {% endcomment %}
-
-{% comment %} <div>
-  <form method="post" id="slide-out" class="side-nav">
-    {% csrf_token %}
-        {% for status in status_list %}
-        <ul>
-          <li>
-            <input type="checkbox" value="{{ status }}" id="{{ status }}" name="status_checklist">
-            <label  style="color: black;" for="{{ status }}">{{ status }}</label>&nbsp&nbsp
-          </li>
-        <ul>
-        {% endfor %}
-    <button class="waves-effect waves-light btn grey darken-1" type="submit">Search</button>
-  </form>
-</div> {% endcomment %}
 
 <script>
   $(document).ready(function(){
