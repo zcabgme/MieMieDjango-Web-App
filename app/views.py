@@ -55,7 +55,6 @@ def app(request):
     }
     
     if request.method == 'GET':
-        print("test")
         query = request.GET.get('q')
         form = getCheckBoxState(request, form)
         if query is not None and query != '' and len(query) != 0:
