@@ -1,51 +1,46 @@
+from NLP.SVM.sdg_svm import SdgSvm
+from NLP.PREPROCESSING.module_preprocessor import ModuleCataloguePreprocessor
+from NLP.PREPROCESSING.preprocessor import Preprocessor
+
+from django.core import serializers
 from django.shortcuts import render, redirect
 from django.db.models.expressions import RawSQL
-from .models import Module, Publication
-from .forms import RangeInput
+from .models import *
 from django.views import View
-from .forms import ModuleForm
 from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
-from NLP.PREPROCESSING.preprocessor import Preprocessor
-from NLP.PREPROCESSING.module_preprocessor import ModuleCataloguePreprocessor
-from NLP.SVM.sdg_svm import SdgSvm
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template.defaulttags import register
+from .forms import BubbleChartAdd
 
-import pyodbc, json, os, csv
-import pymongo
-import pickle
+import pyodbc, json, os, csv, time
 from io import BytesIO, StringIO
-import base64
-from bson import json_util
+from colorsys import hsv_to_rgb
 import matplotlib.pyplot as plt
+from bson import json_util
+import pymongo, pickle, base64
+import numpy as np
+import colorsys, random
 import matplotlib
 matplotlib.use('Agg')
+import colorsys, random
 
-import io
-from colorsys import hsv_to_rgb
-import numpy as np
 
-svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
-Module_CSV_Data = None
-Publication_CSV_Data = None
 global_context = {}
-global_display_limit = 150
-UCL_AffiliationID = "60022148"
-lda_threshold = 30
-svm_threshold = 30
+svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
+Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
+lda_threshold, svm_threshold, global_display_limit = 30, 30, 150
+
 
 def app(request):
     global Module_CSV_Data
     global Publication_CSV_Data
     global global_context
 
-    all_modules = Module.objects.all()[:global_display_limit]
-    all_publications = Publication.objects.all()[:global_display_limit]
+    all_modules = Module.objects.all()
+    all_publications = Publication.objects.all()
 
-    if request.method == "POST":
-        updatePublicationsFromMongoDB(request)
-        updateModuleData(request)
-        return redirect('app')
 
     form = {"modBox": "unchecked", "pubBox": "unchecked", "ASC": "selected", "DESC": ""}
     len_mod = Module.objects.count()
@@ -60,73 +55,215 @@ def app(request):
     }
     
     if request.method == 'GET':
+        print("test")
         query = request.GET.get('q')
         form = getCheckBoxState(request, form)
         if query is not None and query != '' and len(query) != 0:
-            c = returnQuery(request, form, query, all_modules, all_publications)
-            return render(request, 'index.html', c)
+            context = returnQuery(request, form, query, all_modules, all_publications)
         else:
             Module_CSV_Data = None
             Publication_CSV_Data = None
 
-    len_mod = Module.objects.count()
-    len_pub = Publication.objects.count()
+        publications, modules = None, None
+        Module_CSV_Data, Publication_CSV_Data = None, None
+        len_mod, len_pub = 0, 0
+
+        url_string = "q=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
+        if request.GET.get('modBox') == "clicked":
+            url_string = url_string + "&modBox=clicked"
+            Module_CSV_Data = context['mod']
+            len_mod = len(context['mod'])
+
+            mod_paginator = Paginator(context['mod'], 15)
+            mod_page = request.GET.get('modPage')
+            try:
+                modules = mod_paginator.page(mod_page)
+            except PageNotAnInteger:
+                modules = mod_paginator.page(1)
+            except EmptyPage:
+                modules = mod_paginator.page(mod_paginator.num_pages)
+        if request.GET.get('pubBox') == "clicked":
+            url_string = url_string + "&pubBox=clicked"
+            Publication_CSV_Data = context['pub']
+            len_pub = len(context['pub'])
+    
+            pub_paginator = Paginator(context['pub'], 15)
+            pub_page = request.GET.get('pubPage')
+            try:
+                publications = pub_paginator.page(pub_page)
+            except PageNotAnInteger:
+                publications = pub_paginator.page(1)
+            except EmptyPage:
+                publications = pub_paginator.page(pub_paginator.num_pages)
+
     context = {
-        'mod': all_modules,
-        'pub': all_publications,
         'len_mod': len_mod,
         'len_pub': len_pub,
         'len_total': len_mod + len_pub,
-        'form': form
+        'form': form,
+        'publications': publications,
+        'modules': modules,
+        'urlString': url_string
     }
-    Module_CSV_Data = None
-    Publication_CSV_Data = None
     global_context = context
     return render(request, 'index.html', context)
 
-def getDB():
-    # SERVER LOGIN DETAILS
-    server = 'miemie.database.windows.net'
-    database = 'MainDB'
-    username = 'miemie_login'
-    password = 'e_Paswrd?!'
-    driver = '{ODBC Driver 17 for SQL Server}'
-    # CONNECT TO DATABASE
-    myConnection = pyodbc.connect('DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
-    curr = myConnection.cursor()
-    curr.execute("SELECT * FROM [dbo].[ModuleData]")
-    result = curr.fetchall()
-    return result
+def bubble_chart_act(request):
+    approach_list = ApproachAct.objects.all()
+    specialty_list = SpecialtyAct.objects.all()
+    colors = ColorAct.objects.all()
+    bubbles = BubbleAct.objects.all()
+    people = UserProfileAct.objects.all().count()
 
-def updateModuleData(request):
-    new_data = getDB()
-    for i in new_data:
-        obj, created = Module.objects.get_or_create(Department_Name=i[0], Department_ID=i[1], Module_Name=i[2], Module_ID=i[3], Faculty=i[4], Credit_Value=i[5], Module_Lead=i[6], Catalogue_Link=i[7], Description=i[8])
+    approachNum = approach_list.count()
+    specialtyNum = specialty_list.count()
+
+    color_dict = {}
+    approach_dict = {}
+    bubble_dict = {}
+
+    numSpecialty, numApproach = 0, 0
+
+    for color in colors:
+        specialty_dict = {}
+        for specialty in specialty_list.filter(color=color):
+            specialty_dict[specialty] = numSpecialty
+            numSpecialty += 1
+        color_dict[color] = specialty_dict
+
+    for approach in approach_list:
+        approach_dict[approach] = numApproach
+        numApproach += 1
+
+    CONST_1 = 45
+    curr_max = 0
+    for i in bubbles:
+        if i.list_of_people.count(',') + 1 > curr_max:
+            curr_max = i.list_of_people.count(',') + 1
+
+    for bubble in bubbles:
+        specialty_index = color_dict[bubble.color][bubble.coordinate_speciality] * CONST_1
+        approach_index = approach_dict[bubble.coordinate_approach] * CONST_1
+        areaNum = bubble.list_of_people.count(',') + 1
+        size_raw = areaNum / curr_max
+
+        z = ((size_raw) * (45 - 9)) + 9
+        const = (z-9) / 36
+        x = (-17 * const) + 13 + specialty_index
+        y = (-16 * const) + 11 + approach_index
+
+        bubble_dict[bubble] = [x, y, z]
+
+    context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
+               'color_dict': color_dict, 'verticalLength': approachNum + 1, 'horizontalLength': specialtyNum + 1}
+
+    return render(request, 'bubble_chart_act.html', context)
+
+def searchBubbleAct(request, pk=None, pk_alt=None):
+    form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}
+    ucl_id = '60022148'
+    obj = BubbleAct.objects.get(coordinate_approach=pk,coordinate_speciality=pk_alt)
+    list_of_emails = obj.list_of_people.split(',')
+    entry_list = []
+
+    if request.method == 'GET':
+        people = UserProfileAct.objects.all()
+        query = request.GET.get('author_selection')
+        
+        if query == 'UCL Authors':
+            form['UCL Authors'] = "selected"
+            form['OTHER Authors'] = "unselected"
+            form['ALL'] = "unselected"
+            ok = people.exclude(affiliationID="")
+            for i in ok:
+                if i != "null":
+                    if ucl_id in i.affiliationID and i.author_id in list_of_emails:
+                        entry_list.append(i)
+
+        elif query == 'OTHER Authors':
+            form['OTHER Authors'] = "selected"
+            form['UCL Authors'] = "unselected"
+            form['ALL'] = "unselected"
+            ok = people.exclude(affiliationID="")
+            for i in ok:
+                if i != "null":
+                    if ucl_id not in i.affiliationID and i.author_id in list_of_emails:
+                        entry_list.append(i)
+                      
+        elif query == 'ALL':
+            form['OTHER Authors'] = "unselected"
+            form['UCL Authors'] = "unselected"
+            form['ALL'] = "selected"
+            ok = people.exclude(affiliationID="")
+            for i in ok:
+                if i != "null" and i.author_id in list_of_emails:
+                    entry_list.append(i)
+
+    author_paginator = Paginator(entry_list, 10)
+
+    page = request.GET.get('page', 1)
+    try:
+        authors = author_paginator.page(page)
+    except PageNotAnInteger:
+        authors = author_paginator.page(1)
+    except EmptyPage:
+        authors = author_paginator.page(author_paginator.num_pages)
+
+    url_string = 'csrfmiddlewaretoken=' + str(request.GET.get('csrfmiddlewaretoken')) + '&author_selection=' + str(request.GET.get('author_selection')).replace(" ", "+")
+
+
+    num_of_people = len(entry_list)
+    app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt), pk, pk_alt]
+    return render(request, 'searchBubbleAct.html', {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people, "url_string": url_string})
+
+def manual_add(request):
+    approach_list = ApproachAct.objects.all()
+    specialty_list = SpecialtyAct.objects.all()
+    form = BubbleChartAdd()
+
+    approach_select = {"Default": "unselected"}
+    for i in approach_list:
+        approach_select[i] = "unselected"
+
+    speciality_select = {"Default": "unselected"}
+    for i in specialty_list:
+        speciality_select[i] = "unselected"
+
+        
+    if request.method == "POST":
+        form = BubbleChartAdd(request.POST or None)
+
+        if form.is_valid():
+            form.save()
+        else:
+            saved_data = {
+                "author_id": request.POST['author_id'],
+                "fullName": request.POST['fullName'],
+                "affiliation": request.POST['affiliation'],
+                "approach": request.POST['approach'],
+                "specialty": request.POST['specialty'],
+                "form": form
+            }
+            messages.success(request, ("There was an error in your form! Please try again."))
+            return render(request, 'manual_add.html', saved_data)
+
+        messages.success(request, ("Your form has been submitted successfully!"))
+        return redirect('manual_add')
+
+    else:
+        return render(request, 'manual_add.html', {"form": form, "approach_select": approach_select, "speciality_select": speciality_select})
 
 def clearEmptySDG_assignments():
     Publication.objects.filter(assignedSDG__isnull=True).delete()
 
-def updatePublicationsFromMongoDB(request):
-    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-    db = client.Scopus
-    col = db.Data
-    data = col.find(batch_size=10)
-    c = 0
-    for i in data:
-        i = json.loads(json_util.dumps(i))
-        obj, created = Publication.objects.get_or_create(title=i['Title'])
-        obj.title = i['Title']
-        obj.data = i
-        obj.save()
-        c += 1
-        print("Loaded", c, "/", "25830", i["DOI"])
-    client.close()
-
 def getCheckBoxState(request, form):
     # For SDG section, function reused (checkboxes and drop-down menu)
-    form['Default'] = "selected" if request.GET.get('sorting') == "Default" else "unselected"
-    form['ASC'] = "selected" if request.GET.get('sorting') == "ASC" else "unselected"
-    form['DESC'] = "selected" if request.GET.get('sorting') == "DESC" else "unselected"
+    if 'Default' in form:
+        form['Default'] = "selected" if request.GET.get('sorting') == "Default" else "unselected"
+    if 'ASC' in form:
+        form['ASC'] = "selected" if request.GET.get('sorting') == "ASC" else "unselected"
+    if 'DESC' in form:
+        form['DESC'] = "selected" if request.GET.get('sorting') == "DESC" else "unselected"
 
     # For main page checkboxes
     form['modBox'] = "checked" if request.GET.get('modBox') == "clicked" else "unchecked"
@@ -154,7 +291,8 @@ def moduleSearch(request, query, all_publications, form):
 def publicationSearch(request, query, all_modules, form):
     myFilter = Publication.objects.filter(data__icontains=query).distinct()
     len_mod = Module.objects.count()
-    len_pub = myFilter.count()
+    len_pub = myFilter.count()    
+
     return {
         'mod': all_modules,
         'pub': myFilter,
@@ -197,264 +335,49 @@ def returnQuery(request, form, query, all_modules, all_publications):
         context = allSearch(request, query, all_modules, all_publications, form)
         Module_CSV_Data = context["mod"]
         Publication_CSV_Data = context["pub"]
-    elif form['iheBox'] == "checked" and form['pubBox'] == "unchecked":
-        context = publicationSearch(request, query, all_modules, form)
-        Module_CSV_Data = None
 
     global_context = context
     return context
 
 def iheVisualisation(request):
-    return render(request, "visualisations/IHE/pyldavis.html", {})
+    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.Scopus
+    col = db.Visualisations
+    data = list(col.find())[0]
+    
+    context = {
+        "pylda": data['PyLDA_ihe'],
+        "tsne": data['TSNE_ihe']
+    }
+    client.close()
+    return render(request, "visualisations/IHE/pyldavis.html", context)
 
 def sdgVisualisation(request):
-    return render(request, "visualisations/SDG/pyldavis.html", {})
+    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.Scopus
+    col = db.Visualisations
+    data = list(col.find())[1]
 
-def join(request):
-    if request.method == "POST":
-        form = ModuleForm(request.POST or None)
-        if form.is_valid():
-            form.save()
-        else:
-            saved_data = {
-                "Department_Name": request.POST['Department_Name'],
-                "Department_ID": request.POST['Department_ID'],
-                "Module_Name": request.POST['Module_Name'],
-                "Module_ID": request.POST['Module_ID'],
-                "Faculty": request.POST['Faculty'],
-                "Credit_Value": request.POST['Credit_Value'],
-                "Module_Lead": request.POST['Module_Lead'],
-                "Catalogue_Link": request.POST['Catalogue_Link'],
-                "Description": request.POST['Description']
-            }
-            messages.success(request, ("There was an error in your form! Please try again."))
-            return render(request, 'join.html', saved_data)
-
-        messages.success(request, ("Your form has been submitted successfully!"))
-        return redirect('app')
-
-    else:
-        return render(request, 'join.html', {})
-
-def processForSDG(doi_searched):
-    publicationData = pd.DataFrame(columns=['DOI', 'Description'])
-    p = Publication.objects.all()
-    for i in p:
-        data = json.dumps(i.data)
-        data = json.loads(data)
-        doi = data['DOI']
-        if doi_searched == doi:
-            concatDataFields = i.title
-            if data['Abstract']:
-                concatDataFields += data['Abstract']
-            if data['AuthorKeywords']:
-                concatDataFields += " ".join(data['AuthorKeywords'])
-            if data['IndexKeywords']:
-                concatDataFields += " ".join(data['IndexKeywords'])
-            if data['SubjectAreas']:
-                subjectName = [x[0] for x in data['SubjectAreas']]
-                concatDataFields += " ".join(subjectName)
-            rowDataFrame = pd.DataFrame([[doi, concatDataFields]], columns=publicationData.columns)
-            publicationData = publicationData.append(rowDataFrame, verify_integrity=True, ignore_index=True)
-    return publicationData
-
-def pseudocolor(val, minval, maxval):
-    h = (float(val-minval) / (maxval-minval)) * 120
-    r, g, b = hsv_to_rgb(h/360, 1., 1.)
-    oldRange = 1
-    newRange = 255
-    r = int(((r) * newRange / oldRange))
-    g = int(((g) * newRange / oldRange))
-    b = int(((b) * newRange / oldRange))
-    return r, g, b
-
-def getModule_validation(module):
-    # client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-    # db = client.Scopus
-    # col = db.ModuleValidation
-
-    files_directory = "ALL_SCAPERS/moduleValidationSDG.json"
-    with open(files_directory) as json_file:
-        data_ = json.load(json_file)
-        if module in data_:
-            similarityRGB = data_[module]['Similarity']
-            data_[module]['ColorRed'], data_[module]['ColorGreen'], data_[module]['ColorBlue'] = pseudocolor(similarityRGB*100, 0, 100)
-            data_[module]['StringCount'] = normalise(data_[module]['SDG_Keyword_Counts'])
-
-            return data_[module]
-
-def getPublication_validation(data_, publication):
-    # client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-    # db = client.Scopus
-    # col = db.ScopusValidation
-
-    similarityRGB = data_[publication]['Similarity']
-    data_[publication]['ColorRed'], data_[publication]['ColorGreen'], data_[publication]['ColorBlue'] = pseudocolor(similarityRGB*100, 0, 100)
-    data_[publication]['StringCount'] = normalise(data_[publication]['SDG_Keyword_Counts'])
-    return data_[publication]
-
-def getThreshold(result, threshold):
-    validPerc = []
-    for i in range(len(result)):
-        if result[i] >= threshold:
-            validPerc.append(str(i + 1))
-    return validPerc
-
-def getIHE_predictions(data_, publication):
-    result = [0] * 9
-    lst = data_['Document Topics'][publication]
-    for i in lst:
-        cleaner = i.replace("(", "").replace(")", "").replace("%", "").split(',')
-        topic_num = int(cleaner[0])
-        percentage = float(cleaner[1])
-        result[topic_num - 1] = percentage
-    
-    validPerc = getThreshold(result, lda_threshold)
-    validPerc = ",".join(validPerc)
-    return result, validPerc
-
-def truncate(n, decimals=0):
-    multiplier = 10 ** decimals
-    return int(n * multiplier) / multiplier
-
-def getSVM_predictions(data, element):
-    result_array = [0] * 18
-    validPerc = ""
-
-    if element in data:
-        for i in range(len(data[element])):
-            if isinstance(data[element][i], float):
-                weight = truncate(data[element][i] * 100, 1)
-            else:
-                weight = truncate(float(data[element][i]) * 100, 1)
-            result_array[i] = weight
-
-        validPerc = getThreshold(result_array, svm_threshold)
-        validPerc = ",".join(validPerc)
-    return result_array, validPerc
-
-def loadSDG_Data_PUBLICATION():
-    files_directory = "ALL_SCAPERS/iheScopusPrediction.json"
-    with open(files_directory) as json_file:
-        ihePrediction = json.load(json_file)
-    files_directory = "ALL_SCAPERS/scopusValidationSDG.json"
-    with open(files_directory) as json_file:
-        scopusValidation = json.load(json_file)
-    files_directory = "ALL_SCAPERS/svm_sdg_predictions.json"
-    with open(files_directory) as json_file:
-        svm_predictions = json.load(json_file)
-
-    files_directory = "ALL_SCAPERS/scopusPrediction.json"
-    publication_SDG_assignments = {}
-    with open(files_directory) as json_file:
-        data_ = json.load(json_file)
-        count = 1
-        for i in data_:
-            print("Writing", count, "/", "25800")
-            count += 1
-            publication_SDG_assignments = data_[i]
-            calc_highest = []
-            for j in range(18):
-                try:
-                    weight = float(data_[i][str(j)]) * 100
-                    weight = round(weight, 2)
-                    calc_highest.append((str(j), weight))
-                except:
-                    pass
-            
-            p = sorted(calc_highest, key=lambda x: x[1])
-            validWeights = []
-            for sdg, weight in p:
-                if weight >= lda_threshold:
-                    validWeights.append(sdg)
-
-            publication_SDG_assignments['DOI'] = i
-            publication_SDG_assignments["Validation"] = getPublication_validation(scopusValidation, i)
-            publication_SDG_assignments['ModelResult'] = ",".join(validWeights)
-            publication_SDG_assignments['IHE'], publication_SDG_assignments['IHE_Prediction'] = getIHE_predictions(ihePrediction, i)
-            publication_SDG_assignments['SVM'], publication_SDG_assignments['SVM_Prediction'] = getSVM_predictions(svm_predictions['Publication'], i)
-
-            if publication_SDG_assignments["Validation"]['SDG_Keyword_Counts']:
-                normalised = normalise(publication_SDG_assignments["Validation"]['SDG_Keyword_Counts'])
-                publication_SDG_assignments['StringResult'] = ",".join(thresholdAnalyse(normalised, threshold=lda_threshold))
-                obj = Publication.objects.get(title=data_[i]['Title'])
-                obj.assignedSDG = publication_SDG_assignments
-                obj.save()
-    # client.close()
-
-def loadSDG_Data_MODULES():
-    # client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-    # db = client.Scopus
-    # col = db.ModulePrediction
-    # data = col.find()
-    files_directory = "ALL_SCAPERS/svm_sdg_predictions.json"
-    with open(files_directory) as json_file:
-        svm_predictions = json.load(json_file)
-
-    files_directory = "ALL_SCAPERS/modulePrediction.json"
-    with open(files_directory) as json_file:
-        data_ = json.load(json_file)['Document Topics']
-        count = 1
-        for module in data_:
-            print("Writing", count, "/", "5576")
-            weights = data_[module]
-            module_SDG_assignments = {}
-            module_SDG_assignments["Module_ID"] = module
-            module_SDG_assignments["Validation"] = getModule_validation(module)
-            w = []
-            for i in range(len(weights)):
-                weights[i] = weights[i].replace('(', '').replace(')', '').replace('%', '').replace(' ', '').split(',')
-                sdgNum = weights[i][0]
-                module_SDG_assignments[sdgNum] = float(weights[i][1])
-                w.append((sdgNum, float(weights[i][1])))
-
-            if module_SDG_assignments["Validation"]:
-                module_SDG_assignments['ModelResult'] = ",".join(thresholdAnalyse(w, threshold=lda_threshold))
-                normalised = normalise(module_SDG_assignments["Validation"]['SDG_Keyword_Counts'])
-                module_SDG_assignments['StringResult'] = ",".join(thresholdAnalyse(normalised, threshold=lda_threshold))
-                module_SDG_assignments['SVM'], module_SDG_assignments['SVM_Prediction'] = getSVM_predictions(svm_predictions['Module'], module)
-                # print(module, module_SDG_assignments['StringResult'])
-                obj = Module.objects.get(Module_ID=module)
-                obj.assignedSDG = module_SDG_assignments
-                obj.save()
-            count += 1
-
-def thresholdAnalyse(lst, threshold):
-    validWeights = []
-    p = sorted(lst, key=lambda x: x[1])
-    for sdg, weight in p:
-        if weight >= threshold:
-            validWeights.append(sdg)
-    return validWeights
-
-def normalise(lst):
-    result = [0]*18
-    sum_ = sum(lst)
-    for i in range(len(lst)):
-        if sum_ != 0:
-            result[i] = (str(i+1), (lst[i] / sum_) * 100)
-        else:
-            result[i] = (str(i+1), 0.0)
-    return result
+    context = {
+        "pylda": data['PyLDA_sdg'],
+        "tsne": data['TSNE_sdg']
+    }
+    client.close()
+    return render(request, "visualisations/SDG/pyldavis.html", context)
 
 def sortSDG_results(form, obj, ascending):
     return obj.order_by('assignedSDG__Validation__Similarity') if ascending else obj.order_by('-assignedSDG__Validation__Similarity')
 
 def sdg(request):
-    form = {"modBox": "unchecked", "pubBox": "unchecked", "iheBox": "unchecked",
+    form = {"modBox": "unchecked", "pubBox": "unchecked",
                 "Default": "unselected", "ASC": "unselected", "DESC": "unselected"}
     context = {
-        'pub': Publication.objects.filter(assignedSDG__isnull=False),
+        'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__SVM_Prediction=''),
         'mod': Module.objects.filter(Description__isnull=False),
         'lenPub': Publication.objects.count(),
         'lenMod': Module.objects.count(),
-        'form': form
+        'form': form,
     }
-
-    # Update the database with new sdg assignments
-    if request.method == "POST":
-        loadSDG_Data_PUBLICATION()
-        loadSDG_Data_MODULES()
 
     if request.method == 'GET':
         query = request.GET.get('b')
@@ -470,12 +393,40 @@ def sdg(request):
             context['pub'] = sortSDG_results(form, context['pub'], ascending=False)
             context['mod'] = sortSDG_results(form, context['mod'], ascending=False)
 
+        url_string = "b=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
+        if request.GET.get('modBox') == "clicked":
+            url_string = url_string + "&modBox=clicked"
+        if request.GET.get('pubBox') == "clicked":
+            url_string = url_string + "&pubBox=clicked"
+
+        url_string = url_string + "&sorting=" + str(request.GET.get('sorting'))
+        context['urlString'] = url_string
+
+        pub_paginator = Paginator(context['pub'], 10)
+        mod_paginator = Paginator(context['mod'], 10)
+
+        pub_page = request.GET.get('pubPage')
+        try:
+            publications = pub_paginator.page(pub_page)
+        except PageNotAnInteger:
+            publications = pub_paginator.page(1)
+        except EmptyPage:
+            publications = pub_paginator.page(pub_paginator.num_pages)
+
+        mod_page = request.GET.get('modPage')
+        try:
+            modules = mod_paginator.page(mod_page)
+        except PageNotAnInteger:
+            modules = mod_paginator.page(1)
+        except EmptyPage:
+            modules = mod_paginator.page(mod_paginator.num_pages)
+
+        context['publications'] = publications
+        context['modules'] = modules
+
         # Record the query results numbers
         context['lenMod'] = context['mod'].count()
         context['lenPub'] = context['pub'].count()
-
-        context['pub'] = context['pub'][:global_display_limit]
-        context['mod'] = context['mod'][:global_display_limit]
 
     return render(request, 'sdg.html', context)
 
@@ -576,7 +527,7 @@ def export_publications_csv(request):
                 name = AuthorData[id_]['Name']
                 affiliationID = AuthorData[id_]['AffiliationID']
                 affiliationName = AuthorData[id_]['AffiliationName']
-                if affiliationID  == UCL_AffiliationID:
+                if affiliationID == "60022148":
                     if affiliationName:
                         UCLAuthorsData.append(name + "(" + affiliationName + ")")
                     else:
@@ -601,9 +552,9 @@ def unpickle_svm_model():
     with open("NLP/SVM/model.pkl", "rb") as input_file:
         return pickle.load(input_file)
 
-svm = unpickle_svm_model()
-
 def make_SVM_prediction(text, processor):
+    svm = unpickle_svm_model()
+
     if processor == "module":
         preprocessor = ModuleCataloguePreprocessor()
     else:
@@ -622,7 +573,7 @@ def drawDonutChart(results):
               "SDG 7", "SDG 8", "SDG 9", "SDG 10", "SDG 11", "SDG 12",
               "SDG 13", "SDG 14", "SDG 15", "SDG 16", "SDG 17", "Misc"]
    
-   
+    
     wedges, texts = ax.pie(results, wedgeprops=dict(width=0.5), startangle=-40)
     bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
     kw = dict(arrowprops=dict(arrowstyle="-"),bbox=bbox_props, zorder=0, va="center")
@@ -645,6 +596,10 @@ def drawDonutChart(results):
     graphic = base64.b64encode(image_png)
     graphic = graphic.decode('utf-8')
     return graphic
+
+def truncate(n:float, decimals:int =0) -> float:
+    multiplier = 10 ** decimals
+    return int(n * multiplier) / multiplier
 
 def universal_SVM(request):
     global svm_context
@@ -675,3 +630,210 @@ def universal_SVM(request):
             return render(request, 'svm.html', {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None})
     
     return render(request, 'svm.html', svm_context)
+
+def getCheckBoxState_ihe(request, form, number_of_ihe):
+    for i in range(1, number_of_ihe+1):
+        form[str(i)] = "selected" if request.GET.get('prediction') == str(i) else "unselected"
+    return form
+
+def filter_ihe_by_prediction(context, key):
+    return context.filter(assignedSDG__IHE_Prediction=key)
+
+def export_ihe_csv(request):
+    global IHE_CSV_Data
+
+    if not IHE_CSV_Data:
+        messages.success(request, ("No IHE publications to export! Please try again."))
+        return render(request, 'ihe.html', {})
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="ihe_publications.csv"'
+
+    try:
+        writer = csv.writer(response)
+        writer.writerow(["Name", "Prediction", "DOI", "Abstract"])
+    except:
+        messages.success(request, ("No IHE publications to export! Please try again."))
+        return render(request, 'ihe.html', {})
+
+    for paper in IHE_CSV_Data:
+        first = True
+        author_data = paper.data['AuthorData']
+        Prediction = paper.assignedSDG['IHE_Prediction']
+        DOI = paper.data['DOI']
+        Abstract = paper.data['Abstract']
+
+        for author_id, values in author_data.items():
+            if first:
+                writer.writerow([values['Name'], Prediction, DOI, Abstract])
+                first = False
+            else:
+                writer.writerow([values['Name'], "", "", ""])
+
+    return response
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
+def ihe(request):
+    global IHE_CSV_Data
+    form = {"Default": "unselected"}
+    number_of_ihe = 10
+
+    lookup = {
+        "1": "AI and Machine Learning",
+        "2": "Bioinformatics",
+        "3": "Cybersecurity",
+        "4": "Data Sciences",
+        "5": "Software Engineering",
+        "6": "Robotics",
+        "7": "Synthetic Biology",
+        "8": "Pharmacology & Pharmaceuticals",
+        "9": "Tissue Engineering",
+        "10": "Regenerative Medicine"
+    }
+
+    for i in range(1, number_of_ihe+1):
+        form[str(i)] = 'unselected'
+
+    context = {
+        'pub': Publication.objects.filter(assignedSDG__isnull=False),
+        'lenPub': Publication.objects.count(),
+        'form': form,
+        'ihe_lookup': lookup
+    }
+
+    if request.method == 'GET':
+        query = request.GET.get('c')
+        context['form'] = getCheckBoxState_ihe(request, form, number_of_ihe)
+
+        if query is not None and query != '' and len(query) != 0:
+            context['pub'] = context['pub'].filter(data__icontains=query).distinct()
+
+        for key, val in form.items():
+            if val == "selected" and key != "Default":
+                context['pub'] = filter_ihe_by_prediction(context['pub'], key)
+
+        IHE_CSV_Data = context['pub']
+
+        url_string = "c=" + str(query).replace(" ", "+") + "&submit=" + str(request.GET.get('submit'))
+        
+        url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
+        context['urlString'] = url_string
+
+        ihe_paginator = Paginator(context['pub'], 10)
+        ihe_page = request.GET.get('ihePage')
+        try:
+            ihes = ihe_paginator.page(ihe_page)
+        except PageNotAnInteger:
+            ihes = ihe_paginator.page(1)
+        except EmptyPage:
+            ihes = ihe_paginator.page(ihe_paginator.num_pages)
+        context['ihes'] = ihes
+        
+        return render(request, 'ihe.html', context)
+
+    return render(request, 'ihe.html', {})
+
+def getSQL_connection():
+    server = 'summermiemieservver.database.windows.net'
+    database = 'summermiemiedb'
+    username = 'miemie_login'
+    password = 'e_Paswrd?!'
+    driver = '{ODBC Driver 17 for SQL Server}'
+    myConnection = pyodbc.connect('DRIVER=' + driver + ';SERVER=' + server +';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
+    return myConnection
+
+def tableauVisualisation(request):
+    curr = getSQL_connection().cursor()
+    checkboxes = {'value1': '', 'value2': '', 'value3': ''}
+
+    hue = random.randrange(0, 360)
+    saturation = random.uniform(0, 1)
+    luminance = random.uniform(30, 70)
+    rgb = colorsys.hsv_to_rgb(hue, saturation, luminance)
+
+    if request.method == 'GET':
+        query = request.GET.get('exampleRadios')
+
+        if query == "sdg_bubble":
+            query = """
+                SELECT TestModAssign.SDG, COUNT(DISTINCT TestModAssign.Module_ID), SUM(StudentsPerModule.NumberOfStudents)
+                FROM [dbo].[TestModAssign]
+                INNER JOIN StudentsPerModule ON TestModAssign.Module_ID=StudentsPerModule.ModuleID 
+                GROUP BY TestModAssign.SDG"""
+            curr.execute(query)
+            sdg_bubbles = curr.fetchall() # (assigned sdg, module id, number of students)
+            module_bubble_list = list()
+            for sdg in sdg_bubbles:
+                module_bubble_list.append({
+                    'SDG': str(sdg[0]),
+                    'Number_Students': sdg[2],
+                    'Number_Modules': sdg[1]
+                })
+
+            checkboxes['value1'] = 'checked'
+            checkboxes['value2'] = ''
+            checkboxes['value3'] = ''
+            return render(request, 'tableau_vis.html', {'selector': 'modules', 'bubble_list': module_bubble_list, 'radios': checkboxes})
+
+        if query == "department_sdg_bubble":
+            query = """
+                SELECT ModuleData.Department_Name, COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)), SUM(StudentsPerModule.NumberOfStudents) FROM [dbo].[ModuleData]
+                INNER JOIN TestModAssign ON ModuleData.Module_ID = TestModAssign.Module_ID
+                INNER JOIN StudentsPerModule ON ModuleData.Module_ID = StudentsPerModule.ModuleID
+                GROUP BY ModuleData.Department_Name"""
+            curr.execute(query)
+            department_bubble_sdg = curr.fetchall() # (department name, num of modules, sdg coverage, num of students)
+            department_bubble_list = list()
+            for departments in department_bubble_sdg:
+                department_bubble_list.append({
+                    'Department': departments[0],
+                    'Number_Modules': departments[1],
+                    'SDG_Count': departments[2],
+                    'Number_Students': departments[3]
+                })
+
+            colour_dict = {}
+            for departments in department_bubble_list:
+                h,s,l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
+                r,g,b = [int(256*i) for i in colorsys.hls_to_rgb(h,l,s)]
+                rgb = (round(r), round(g), round(b))
+                colour_dict[str(departments['Department'])] = '#%02x%02x%02x' % rgb
+
+            checkboxes['value1'] = ''
+            checkboxes['value2'] = 'checked'
+            checkboxes['value3'] = ''
+            return render(request, 'tableau_vis.html', {'selector': 'departments', 'bubble_list': department_bubble_list, 'colours': colour_dict, 'radios': checkboxes})
+
+        if query == "faculty_sdg_bubble":
+            query = """
+                SELECT ModuleData.Faculty, SUM(StudentsPerModule.NumberOfStudents), COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)) FROM [dbo].[StudentsPerModule]
+                INNER JOIN ModuleData ON StudentsPerModule.ModuleID = ModuleData.Module_ID
+                INNER JOIN TestModAssign ON StudentsPerModule.ModuleID = TestModAssign.Module_ID
+                GROUP BY ModuleData.Faculty"""
+            curr.execute(query)
+            faculty_bubble_sdg = curr.fetchall() # (faculty name, num of students, num of modules, sdg coverage)
+            faculty_bubble_list = list()
+            for faculties in faculty_bubble_sdg:
+                faculty_bubble_list.append({
+                    'Faculty': faculties[0],
+                    'Number_Modules': faculties[2],
+                    'SDG_Count': faculties[3],
+                    'Number_Students': faculties[1]
+                })
+
+            colour_dict = {}
+            for faculties in faculty_bubble_list:
+                h,s,l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
+                r,g,b = [int(256*i) for i in colorsys.hls_to_rgb(h,l,s)]
+                rgb = (round(r), round(g), round(b))
+                colour_dict[str(faculties['Faculty'])] = '#%02x%02x%02x' % rgb
+            
+            checkboxes['value1'] = ''
+            checkboxes['value2'] = ''
+            checkboxes['value3'] = 'checked'
+            return render(request, 'tableau_vis.html', {'selector': 'faculties', 'bubble_list': faculty_bubble_list, 'colours': colour_dict, 'radios': checkboxes})
+
+    return render(request, 'tableau_vis.html', {})
