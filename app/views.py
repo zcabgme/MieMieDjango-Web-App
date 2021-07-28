@@ -35,6 +35,7 @@ matplotlib.use('Agg')
 
 global_context = {}
 global_query, global_mod_sdg, global_pub_sdg = None, None, None
+global_ihe_paginator = None
 svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, global_display_limit = 30, 30, 150
@@ -697,9 +698,12 @@ def export_ihe_csv(request):
 
 
 def ihe(request):
+    global global_query
+    global global_ihe_paginator
     global IHE_CSV_Data
+
     form = {"Default": "unselected"}
-    number_of_ihe = 10
+    number_of_ihe = 9
 
     lookup = {
         "1": "AI and Machine Learning",
@@ -718,43 +722,52 @@ def ihe(request):
 
     context = {
         'pub': Publication.objects.filter(assignedSDG__isnull=False),
-        'lenPub': Publication.objects.count(),
+        'len_pub': Publication.objects.count(),
         'form': form,
-        'ihe_lookup': lookup
+        'ihe_lookup': lookup,
+        'segment': 'ihe'
     }
+    url_string = ""
 
     if request.method == 'GET':
-        query = request.GET.get('c')
-        context['form'] = getCheckBoxState_ihe(request, form, number_of_ihe)
+        if "q" in request.GET:
 
-        if query is not None and query != '' and len(query) != 0:
-            context['pub'] = context['pub'].filter(
-                data__icontains=query).distinct()
+            query = request.GET.get('q')
+            context['form'] = getCheckBoxState_ihe(request, form, number_of_ihe)
+
+            if query is not None and query != '' and len(query) != 0 and query != global_query:
+                context['pub'] = context['pub'].filter(data__icontains=query).distinct()
+                global_query = query
+                global_ihe_paginator = Paginator(context['pub'], 10)
+
+            url_string = url_string + "q=" + str(query).replace(" ", "+")
+
+        else:
+            global_ihe_paginator = Paginator(context['pub'], 10)
+            global_query = None
 
         for key, val in form.items():
             if val == "selected" and key != "Default":
                 context['pub'] = filter_ihe_by_prediction(context['pub'], key)
+                global_ihe_paginator = Paginator(context['pub'], 10)
+                url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
 
-        context['pub'] = context['pub'].filter(
-            assignedSDG__IHE_SVM_Prediction__isnull=False)
-        IHE_CSV_Data = context['pub']
-
-        url_string = "c=" + str(query).replace(" ", "+") + \
-            "&submit=" + str(request.GET.get('submit'))
-
-        url_string = url_string + "&prediction=" + \
-            str(request.GET.get('prediction'))
-        context['urlString'] = url_string
-
-        ihe_paginator = Paginator(context['pub'], 10)
         ihe_page = request.GET.get('ihePage')
         try:
-            ihes = ihe_paginator.page(ihe_page)
+            ihes = global_ihe_paginator.page(ihe_page)
         except PageNotAnInteger:
-            ihes = ihe_paginator.page(1)
+            ihes = global_ihe_paginator.page(1)
         except EmptyPage:
-            ihes = ihe_paginator.page(ihe_paginator.num_pages)
+            ihes = global_ihe_paginator.page(global_ihe_paginator.num_pages)
         context['ihes'] = ihes
+
+        # context['pub'] = context['pub'].filter(assignedSDG__IHE_SVM_Prediction__isnull=False)
+        IHE_CSV_Data = context['pub']
+
+        if url_string != "": url_string = url_string + "&"
+        context['url_string'] = url_string
+
+        context['len_pub'] = global_ihe_paginator.count
 
         return render(request, 'ihe.html', context)
 

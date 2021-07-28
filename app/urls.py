@@ -12,6 +12,7 @@ urlpatterns = [
     path('', views.index, name='home'),
     path('app', views.app, name='app'),
     path('sdg', views.sdg, name='sdg'),
+    path('ihe', views.ihe, name='ihe'),
     path('universal_SVM', views.universal_SVM, name='universal_SVM'),
     path('universal_SVM_IHE', views.universal_SVM_IHE, name='universal_SVM_IHE'),
     path('sdgVisualisation', views.sdgVisualisation, name='sdgVisualisation'),
