@@ -34,6 +34,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 global_context = {}
+global_query, global_mod_sdg, global_pub_sdg = None, None, None
 svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, global_display_limit = 30, 30, 150
@@ -48,9 +49,11 @@ def app(request):
     global Module_CSV_Data
     global Publication_CSV_Data
     global global_context
+    global global_query
+    global global_mod_sdg, global_pub_sdg
 
-    all_modules = Module.objects.all()[:30]
-    all_publications = Publication.objects.all()[:30]
+    all_modules = Module.objects.all()[:10]
+    all_publications = Publication.objects.all()[:10]
 
     form = {"modBox": "unchecked", "pubBox": "checked", "ASC": "selected", "DESC": ""}
     len_mod = Module.objects.count()
@@ -60,26 +63,28 @@ def app(request):
         'modules': None,
         'pub': all_publications,
         'publications': None,
-        # 'len_mod': len_mod,
-        # 'len_pub': len_pub,
-        # 'len_total': len_mod + len_pub,
+        'len_mod': None,
+        'len_pub': None,
         'form': form,
         'segment': 'app'
     }
 
     if request.method == 'GET':
-        
         if "q" in request.GET:
             query = request.GET.get('q')
             print(query)
-            
-            if query is not None and query != '' and len(query) != 0:
-                # context = returnQuery(request, form, query, all_modules, all_publications)
-                context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
+
+            if query == global_query and query != '' and query:
+                context['pub'] = global_pub_sdg
+                context['mod'] = global_mod_sdg
+
+            elif query is not None and query != '' and len(query) != 0:
+                global_pub_sdg = context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
                 lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(Module_Lead__icontains=query) | Q(Description__icontains=query)
-                context['mod'] = Module.objects.filter(lookups).distinct()
+                global_mod_sdg = context['mod'] = Module.objects.filter(lookups).distinct()
                 url_string = "q=" + str(query).replace(" ", "+")
                 context['url_string'] = url_string + '&'
+                global_query = query
             else:
                 Module_CSV_Data = None
                 Publication_CSV_Data = None
@@ -87,14 +92,8 @@ def app(request):
         # publications, modules = None, None
         # Module_CSV_Data, Publication_CSV_Data = None, None
         # len_mod, len_pub = 0, 0
-
-        
-        
         # if request.GET.get('modBox') == "clicked":
-    # url_string = url_string + "&modBox=clicked"
-    # Module_CSV_Data = context['mod']
-    # len_mod = len(context['mod'])
-
+    
     mod_paginator = Paginator(context['mod'], 5)
     mod_page = request.GET.get('modPage')
     try:
@@ -103,9 +102,6 @@ def app(request):
         modules = mod_paginator.page(1)
     except EmptyPage:
         modules = mod_paginator.page(mod_paginator.num_pages)
-        
-    # Publication_CSV_Data = context['pub']
-    # len_pub = len(context['pub'])
 
     pub_paginator = Paginator(context['pub'], 5)
     pub_page = request.GET.get('pubPage')
@@ -118,7 +114,16 @@ def app(request):
 
     context['publications'] = publications
     context['modules'] = modules
+
+    Module_CSV_Data = context['mod']
+    context['len_mod'] = len(context['mod'])
+    Publication_CSV_Data = context['pub']
+    context['len_pub'] = len(context['pub'])
+
     
+    context['pubs_classified'] = len([s for s in context['pub'] if s.assignedSDG['SVM_Prediction']!='' and s.assignedSDG['SVM_Prediction']])
+    context['mods_classified'] = len([l for l in context['mod'] if l.assignedSDG['SVM_Prediction']!='' and l.assignedSDG['SVM_Prediction']])
+
 
     global_context = context
     return render(request, 'sdg_tables.html', context)

@@ -22,6 +22,8 @@ class Module(models.Model):
 
     def get_absolute_url(self):
         return f"/module/{self.pk}"
+    class Meta:
+        ordering = ['-id']
 
 
 class Publication(models.Model):
@@ -32,6 +34,8 @@ class Publication(models.Model):
 
     def __str__(self):
         return self.title
+    class Meta:
+        ordering = ['-id']
 
     def get_absolute_url(self):
         return f"/publication/{self.pk}"
