@@ -71,7 +71,7 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="https://www.creative-tim.com/templates/django">
+            <a class="nav-link {% if 'sdgVisualisation' in segment %} active {% endif %}" href={% url 'sdgVisualisation' %}>
               <i class="ni ni-spaceship"></i> Model Visualisations
             </a>
           </li>
@@ -98,15 +98,13 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" target="_blank"
-               href="https://www.creative-tim.com/templates/django">
+            <a class="nav-link {% if 'universal_SVM_IHE' in segment %} active {% endif %}" href={% url 'universal_SVM_IHE' %}>
               <i class="ni ni-spaceship"></i> SVM Universal
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" target="_blank"
-               href="https://www.creative-tim.com/templates/django">
+            <a class="nav-link {% if 'iheVisualisation' in segment %} active {% endif %}" href={% url 'iheVisualisation' %}>
               <i class="ni ni-spaceship"></i> Model Visualisations
             </a>
           </li>

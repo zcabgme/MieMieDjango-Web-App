@@ -13,6 +13,12 @@ urlpatterns = [
     path('app', views.app, name='app'),
     path('sdg', views.sdg, name='sdg'),
     path('universal_SVM', views.universal_SVM, name='universal_SVM'),
+    path('universal_SVM_IHE', views.universal_SVM_IHE, name='universal_SVM_IHE'),
+    path('sdgVisualisation', views.sdgVisualisation, name='sdgVisualisation'),
+    path('iheVisualisation', views.iheVisualisation, name='iheVisualisation'),
+    
+    
+    
     # Matches any html file
     # re_path(r'^.*\.*', views.pages, name='pages'),
 

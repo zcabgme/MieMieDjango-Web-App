@@ -257,33 +257,33 @@ def manual_add(request):
 
 
 def iheVisualisation(request):
-    client = pymongo.MongoClient(
-        "mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     db = client.Scopus
     col = db.Visualisations
     data = list(col.find())[0]
 
     context = {
         "pylda": data['PyLDA_ihe'],
-        "tsne": data['TSNE_ihe']
+        "tsne": data['TSNE_ihe'],
+        "segment": "iheVisualisation"
     }
     client.close()
-    return render(request, "visualisations/IHE/pyldavis.html", context)
+    return render(request, "ihe_model_vis.html", context)
 
 
 def sdgVisualisation(request):
-    client = pymongo.MongoClient(
-        "mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     db = client.Scopus
     col = db.Visualisations
     data = list(col.find())[1]
 
     context = {
         "pylda": data['PyLDA_sdg'],
-        "tsne": data['TSNE_sdg']
+        "tsne": data['TSNE_sdg'],
+        "segment": "sdgVisualisation"
     }
     client.close()
-    return render(request, "visualisations/SDG/pyldavis.html", context)
+    return render(request, "sdg_model_vis.html", context)
 
 
 def sortSDG_results(form, obj, ascending):
@@ -641,12 +641,12 @@ def universal_SVM_IHE(request):
             svm_context["data"] = results
             svm_context["Predicted"] = ','.join(predicted_)
             svm_context["graphic"] = drawDonutChartIHE(results)
-
-            return render(request, 'ihe_universal_svm.html', svm_context)
+            svm_context['segment'] = 'universal_SVM_IHE'
+            return render(request, 'ihe_svm_universal.html', svm_context)
         else:
-            return render(request, 'ihe_universal_svm.html', {"data": None, "Predicted": None, "graphic": None})
-
-    return render(request, 'ihe_universal_svm.html', svm_context)
+            return render(request, 'ihe_svm_universal.html', {"data": None, "Predicted": None, "graphic": None, "segment": "universal_SVM_IHE"})
+    svm_context['segment'] = 'universal_SVM_IHE'
+    return render(request, 'ihe_svm_universal.html', svm_context)
 
 
 def getCheckBoxState_ihe(request, form, number_of_ihe):
