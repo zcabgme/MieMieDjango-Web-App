@@ -696,11 +696,6 @@ def export_ihe_csv(request):
     return response
 
 
-@register.filter
-def get_item(dictionary, key):
-    return dictionary.get(key)
-
-
 def ihe(request):
     global IHE_CSV_Data
     form = {"Default": "unselected"}
@@ -808,7 +803,7 @@ def tableauVisualisation(request):
             checkboxes['value1'] = 'checked'
             checkboxes['value2'] = ''
             checkboxes['value3'] = ''
-            return render(request, 'tableau_vis.html', {'selector': 'modules', 'bubble_list': module_bubble_list, 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'modules', 'bubble_list': module_bubble_list, 'radios': checkboxes, 'segment': tableauVisualisation})
 
         if query == "department_sdg_bubble":
             query = """
@@ -839,7 +834,7 @@ def tableauVisualisation(request):
             checkboxes['value1'] = ''
             checkboxes['value2'] = 'checked'
             checkboxes['value3'] = ''
-            return render(request, 'tableau_vis.html', {'selector': 'departments', 'bubble_list': department_bubble_list, 'colours': colour_dict, 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'departments', 'bubble_list': department_bubble_list, 'colours': colour_dict, 'radios': checkboxes, 'segment': tableauVisualisation})
 
         if query == "faculty_sdg_bubble":
             query = """
@@ -848,7 +843,6 @@ def tableauVisualisation(request):
                 INNER JOIN TestModAssign ON StudentsPerModule.ModuleID = TestModAssign.Module_ID
                 GROUP BY ModuleData.Faculty"""
             curr.execute(query)
-            # (faculty name, num of students, num of modules, sdg coverage)
             faculty_bubble_sdg = curr.fetchall()
             faculty_bubble_list = list()
             for faculties in faculty_bubble_sdg:
@@ -869,6 +863,6 @@ def tableauVisualisation(request):
             checkboxes['value1'] = ''
             checkboxes['value2'] = ''
             checkboxes['value3'] = 'checked'
-            return render(request, 'tableau_vis.html', {'selector': 'faculties', 'bubble_list': faculty_bubble_list, 'colours': colour_dict, 'radios': checkboxes})
+            return render(request, 'tableau_vis.html', {'selector': 'faculties', 'bubble_list': faculty_bubble_list, 'colours': colour_dict, 'radios': checkboxes, 'segment': tableauVisualisation})
 
     return render(request, 'tableau_vis.html', {})

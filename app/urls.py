@@ -16,7 +16,7 @@ urlpatterns = [
     path('universal_SVM_IHE', views.universal_SVM_IHE, name='universal_SVM_IHE'),
     path('sdgVisualisation', views.sdgVisualisation, name='sdgVisualisation'),
     path('iheVisualisation', views.iheVisualisation, name='iheVisualisation'),
-    
+    path('tableauVisualisation', views.tableauVisualisation, name='tableauVisualisation'),
     
     
     # Matches any html file
