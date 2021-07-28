@@ -45,7 +45,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if 'icons' in segment %} active {% endif %}" href={% url 'app' %}>
+            <a class="nav-link {% if 'app' in segment %} active {% endif %}" href={% url 'app' %}>
               <i class="ni ni-planet text-blue"></i> Search Engine
             </a>
           </li>
@@ -59,29 +59,25 @@
         <ul class="navbar-nav mb-md-3">
 
           <li class="nav-item">
-            <a class="nav-link" target="_blank" 
-               href="https://github.com/creativetimofficial/argon-dashboard-django">
+            <a class="nav-link {% if 'sdg' in segment %} active {% endif %}" href={% url 'sdg' %}>
               <i class="ni ni-ui-04"></i> View Data
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" target="_blank"
-               href="https://www.creative-tim.com/templates/django">
+            <a class="nav-link {% if 'universal_SVM' in segment %} active {% endif %}" href={% url 'universal_SVM' %}>
               <i class="ni ni-spaceship"></i> SVM Universal
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" target="_blank"
-               href="https://www.creative-tim.com/templates/django">
+            <a class="nav-link" href="https://www.creative-tim.com/templates/django">
               <i class="ni ni-spaceship"></i> Model Visualisations
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" target="_blank"
-               href="https://www.creative-tim.com/templates/django">
+            <a class="nav-link" href="https://www.creative-tim.com/templates/django">
               <i class="ni ni-spaceship"></i> Tableau Visualisations
             </a>
           </li>

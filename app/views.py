@@ -55,9 +55,6 @@ def app(request):
     all_modules = Module.objects.all()[:10]
     all_publications = Publication.objects.all()[:10]
 
-    form = {"modBox": "unchecked", "pubBox": "checked", "ASC": "selected", "DESC": ""}
-    len_mod = Module.objects.count()
-    len_pub = Publication.objects.count()
     context = {
         'mod': all_modules,
         'modules': None,
@@ -65,13 +62,14 @@ def app(request):
         'publications': None,
         'len_mod': None,
         'len_pub': None,
-        'form': form,
         'segment': 'app'
     }
 
     if request.method == 'GET':
         if "q" in request.GET:
             query = request.GET.get('q')
+            url_string = "q=" + str(query).replace(" ", "+")
+            context['url_string'] = url_string + '&'
             print(query)
 
             if query == global_query and query != '' and query:
@@ -88,12 +86,6 @@ def app(request):
             else:
                 Module_CSV_Data = None
                 Publication_CSV_Data = None
-
-        # publications, modules = None, None
-        # Module_CSV_Data, Publication_CSV_Data = None, None
-        # len_mod, len_pub = 0, 0
-        # if request.GET.get('modBox') == "clicked":
-    
     mod_paginator = Paginator(context['mod'], 5)
     mod_page = request.GET.get('modPage')
     try:
@@ -116,17 +108,13 @@ def app(request):
     context['modules'] = modules
 
     Module_CSV_Data = context['mod']
-    context['len_mod'] = len(context['mod'])
     Publication_CSV_Data = context['pub']
+
+    context['len_mod'] = len(context['mod'])
     context['len_pub'] = len(context['pub'])
 
-    
-    context['pubs_classified'] = len([s for s in context['pub'] if s.assignedSDG['SVM_Prediction']!='' and s.assignedSDG['SVM_Prediction']])
-    context['mods_classified'] = len([l for l in context['mod'] if l.assignedSDG['SVM_Prediction']!='' and l.assignedSDG['SVM_Prediction']])
-
-
     global_context = context
-    return render(request, 'sdg_tables.html', context)
+    return render(request, 'search_engine.html', context)
 
 
 def bubble_chart_act(request):
@@ -268,101 +256,6 @@ def manual_add(request):
         return render(request, 'manual_add.html', {"form": form, "approach_select": approach_select, "speciality_select": speciality_select})
 
 
-# def getCheckBoxState(request, form):
-#     # For SDG section, function reused (checkboxes and drop-down menu)
-#     if 'Default' in form:
-#         form['Default'] = "selected" if request.GET.get(
-#             'sorting') == "Default" else "unselected"
-#     if 'ASC' in form:
-#         form['ASC'] = "selected" if request.GET.get(
-#             'sorting') == "ASC" else "unselected"
-#     if 'DESC' in form:
-#         form['DESC'] = "selected" if request.GET.get(
-#             'sorting') == "DESC" else "unselected"
-
-#     # For main page checkboxes
-#     form['modBox'] = "checked" if request.GET.get(
-#         'modBox') == "clicked" else "unchecked"
-#     form['pubBox'] = "checked" if request.GET.get(
-#         'pubBox') == "clicked" else "unchecked"
-#     form['iheBox'] = "checked" if request.GET.get(
-#         'iheBox') == "clicked" else "unchecked"
-
-#     return form
-
-
-# def moduleSearch(request, query, all_publications, form):
-#     lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(
-#         Faculty__icontains=query) | Q(Module_Lead__icontains=query) | Q(Description__icontains=query)
-#     myFilter = Module.objects.filter(lookups).distinct()
-#     len_mod = myFilter.count()
-#     len_pub = Publication.objects.count()
-#     return {
-#         'mod': myFilter,
-#         'pub': all_publications,
-#         'submitbutton': request.GET.get('submit'),
-#         'len_mod': len_mod,
-#         'len_pub': len_pub,
-#         'len_total': len_mod + len_pub,
-#         'form': form
-#     }
-
-
-# def publicationSearch(request, query, all_modules, form):
-#     myFilter = Publication.objects.filter(data__icontains=query).distinct()
-#     len_mod = Module.objects.count()
-#     len_pub = myFilter.count()
-
-#     return {
-#         'mod': all_modules,
-#         'pub': myFilter,
-#         'submitbutton': request.GET.get('submit'),
-#         'len_mod': len_mod,
-#         'len_pub': len_pub,
-#         'len_total': len_mod + len_pub,
-#         'form': form
-#     }
-
-
-# def allSearch(request, query, all_modules, all_publications, form):
-#     moduleResults = moduleSearch(request, query, all_modules, form)['mod']
-#     publicationResults = publicationSearch(
-#         request, query, all_modules, form)['pub']
-#     len_mod = moduleResults.count()
-#     len_pub = publicationResults.count()
-#     return {
-#         'mod': moduleResults,
-#         'pub': publicationResults,
-#         'submitbutton': request.GET.get('submit'),
-#         'len_mod': len_mod,
-#         'len_pub': len_pub,
-#         'len_total': len_mod + len_pub,
-#         'form': form
-#     }
-
-
-# def returnQuery(request, form, query, all_modules, all_publications):
-#     global Module_CSV_Data
-#     global Publication_CSV_Data
-#     global global_context
-
-#     if form['modBox'] == "checked" and form['pubBox'] == "unchecked":  # if only modules
-#         context = moduleSearch(request, query, all_publications, form)
-#         Module_CSV_Data = context["mod"]
-#         Publication_CSV_Data = None
-#     if form['modBox'] == "unchecked" and form['pubBox'] == "checked":  # if only publications
-#         context = publicationSearch(request, query, all_modules, form)
-#         Module_CSV_Data = None
-#         Publication_CSV_Data = context["pub"]
-#     elif form['modBox'] == "checked" and form['pubBox'] == "checked":  # if both
-#         context = allSearch(request, query, all_modules, all_publications, form)
-#         Module_CSV_Data = context["mod"]
-#         Publication_CSV_Data = context["pub"]
-
-#     global_context = context
-#     return context
-
-
 def iheVisualisation(request):
     client = pymongo.MongoClient(
         "mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
@@ -398,72 +291,77 @@ def sortSDG_results(form, obj, ascending):
 
 
 def sdg(request):
-    form = {"modBox": "unchecked", "pubBox": "unchecked",
-            "Default": "unselected", "ASC": "unselected", "DESC": "unselected"}
+    global global_context
+    global global_query
+    global global_mod_sdg, global_pub_sdg
+
+    all_modules = Module.objects.all()[:10]
+    all_publications = Publication.objects.all()[:10]
+
     context = {
-        'pub': Publication.objects.filter(assignedSDG__isnull=False).exclude(assignedSDG__SVM_Prediction=''),
-        'mod': Module.objects.filter(Description__isnull=False),
-        'lenPub': Publication.objects.count(),
-        'lenMod': Module.objects.count(),
-        'form': form,
+        'mod': all_modules,
+        'modules': None,
+        'pub': all_publications,
+        'publications': None,
+        'len_mod': None,
+        'len_pub': None,
+        'segment': 'sdg'
     }
 
     if request.method == 'GET':
-        query = request.GET.get('b')
-        context['form'] = getCheckBoxState(request, form)
+        if "q" in request.GET:
+            query = request.GET.get('q')
+            print(query)
 
-        if query is not None and query != '' and len(query) != 0:
-            context = returnQuery(request, form, query,
-                                  context['mod'], context['pub'])
+            if query == global_query and query != '' and query:
+                context['pub'] = global_pub_sdg
+                context['mod'] = global_mod_sdg
+                url_string = "q=" + str(query).replace(" ", "+")
+                context['url_string'] = url_string + '&'
 
-        if context['form']['ASC'] == "selected":
-            context['pub'] = sortSDG_results(
-                form, context['pub'], ascending=True)
-            context['mod'] = sortSDG_results(
-                form, context['mod'], ascending=True)
-        if context['form']['DESC'] == "selected":
-            context['pub'] = sortSDG_results(
-                form, context['pub'], ascending=False)
-            context['mod'] = sortSDG_results(
-                form, context['mod'], ascending=False)
+            elif query is not None and query != '' and len(query) != 0:
+                global_pub_sdg = context['pub'] = Publication.objects.filter(
+                    data__icontains=query).distinct()
+                lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(Module_Name__icontains=query) | Q(
+                    Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(Module_Lead__icontains=query) | Q(Description__icontains=query)
+                global_mod_sdg = context['mod'] = Module.objects.filter(
+                    lookups).distinct()
+                url_string = "q=" + str(query).replace(" ", "+")
+                context['url_string'] = url_string + '&'
+                global_query = query
+            else:
+                Module_CSV_Data = None
+                Publication_CSV_Data = None
+    
+    mod_paginator = Paginator(context['mod'], 5)
+    mod_page = request.GET.get('modPage')
+    try:
+        modules = mod_paginator.page(mod_page)
+    except PageNotAnInteger:
+        modules = mod_paginator.page(1)
+    except EmptyPage:
+        modules = mod_paginator.page(mod_paginator.num_pages)
 
-        url_string = "b=" + str(query).replace(" ", "+") + \
-            "&submit=" + str(request.GET.get('submit'))
-        if request.GET.get('modBox') == "clicked":
-            url_string = url_string + "&modBox=clicked"
-        if request.GET.get('pubBox') == "clicked":
-            url_string = url_string + "&pubBox=clicked"
+    pub_paginator = Paginator(context['pub'], 5)
+    pub_page = request.GET.get('pubPage')
+    try:
+        publications = pub_paginator.page(pub_page)
+    except PageNotAnInteger:
+        publications = pub_paginator.page(1)
+    except EmptyPage:
+        publications = pub_paginator.page(pub_paginator.num_pages)
 
-        url_string = url_string + "&sorting=" + str(request.GET.get('sorting'))
-        context['urlString'] = url_string
+    context['publications'] = publications
+    context['modules'] = modules
 
-        pub_paginator = Paginator(context['pub'], 10)
-        mod_paginator = Paginator(context['mod'], 10)
+    context['len_mod'] = len(context['mod'])
+    context['len_pub'] = len(context['pub'])
 
-        pub_page = request.GET.get('pubPage')
-        try:
-            publications = pub_paginator.page(pub_page)
-        except PageNotAnInteger:
-            publications = pub_paginator.page(1)
-        except EmptyPage:
-            publications = pub_paginator.page(pub_paginator.num_pages)
+    context['pubs_classified'] = len([s for s in context['pub'] if s.assignedSDG['SVM_Prediction'] != '' and s.assignedSDG['SVM_Prediction']])
+    context['mods_classified'] = len([l for l in context['mod'] if l.assignedSDG['SVM_Prediction'] != '' and l.assignedSDG['SVM_Prediction']])
 
-        mod_page = request.GET.get('modPage')
-        try:
-            modules = mod_paginator.page(mod_page)
-        except PageNotAnInteger:
-            modules = mod_paginator.page(1)
-        except EmptyPage:
-            modules = mod_paginator.page(mod_paginator.num_pages)
-
-        context['publications'] = publications
-        context['modules'] = modules
-
-        # Record the query results numbers
-        context['lenMod'] = context['mod'].count()
-        context['lenPub'] = context['pub'].count()
-
-    return render(request, 'sdg.html', context)
+    global_context = context
+    return render(request, 'sdg_tables.html', context)
 
 
 def module(request, pk):
@@ -695,7 +593,7 @@ def truncate(n: float, decimals: int = 0) -> float:
 
 def universal_SVM(request):
     global svm_context
-
+    
     if request.method == "GET":
         svm_context['form'] = check_svm_processor(request, svm_context['form'])
         query = request.GET.get('box')
@@ -716,12 +614,12 @@ def universal_SVM(request):
             svm_context["data"] = results
             svm_context["Predicted"] = ','.join(predicted_)
             svm_context["graphic"] = drawDonutChart(results)
-
-            return render(request, 'svm.html', svm_context)
+            svm_context['segment'] = 'universal_SVM'
+            return render(request, 'svm_universal.html', svm_context)
         else:
-            return render(request, 'svm.html', {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None})
-
-    return render(request, 'svm.html', svm_context)
+            return render(request, 'svm_universal.html', {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None, "segment": "universal_SVM"})
+    svm_context['segment'] = 'universal_SVM'
+    return render(request, 'svm_universal.html', svm_context)
 
 
 def universal_SVM_IHE(request):

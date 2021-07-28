@@ -1,0 +1,269 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tables {% endblock title %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header bg-gradient-primary pb-5 pt-5 pt-md-8">
+      <div class="container-fluid">
+        <div class="header-body">
+          <!-- Card stats -->
+          <div class="row">
+            <div class="col-xl-3 col-lg-6">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Publications Found</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ len_pub }}</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                        <i class="fas fa-chart-bar"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Modules Found</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ len_mod }}</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                        <i class="fas fa-chart-pie"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page description -->
+    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-0">
+      <div class="container-fluid">
+        <div class="header-body">
+          <!-- Card stats -->
+          <div class="row">
+            <div class="col-xl-12 col-lg-12">
+              <br><br><br>
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <span class="h2 font-weight-bold mb-0">Page Description</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                        <i class="fas fa-pen"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="mt-3 mb-0 ">
+                    <span class="text-nowrap">Since last month</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid mt--7">
+
+    <!-- Search bar for modules & publications -->
+    <form action="{% url 'app' %}" method="GET">
+      <div class="form-group mb-0">
+        <div class="input-group input-group-alternative">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input class="form-control" name="q" value="{{request.GET.q}}" placeholder="Search in modules & publications" type="text">
+        </div>
+      </div>
+    </form>
+
+      <br><br><br>
+
+      <!-- Publication Table -->
+      <div class="row">
+        <div class="col">
+          <div class="card shadow">
+            <div class="card-header border-0">
+              
+            </div>
+            <div class="table-responsive">
+              <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Publication Title</th>
+                        <th scope="col">DOI</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in publications %}
+                        <tr>
+                            <td>{{ item.title  }}</td>
+                            <td>{{ item.data.DOI  }}</td>
+                            <td><a href="{{ item.get_absolute_url }}">More</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination -->
+            <div class="card-footer py-4">
+              <nav aria-label="...">
+                  {% if publications.has_other_pages %}
+                    <ul class="pagination justify-content-end mb-0">
+                      {% if publications.has_previous %}
+                        <li class="page-item">
+                          <a class="page-link" href="?{{ url_string }}pubPage={{ 1 }}&modPage={{ modules.number }}">
+                            <i class="fas fa-angle-double-left"></i>
+                            <span class="sr-only">First</span>
+                          </a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link" href="?{{ url_string }}pubPage={{ publications.previous_page_number }}&modPage={{ modules.number }}">
+                            <i class="fas fa-angle-left"></i>
+                            <span class="sr-only">Previous</span>
+                          </a>
+                        </li>
+                      {% endif %}
+                      {% for i in publications.paginator.page_range %}
+                        {% if i <= publications.number|add:5 and i >= publications.number|add:-5 %}
+                          {% if publications.number == i %}
+                              <li class="page-item active">
+                                <a class="page-link">{{ i }}</a>
+                              </li>
+                          {% else %}
+                            <li class="page-item">
+                              <a class="page-link" href="?{{ url_string }}pubPage={{ i }}&modPage={{ modules.number }}">{{ i }}</a>
+                            </li>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                      {% if publications.has_next %}
+                        <li class="page-item">
+                          <a class="page-link" href="?{{ url_string }}pubPage={{ publications.next_page_number }}&modPage={{ modules.number }}">
+                            <i class="fas fa-angle-right"></i>
+                            <span class="sr-only">Next</span>
+                          </a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link" href="?{{ url_string }}pubPage={{ publications.paginator.num_pages }}&modPage={{ modules.number }}">
+                            <i class="fas fa-angle-double-right"></i>
+                            <span class="sr-only">Last</span>
+                          </a>
+                        </li>
+                      {% endif %}
+                    </ul>
+                  {% endif %}
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <br><br><br>
+
+      <!-- Module Table -->
+      <div class="row">
+        <div class="col">
+          <div class="card shadow">
+            <div class="card-header border-0">
+            </div>
+            <div class="table-responsive">
+              <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Module Name</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in modules %}
+                        <tr>
+                            <td>{{ item.Module_Name  }}</td>
+                            <td>{{ item.Module_ID }}</td>
+                            <td><a href="{{ item.get_absolute_url }}">More</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination -->
+            <div class="card-footer py-4">
+              <nav aria-label="...">
+                  {% if modules.has_other_pages %}
+                    <ul class="pagination justify-content-end mb-0">
+                      {% if modules.has_previous %}
+                        <li class="page-item">
+                          <a class="page-link" href="?{{ url_string }}pubPage={{ publications.number }}&modPage={{ 1 }}">
+                            <i class="fas fa-angle-double-left"></i>
+                            <span class="sr-only">First</span>
+                          </a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link" href="?{{ url_string }}pubPage={{ publications.number }}&modPage={{ modules.previous_page_number }}">
+                            <i class="fas fa-angle-left"></i>
+                            <span class="sr-only">Previous</span>
+                          </a>
+                        </li>
+                      {% endif %}
+                      {% for i in modules.paginator.page_range %}
+                        {% if i <= modules.number|add:5 and i >= modules.number|add:-5 %}
+                          {% if modules.number == i %}
+                              <li class="page-item active">
+                                <a class="page-link">{{ i }}</a>
+                              </li>
+                          {% else %}
+                            <li class="page-item">
+                              <a class="page-link" href="?{{ url_string }}pubPage={{ publications.number }}&modPage={{ i }}">{{ i }}</a>
+                            </li>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                      {% if modules.has_next %}
+                        <li class="page-item">
+                          <a class="page-link" href="?{{ url_string }}pubPage={{ publications.number }}&modPage={{ modules.next_page_number }}">
+                            <i class="fas fa-angle-right"></i>
+                            <span class="sr-only">Next</span>
+                          </a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link" href="?{{ url_string }}pubPage={{ publications.number }}&modPage={{ modules.paginator.num_pages }}">
+                            <i class="fas fa-angle-double-right"></i>
+                            <span class="sr-only">Last</span>
+                          </a>
+                        </li>
+                      {% endif %}
+                    </ul>
+                  {% endif %}
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <br><br><br>
+
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}
