@@ -31,7 +31,7 @@
                   <div class="row">
                     <div class="col">
                       <h5 class="card-title text-uppercase text-muted mb-0">Approach</h5>
-                      <span class="h2 font-weight-bold mb-0">{{ assignments.0 ]}</span>
+                      <span class="h2 font-weight-bold mb-0">{{ assignments.0 }}</span>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
@@ -95,52 +95,61 @@
         </div>
     </div>
 
-    <!-- Search Bar & Selector -->
     <div class="container-fluid mt--7">
-        <form method="POST" action="#">
-          {% csrf_token %}
-          <div class="form-group mb-0">
-            <div class="input-group input-group-alternative">
-              <select name="author_selection" class="form-select" aria-label="Default select example">
-                {% for opt, val in form.items %}
-                  {% if val == "selected" %}
-                    <option>{{ opt }}</option>
-                  {% endif %}
-                {% endfor %}
-                {% for opt, val in form.items %}
-                  {% if val == "unselected" %}
-                    <option>{{ opt }}</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
-              <input type="submit" name="submit" value="Search"/>
+      <!-- Search Bar & Selector -->
+      <form method="POST" action="#">
+        {% csrf_token %}
+        <div class="form-group mb-0">
+          <div class="input-group input-group-alternative">
+            <select name="author_selection" class="form-select" aria-label="Default select example">
+              {% for opt, val in form.items %}
+                {% if val == "selected" %}
+                  <option>{{ opt }}</option>
+                {% endif %}
+              {% endfor %}
+              {% for opt, val in form.items %}
+                {% if val == "unselected" %}
+                  <option>{{ opt }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+            <input type="submit" name="submit" value="Search"/>
+          </div>
+        </div>
+      </form>
+
+      <br><br><br>
+   
+      <div class="row">
+        <div class="col">
+          <div class="card shadow">
+            <div class="table-responsive">
+              <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">Author ID</th>
+                    <th scope="col">Full Name</th>
+                    <th scope="col">Affiliation ID</th>
+                    <th scope="col">Affiliation</th>
+                    <th scope="col">Scopus Link to Publication</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for entry in entry_list %}
+                    <tr>
+                      <td>{{ entry }}</td>
+                      <td>{{ entry.fullName }}</td>
+                      <td>{{ entry.affiliationID }}</td>
+                      <td>{{ entry.affiliation }}</td>
+                      <td><a href='{{ entry.scopusLink }}' target="_blank">Link</a></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
           </div>
-        </form>
-    
-   
-    <body>
-        <script>$(document).ready(function(){$('select').material_select();});</script>
-        <br><br>
-        <br>
-        <table class="table table-striped">
-            <tr>
-                <th scope="col">Author ID</th>
-                <th scope="col">Full Name</th>
-                <th scope="col">Affiliation ID</th>
-                <th scope="col">Affiliation</th>
-                <th scope="col">Scopus Link to Publication</th>
-            </tr>
-            {% for entry in entry_list %}
-                <tr>
-                    <td>{{ entry }}</td>
-                    <td>{{ entry.fullName }}</td>
-                    <td>{{ entry.affiliationID }}</td>
-                    <td>{{ entry.affiliation }}</td>
-                    <td><a href='{{ entry.scopusLink }}' target="_blank">Link</a></td>
-                </tr>
-            {% endfor %}
-        </table>
-    </body>
+        </div>
+      </div>
+
     </div>
 {% endblock %}
