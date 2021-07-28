@@ -1,0 +1,146 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    
+    <!-- Header -->
+    <div class="header bg-gradient-primary pb-5 pt-5 pt-md-5">
+      <div class="container-fluid">
+        <div class="header-body">
+          <!-- Card stats -->
+          <div class="row">
+            <div class="col-xl-3 col-lg-6">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Authors Found</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ num_of_people }}</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                        <i class="fas fa-chart-bar"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Approach</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ assignments.0 ]}</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                        <i class="fas fa-chart-pie"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Speciality</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ assignments.1 }}</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                        <i class="fas fa-chart-pie"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page description -->
+    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-0">
+        <div class="container-fluid">
+            <div class="header-body">
+              <!-- Card stats -->
+                <div class="row">
+                  <div class="col-xl-12 col-lg-12">
+                    <br><br><br>
+                    <div class="card card-stats mb-4 mb-xl-0">
+                        <div class="card-body">
+                          <div class="row">
+                              <div class="col">
+                              <span class="h2 font-weight-bold mb-0">Page Description</span>
+                              </div>
+                              <div class="col-auto">
+                              <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                                  <i class="fas fa-pen"></i>
+                              </div>
+                              </div>
+                          </div>
+                          <p class="mt-3 mb-0 ">
+                              <span class="text-nowrap">Since last month</span>
+                          </p>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar & Selector -->
+    <div class="container-fluid mt--7">
+        <form method="POST" action="#">
+          {% csrf_token %}
+          <div class="form-group mb-0">
+            <div class="input-group input-group-alternative">
+              <select name="author_selection" class="form-select" aria-label="Default select example">
+                {% for opt, val in form.items %}
+                  {% if val == "selected" %}
+                    <option>{{ opt }}</option>
+                  {% endif %}
+                {% endfor %}
+                {% for opt, val in form.items %}
+                  {% if val == "unselected" %}
+                    <option>{{ opt }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <input type="submit" name="submit" value="Search"/>
+            </div>
+          </div>
+        </form>
+    
+   
+    <body>
+        <script>$(document).ready(function(){$('select').material_select();});</script>
+        <br><br>
+        <br>
+        <table class="table table-striped">
+            <tr>
+                <th scope="col">Author ID</th>
+                <th scope="col">Full Name</th>
+                <th scope="col">Affiliation ID</th>
+                <th scope="col">Affiliation</th>
+                <th scope="col">Scopus Link to Publication</th>
+            </tr>
+            {% for entry in entry_list %}
+                <tr>
+                    <td>{{ entry }}</td>
+                    <td>{{ entry.fullName }}</td>
+                    <td>{{ entry.affiliationID }}</td>
+                    <td>{{ entry.affiliation }}</td>
+                    <td><a href='{{ entry.scopusLink }}' target="_blank">Link</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+    </div>
+{% endblock %}

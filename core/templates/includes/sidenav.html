@@ -110,8 +110,7 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" target="_blank"
-               href="https://www.creative-tim.com/templates/django">
+            <a class="nav-link {% if 'bubble_chart_act' == segment %} active {% endif %}" href={% url 'bubble_chart_act' %}>
               <i class="ni ni-spaceship"></i> Bubble Chart
             </a>
           </li>

@@ -45,6 +45,7 @@ def index(request):
     context['segment'] = 'index'
     return render(request, 'index.html', context)
 
+
 def app(request):
     global Module_CSV_Data
     global Publication_CSV_Data
@@ -164,17 +165,16 @@ def bubble_chart_act(request):
         bubble_dict[bubble] = [x, y, z]
 
     context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
-               'color_dict': color_dict, 'verticalLength': approachNum + 1, 'horizontalLength': specialtyNum + 1}
+               'color_dict': color_dict, 'verticalLength': approachNum + 1,
+               'horizontalLength': specialtyNum + 1, 'segment': 'bubble_chart_act'}
 
-    return render(request, 'bubble_chart_act.html', context)
+    return render(request, 'bubble_chart.html', context)
 
 
 def searchBubbleAct(request, pk=None, pk_alt=None):
-    form = {"ALL": "selected", "UCL Authors": "unselected",
-            "OTHER Authors": "unselected"}
+    form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}
     ucl_id = '60022148'
-    obj = BubbleAct.objects.get(
-        coordinate_approach=pk, coordinate_speciality=pk_alt)
+    obj = BubbleAct.objects.get(coordinate_approach=pk, coordinate_speciality=pk_alt)
     list_of_emails = obj.list_of_people.split(',')
     entry_list = []
 
@@ -183,6 +183,7 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
         query = request.POST.get('author_selection')
 
         if query == 'UCL Authors':
+            print(query)
             form['UCL Authors'] = "selected"
             form['OTHER Authors'] = "unselected"
             form['ALL'] = "unselected"
@@ -193,6 +194,7 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                         entry_list.append(i)
 
         elif query == 'OTHER Authors':
+            print(query)
             form['OTHER Authors'] = "selected"
             form['UCL Authors'] = "unselected"
             form['ALL'] = "unselected"
@@ -203,6 +205,7 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                         entry_list.append(i)
 
         elif query == 'ALL':
+            print(query)
             form['OTHER Authors'] = "unselected"
             form['UCL Authors'] = "unselected"
             form['ALL'] = "selected"
@@ -212,9 +215,9 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                     entry_list.append(i)
 
     num_of_people = len(entry_list)
-    app_spec = [ApproachAct.objects.get(
-        id=pk), SpecialtyAct.objects.get(id=pk_alt)]
-    return render(request, 'searchBubbleAct.html', {"form": form, "entry_list": entry_list, "assignments": app_spec, "num_of_people": num_of_people})
+    app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt)]
+    print(form)
+    return render(request, 'search_bubble.html', {"form": form, "entry_list": entry_list, "assignments": app_spec, "num_of_people": num_of_people})
 
 
 def manual_add(request):
