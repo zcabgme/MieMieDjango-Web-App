@@ -41,11 +41,11 @@
         <!-- Navigation -->
         <ul class="navbar-nav">
           <li class="nav-item">
-          <a class=" nav-link {% if 'index' in segment %} active {% endif %}" href="/"> <i class="ni ni-tv-2 text-primary"></i> Home
+          <a class=" nav-link {% if 'index' == segment %} active {% endif %}" href="/"> <i class="ni ni-tv-2 text-primary"></i> Home
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if 'app' in segment %} active {% endif %}" href={% url 'app' %}>
+            <a class="nav-link {% if 'app' == segment %} active {% endif %}" href={% url 'app' %}>
               <i class="ni ni-planet text-blue"></i> Search Engine
             </a>
           </li>
@@ -59,25 +59,25 @@
         <ul class="navbar-nav mb-md-3">
 
           <li class="nav-item">
-            <a class="nav-link {% if 'sdg' in segment %} active {% endif %}" href={% url 'sdg' %}>
+            <a class="nav-link {% if 'sdg' == segment %} active {% endif %}" href={% url 'sdg' %}>
               <i class="ni ni-ui-04"></i> View Data
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link {% if 'universal_SVM' in segment %} active {% endif %}" href={% url 'universal_SVM' %}>
+            <a class="nav-link {% if 'universal_SVM' == segment %} active {% endif %}" href={% url 'universal_SVM' %}>
               <i class="ni ni-spaceship"></i> SVM Universal
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link {% if 'sdgVisualisation' in segment %} active {% endif %}" href={% url 'sdgVisualisation' %}>
+            <a class="nav-link {% if 'sdgVisualisation' == segment %} active {% endif %}" href={% url 'sdgVisualisation' %}>
               <i class="ni ni-spaceship"></i> Model Visualisations
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link {% if 'tableauVisualisation' in segment %} active {% endif %}" href={% url 'tableauVisualisation' %}>
+            <a class="nav-link {% if 'tableauVisualisation' == segment %} active {% endif %}" href={% url 'tableauVisualisation' %}>
               <i class="ni ni-spaceship"></i> Tableau Visualisations
             </a>
           </li>
@@ -98,13 +98,13 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link {% if 'IHE' in segment %} active {% endif %}" href={% url 'universal_SVM_IHE' %}>
+            <a class="nav-link {% if 'IHE' == segment %} active {% endif %}" href={% url 'universal_SVM_IHE' %}>
               <i class="ni ni-spaceship"></i> SVM Universal
             </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link {% if 'iheVisualisation' in segment %} active {% endif %}" href={% url 'iheVisualisation' %}>
+            <a class="nav-link {% if 'iheVisualisation' == segment %} active {% endif %}" href={% url 'iheVisualisation' %}>
               <i class="ni ni-spaceship"></i> Model Visualisations
             </a>
           </li>
