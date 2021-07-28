@@ -641,11 +641,11 @@ def universal_SVM_IHE(request):
             svm_context["data"] = results
             svm_context["Predicted"] = ','.join(predicted_)
             svm_context["graphic"] = drawDonutChartIHE(results)
-            svm_context['segment'] = 'universal_SVM_IHE'
+            svm_context['segment'] = 'IHE'
             return render(request, 'ihe_svm_universal.html', svm_context)
         else:
-            return render(request, 'ihe_svm_universal.html', {"data": None, "Predicted": None, "graphic": None, "segment": "universal_SVM_IHE"})
-    svm_context['segment'] = 'universal_SVM_IHE'
+            return render(request, 'ihe_svm_universal.html', {"data": None, "Predicted": None, "graphic": None, "segment": "IHE"})
+    svm_context['segment'] = 'IHE'
     return render(request, 'ihe_svm_universal.html', svm_context)
 
 
