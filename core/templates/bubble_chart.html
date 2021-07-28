@@ -8,86 +8,102 @@
 
 {% block content %}
   
-    <!-- Page description -->
-    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-0">
-        <div class="container-fluid">
-            <div class="header-body">
-                <!-- Card stats -->
+  <!-- Page description -->
+  <div class="header bg-gradient-primary pb-8 pt-5 pt-md-0">
+    <div class="container-fluid">
+      <div class="header-body">
+        <!-- Card stats -->
+        <div class="row">
+          <div class="col-xl-12 col-lg-12">
+            <br><br><br>
+            <div class="card card-stats mb-4 mb-xl-0">
+              <div class="card-body">
                 <div class="row">
-                    <div class="col-xl-12 col-lg-12">
-                    <br><br><br>
-                    <div class="card card-stats mb-4 mb-xl-0">
-                        <div class="card-body">
-                        <div class="row">
-                            <div class="col">
-                            <span class="h2 font-weight-bold mb-0">Page Description</span>
-                            </div>
-                            <div class="col-auto">
-                            <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
-                                <i class="fas fa-pen"></i>
-                            </div>
-                            </div>
-                        </div>
-                        <p class="mt-3 mb-0 ">
-                            <span class="text-nowrap">Since last month</span>
-                        </p>
-                        </div>
+                  <div class="col">
+                    <span class="h2 font-weight-bold mb-0">Page Description</span>
+                  </div>
+                  <div class="col-auto">
+                    <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                      <i class="fas fa-pen"></i>
                     </div>
-                    </div>
+                  </div>
+                </div>
+                <p class="mt-3 mb-0 ">
+                  <span class="text-nowrap">Since last month</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <br><br><br><br><br>
+
+  <div class="container-fluid mt--7"> 
+    <div class="row">
+        <div class="col">
+            <div class="card shadow">
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                            <tr><th scope="col"></th></tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <script>
+                                $(document).ready(function(){
+                                $('.tooltipped').tooltip({delay: 50});
+                                $(".button-collapse").sideNav();
+                                });
+                            </script>
+                    
+                            <div class="display">
+                                <div class="label-horizontal">
+                                {% for color, specialty_dict in color_dict.items %}
+                                    {% for specialty, numSpecialty in specialty_dict.items %}
+                                    <div class="label-h" style="position: absolute; left: calc({{ numSpecialty }}* 45px);">{{ specialty.name }}</div>
+                                    {% endfor %}
+                                {% endfor %}
+                                </div>
+                                <div class="label-vertical">
+                                {% for approach, numApproach in approach_dict.items %}
+                                    <div style="position: absolute; top: calc({{ numApproach }} * 45px);">{{ approach.name }}</div>
+                                {% endfor %}
+                                </div>
+                                <div>
+                                    <div class="hr-grid">
+                                    {% for approach, numApproach in approach_dict.items %}
+                                        <div class="h1" style="position: absolute; top: calc({{ numApproach }} * 45px); width: calc({{ horizontalLength }} * 45px);">
+                                        </div>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="grid">
+                                {% for color, specialty_dict in color_dict.items %}
+                                    {% for specialty, numSpecialty in specialty_dict.items %}
+                                        <div class="v1" style="position: absolute; left: calc({{ numSpecialty }} * 45px); height: calc({{ verticalLength }} * 45px);">
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                                </div>
+                                <div class="bubble-box">
+                                    <div class="bubble">
+                                        {% for bubble, lst in bubble_dict.items %} 
+                                        <div>
+                                            <a href= "{% url 'searchBubbleAct' bubble.coordinate_approach.id bubble.coordinate_speciality.id %}" data-position="bottom" data-delay="50" class="button tooltipped" style="background-color:{{ bubble.color }}; position: absolute; left:calc({{ lst.0 }}px); top:calc({{ lst.1 }}px); width:{{ lst.2 }}px; height: {{ lst.2 }}px;"></a>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                          </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-  
-    <body>
-  
-        <script>
-            $(document).ready(function(){
-            $('.tooltipped').tooltip({delay: 50});
-            $(".button-collapse").sideNav();
-            });
-        </script>
-
-        <div class="display">
-            <div class="label-horizontal">
-            {% for color, specialty_dict in color_dict.items %}
-                {% for specialty, numSpecialty in specialty_dict.items %}
-                <div class="label-h" style="position: absolute; left: calc({{ numSpecialty }}* 45px);">{{ specialty.name }}</div>
-                {% endfor %}
-            {% endfor %}
-            </div>
-            <div class="label-vertical">
-            {% for approach, numApproach in approach_dict.items %}
-                <div style="position: absolute; top: calc({{ numApproach }} * 45px);">{{ approach.name }}</div>
-            {% endfor %}
-            </div>
-            <div>
-                <div class="hr-grid">
-                {% for approach, numApproach in approach_dict.items %}
-                    <div class="h1" style="position: absolute; top: calc({{ numApproach }} * 45px); width: calc({{ horizontalLength }} * 45px);">
-                    </div>
-                {% endfor %}
-                </div>
-            </div>
-            <div class="grid">
-            {% for color, specialty_dict in color_dict.items %}
-                {% for specialty, numSpecialty in specialty_dict.items %}
-                    <div class="v1" style="position: absolute; left: calc({{ numSpecialty }} * 45px); height: calc({{ verticalLength }} * 45px);">
-                    </div>
-                {% endfor %}
-            {% endfor %}
-            </div>
-            <div class="bubble-box">
-                <div class="bubble">
-                    {% for bubble, lst in bubble_dict.items %} 
-                    <div>
-                        <a href= "{% url 'searchBubbleAct' bubble.coordinate_approach.id bubble.coordinate_speciality.id %}" data-position="bottom" data-delay="50" class="button tooltipped" style="background-color:{{ bubble.color }}; position: absolute; left:calc({{ lst.0 }}px); top:calc({{ lst.1 }}px); width:{{ lst.2 }}px; height: {{ lst.2 }}px;"></a>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-    </body>
-  
+  </div>  
 {% endblock %}
