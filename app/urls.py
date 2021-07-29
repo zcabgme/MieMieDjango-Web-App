@@ -25,6 +25,4 @@ urlpatterns = [
     path('publication/<str:pk>', views.publication, name='publication'),
     # Matches any html file
     # re_path(r'^.*\.*', views.pages, name='pages'),
-
-
 ]

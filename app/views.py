@@ -142,7 +142,8 @@ def bubble_chart_act(request):
                 size = (((bubble_obj.list_of_people.count(',') + 1) / curr_max) * (CONST_SCALE_MAX - SIZE_MIN)) + SIZE_MIN
                 bubble_dict[approach_dict[i]][int(j)] = [bubble_obj, size]
             except:
-                bubble_dict[approach_dict[i]][int(j)] = ""
+                bubble_dict[approach_dict[i]][int(j)] = None
+        
 
     context = {
         'approach_list': approach_list,
@@ -154,7 +155,7 @@ def bubble_chart_act(request):
     }
 
     return render(request, 'bubble_chart.html', context)
-
+    
 
 def searchBubbleAct(request, pk=None, pk_alt=None):
     form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}
@@ -163,11 +164,13 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
     list_of_emails = obj.list_of_people.split(',')
     entry_list = []
 
-    if request.method == 'POST':
+    if request.method == 'GET':
+        print("THING")
         people = UserProfileAct.objects.all()
-        query = request.POST.get('author_selection')
+        query = request.GET.get('author_selection')
 
         if query == 'UCL Authors':
+            print(query)
             form['UCL Authors'] = "selected"
             form['OTHER Authors'] = "unselected"
             form['ALL'] = "unselected"
@@ -178,6 +181,7 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                         entry_list.append(i)
 
         elif query == 'OTHER Authors':
+            print(query)
             form['OTHER Authors'] = "selected"
             form['UCL Authors'] = "unselected"
             form['ALL'] = "unselected"
@@ -188,6 +192,7 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                         entry_list.append(i)
 
         elif query == 'ALL':
+            print(query)
             form['OTHER Authors'] = "unselected"
             form['UCL Authors'] = "unselected"
             form['ALL'] = "selected"
@@ -196,9 +201,21 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                 if i != "null" and i.author_id in list_of_emails:
                     entry_list.append(i)
 
+        author_paginator = Paginator(entry_list, 10)
+        author_page = request.GET.get('page')
+        try:
+            authors = author_paginator.page(author_page)
+        except PageNotAnInteger:
+            authors = author_paginator.page(1)
+        except EmptyPage:
+            authors = author_paginator.page(global_ihe_paginator.num_pages)
+
+    url_string = 'csrfmiddlewaretoken=' + str(request.GET.get('csrfmiddlewaretoken')) + '&author_selection=' + str(request.GET.get('author_selection')).replace(" ", "+") + "&"
+
     num_of_people = len(entry_list)
-    app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt)]
-    return render(request, 'search_bubble.html', {"form": form, "entry_list": entry_list, "assignments": app_spec, "num_of_people": num_of_people})
+    app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt), pk, pk_alt]
+
+    return render(request, 'search_bubble.html', {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people, "url_string": url_string})
 
 
 def manual_add(request):
