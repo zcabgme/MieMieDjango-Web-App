@@ -21,7 +21,8 @@ urlpatterns = [
     path('tableauVisualisation', views.tableauVisualisation, name='tableauVisualisation'),
     path('bubble_chart_act', views.bubble_chart_act, name='bubble_chart_act'),
     url(r'searchBubbleAct/(?P<pk>\d+)/(?P<pk_alt>\d+)/$',views.searchBubbleAct, name='searchBubbleAct'),
-    
+    path('module/<str:pk>', views.module, name='module'),
+    path('publication/<str:pk>', views.publication, name='publication'),
     # Matches any html file
     # re_path(r'^.*\.*', views.pages, name='pages'),
 

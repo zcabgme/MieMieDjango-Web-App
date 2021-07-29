@@ -155,58 +155,6 @@ def bubble_chart_act(request):
 
     return render(request, 'bubble_chart.html', context)
 
-def bubble_chart_act2(request):
-    approach_list = ApproachAct.objects.all()
-    specialty_list = SpecialtyAct.objects.all()
-    colors = ColorAct.objects.all()
-    bubbles = BubbleAct.objects.all()
-    people = UserProfileAct.objects.all().count()
-
-    approachNum = approach_list.count()
-    specialtyNum = specialty_list.count()
-
-    color_dict = {}
-    approach_dict = {}
-    bubble_dict = {}
-
-    numSpecialty, numApproach = 0, 0
-
-    for color in colors:
-        specialty_dict = {}
-        for specialty in specialty_list.filter(color=color):
-            specialty_dict[specialty] = numSpecialty
-            numSpecialty += 1
-        color_dict[color] = specialty_dict
-
-    for approach in approach_list:
-        approach_dict[approach] = numApproach
-        numApproach += 1
-
-    CONST_1 = 45
-    curr_max = 0
-    for i in bubbles:
-        if i.list_of_people.count(',') + 1 > curr_max:
-            curr_max = i.list_of_people.count(',') + 1
-
-    for bubble in bubbles:
-        specialty_index = color_dict[bubble.color][bubble.coordinate_speciality] * CONST_1
-        approach_index = approach_dict[bubble.coordinate_approach] * CONST_1
-        areaNum = bubble.list_of_people.count(',') + 1
-        size_raw = areaNum / curr_max
-
-        z = ((size_raw) * (45 - 9)) + 9
-        const = (z-9) / 36
-        x = (-17 * const) + 13 + specialty_index
-        y = (-16 * const) + 11 + approach_index
-
-        bubble_dict[bubble] = [x, y, z]
-
-    context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
-               'color_dict': color_dict, 'verticalLength': approachNum + 1,
-               'horizontalLength': specialtyNum + 1, 'segment': 'bubble_chart_act'}
-
-    return render(request, 'bubble_chart.html', context)
-
 
 def searchBubbleAct(request, pk=None, pk_alt=None):
     form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}

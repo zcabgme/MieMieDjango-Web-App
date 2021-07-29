@@ -1,0 +1,159 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header pb-8 pt-5 pt-lg-8 d-flex align-items-center" style="min-height: 600px; background-image: url(/static/assets/img/theme/profile-cover.jpg); background-size: cover; background-position: center top;">
+      <!-- Mask -->
+      <span class="mask bg-gradient-default opacity-8"></span>
+      <!-- Header container -->
+      <div class="container-fluid d-flex align-items-center">
+        <div class="row">
+          <div class="col-lg-12 col-md-10">
+            <h1 class="display-2 text-white">{{ pub.title }} ({{ pub.data.DOI }})</h1>
+            <br>
+            <a href="{{ pub.data.Link }}" target="_blank" class="btn btn-info">View on Scopus</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid mt--7">
+        <div class="row">
+            <!-- Quick publication info -->
+            <div class="col-xl-4 order-xl-2 mb-5 mb-xl-0">
+                <div class="card card-profile shadow">
+                    <div class="card-body pt-0 pt-md-4">
+                        <div class="text-center">
+                            <div class="h5 mt-4"><i class="ni business_briefcase-24 mr-2"></i>EID</div>
+                                <div><i class="ni education_hat mr-2"></i>{{ pub.data.EID }}</div>
+                            {% if pub.data.Year != None %}
+                                <div class="h5 mt-4"><i class="ni business_briefcase-24 mr-2"></i>Publication Year</div>
+                                    <div><i class="ni education_hat mr-2"></i>{{ pub.data.Year }}</div>
+                            {% endif %}
+                            {% if pub.data.Source != None %}
+                                <div class="h5 mt-4"><i class="ni business_briefcase-24 mr-2"></i>Source</div>
+                                    <div><i class="ni education_hat mr-2"></i>{{ pub.data.Source }}</div>
+                            {% endif %}
+                            {% if pub.data.Volume != None %}
+                                <div class="h5 mt-4"><i class="ni business_briefcase-24 mr-2"></i>Volume</div>
+                                    <div><i class="ni education_hat mr-2"></i>{{ pub.data.Volume }}</div>
+                            {% endif %}
+                            {% if pub.data.Issue != None %}
+                                <div class="h5 mt-4"><i class="ni business_briefcase-24 mr-2"></i>Issue</div>
+                                    <div><i class="ni education_hat mr-2"></i>{{ pub.data.Issue }}</div>
+                            {% endif %}
+                            {% if pub.data.PageStart != None and pub.data.PageEnd != None %}
+                                <div class="h5 mt-4"><i class="ni business_briefcase-24 mr-2"></i>Pages</div>
+                                    <div><i class="ni education_hat mr-2"></i>{{ pub.data.PageStart }} - {{ pub.data.PageEnd }}</div>
+                            {% endif %}
+                            {% if pub.data.CitedBy != None %}
+                                <div class="h5 mt-4"><i class="ni business_briefcase-24 mr-2"></i>Cited By</div>
+                                    <div><i class="ni education_hat mr-2"></i>{{ pub.data.CitedBy }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Abstract + keywords -->
+            <div class="col-xl-8 order-xl-1">
+                <!-- Abstract -->
+                <div class="card bg-secondary shadow">
+                    <div class="card-header bg-white border-0">
+                        <div class="row align-items-center">
+                            <div class="col-8"><h3 class="mb-0">Abstract</h3></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                    <h6 class="text mb-4">
+                        {% if pub.data.Abstract != None %}
+                            <p>{{ pub.data.Abstract }}</p>
+                        {% else %}
+                            <p>No abstract is present for this publication</p>
+                        {% endif %}
+                    </h6>
+                    </div>
+                </div>              
+                
+                <br><br>
+
+                <!-- Author keywords (if exist) -->
+                {% if pub.data.AuthorKeywords != None or pub.data.IndexKeywords != None %}
+                    <div class="card bg-secondary shadow">
+                        <div class="card-header bg-white border-0">
+                            <div class="row align-items-center">
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h3>Author Keywords</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>&nbsp&nbsp Index Keywords</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    {% for keyword in pub.data.AuthorKeywords %}
+                                        <ul><li><p>{{ keyword }}</p></li></ul>
+                                    {% endfor %}
+                                </div>
+                                <div class="col">
+                                    {% for keyword in pub.data.IndexKeywords %}
+                                        <ul><li><p>{{ keyword }}</p></li></ul>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                    <br><br><br>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <br><br><br>
+
+    <!-- Author data table -->
+    <div class="container-fluid mt--7">
+        <div class="row">
+            <div class="col">
+                <div class="card shadow">
+                    <div class="table-responsive">
+                        <table class="table align-items-center table-flush">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Affiliation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, val in pub.data.AuthorData.items %}
+                                    <tr>
+                                        <td>{{ key }}</td>
+                                        <td>{{ val.Name }}</td>
+                                        <td>{{ val.AffiliationName }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br><br>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}

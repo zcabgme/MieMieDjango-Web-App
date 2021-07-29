@@ -60,7 +60,7 @@
                                 <tr>
                                 <td>{{ approach }}</td>
                                 {% for speciality, val2 in val.items %}
-                                    {% if val2.0 != "" %}
+                                    {% if val2.0 %}
                                       <td style="margin-left:auto; margin-top:auto;">
                                           <svg height="60" width="100%">
                                               <a href= "{% url 'searchBubbleAct' val2.0.coordinate_approach.id val2.0.coordinate_speciality.id %}">
