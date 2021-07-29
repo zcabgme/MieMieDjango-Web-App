@@ -142,7 +142,8 @@ def bubble_chart_act(request):
                 size = (((bubble_obj.list_of_people.count(',') + 1) / curr_max) * (CONST_SCALE_MAX - SIZE_MIN)) + SIZE_MIN
                 bubble_dict[approach_dict[i]][int(j)] = [bubble_obj, size]
             except:
-                bubble_dict[approach_dict[i]][int(j)] = ""
+                bubble_dict[approach_dict[i]][int(j)] = None
+        
 
     context = {
         'approach_list': approach_list,
