@@ -20,7 +20,7 @@ urlpatterns = [
     path('iheVisualisation', views.iheVisualisation, name='iheVisualisation'),
     path('tableauVisualisation', views.tableauVisualisation, name='tableauVisualisation'),
     path('bubble_chart_act', views.bubble_chart_act, name='bubble_chart_act'),
-    url(r'searchBubbleAct/(?P<pk>\d+)/(?P<pk_alt>\d+)/$',views.searchBubbleAct, name='searchBubbleAct'),
+    url(r'searchBubbleAct/(?P<pk>\d+)/(?P<pk_alt>\d+)/$', views.searchBubbleAct, name='searchBubbleAct'),
     
     # Matches any html file
     # re_path(r'^.*\.*', views.pages, name='pages'),

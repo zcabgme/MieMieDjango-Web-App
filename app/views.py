@@ -155,59 +155,7 @@ def bubble_chart_act(request):
     }
 
     return render(request, 'bubble_chart.html', context)
-
-def bubble_chart_act2(request):
-    approach_list = ApproachAct.objects.all()
-    specialty_list = SpecialtyAct.objects.all()
-    colors = ColorAct.objects.all()
-    bubbles = BubbleAct.objects.all()
-    people = UserProfileAct.objects.all().count()
-
-    approachNum = approach_list.count()
-    specialtyNum = specialty_list.count()
-
-    color_dict = {}
-    approach_dict = {}
-    bubble_dict = {}
-
-    numSpecialty, numApproach = 0, 0
-
-    for color in colors:
-        specialty_dict = {}
-        for specialty in specialty_list.filter(color=color):
-            specialty_dict[specialty] = numSpecialty
-            numSpecialty += 1
-        color_dict[color] = specialty_dict
-
-    for approach in approach_list:
-        approach_dict[approach] = numApproach
-        numApproach += 1
-
-    CONST_1 = 45
-    curr_max = 0
-    for i in bubbles:
-        if i.list_of_people.count(',') + 1 > curr_max:
-            curr_max = i.list_of_people.count(',') + 1
-
-    for bubble in bubbles:
-        specialty_index = color_dict[bubble.color][bubble.coordinate_speciality] * CONST_1
-        approach_index = approach_dict[bubble.coordinate_approach] * CONST_1
-        areaNum = bubble.list_of_people.count(',') + 1
-        size_raw = areaNum / curr_max
-
-        z = ((size_raw) * (45 - 9)) + 9
-        const = (z-9) / 36
-        x = (-17 * const) + 13 + specialty_index
-        y = (-16 * const) + 11 + approach_index
-
-        bubble_dict[bubble] = [x, y, z]
-
-    context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
-               'color_dict': color_dict, 'verticalLength': approachNum + 1,
-               'horizontalLength': specialtyNum + 1, 'segment': 'bubble_chart_act'}
-
-    return render(request, 'bubble_chart.html', context)
-
+    
 
 def searchBubbleAct(request, pk=None, pk_alt=None):
     form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}
@@ -216,9 +164,10 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
     list_of_emails = obj.list_of_people.split(',')
     entry_list = []
 
-    if request.method == 'POST':
+    if request.method == 'GET':
+        print("THING")
         people = UserProfileAct.objects.all()
-        query = request.POST.get('author_selection')
+        query = request.GET.get('author_selection')
 
         if query == 'UCL Authors':
             print(query)
@@ -252,10 +201,79 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                 if i != "null" and i.author_id in list_of_emails:
                     entry_list.append(i)
 
+        author_paginator = Paginator(entry_list, 10)
+        author_page = request.GET.get('page')
+        try:
+            authors = author_paginator.page(author_page)
+        except PageNotAnInteger:
+            authors = author_paginator.page(1)
+        except EmptyPage:
+            authors = author_paginator.page(global_ihe_paginator.num_pages)
+
+    url_string = 'csrfmiddlewaretoken=' + str(request.GET.get('csrfmiddlewaretoken')) + '&author_selection=' + str(request.GET.get('author_selection')).replace(" ", "+") + "&"
+
     num_of_people = len(entry_list)
-    app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt)]
-    print(form)
-    return render(request, 'search_bubble.html', {"form": form, "entry_list": entry_list, "assignments": app_spec, "num_of_people": num_of_people})
+    app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt), pk, pk_alt]
+
+    return render(request, 'search_bubble.html', {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people, "url_string": url_string})
+
+
+def searchBubbleActOld(request, pk=None, pk_alt=None):
+    form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}
+    ucl_id = '60022148'
+    obj = BubbleAct.objects.get(coordinate_approach=pk,coordinate_speciality=pk_alt)
+    list_of_emails = obj.list_of_people.split(',')
+    entry_list = []
+
+    if request.method == 'GET':
+        people = UserProfileAct.objects.all()
+        query = request.GET.get('author_selection')
+        
+        if query == 'UCL Authors':
+            form['UCL Authors'] = "selected"
+            form['OTHER Authors'] = "unselected"
+            form['ALL'] = "unselected"
+            ok = people.exclude(affiliationID="")
+            for i in ok:
+                if i != "null":
+                    if ucl_id in i.affiliationID and i.author_id in list_of_emails:
+                        entry_list.append(i)
+
+        elif query == 'OTHER Authors':
+            form['OTHER Authors'] = "selected"
+            form['UCL Authors'] = "unselected"
+            form['ALL'] = "unselected"
+            ok = people.exclude(affiliationID="")
+            for i in ok:
+                if i != "null":
+                    if ucl_id not in i.affiliationID and i.author_id in list_of_emails:
+                        entry_list.append(i)
+                      
+        elif query == 'ALL':
+            form['OTHER Authors'] = "unselected"
+            form['UCL Authors'] = "unselected"
+            form['ALL'] = "selected"
+            ok = people.exclude(affiliationID="")
+            for i in ok:
+                if i != "null" and i.author_id in list_of_emails:
+                    entry_list.append(i)
+
+    author_paginator = Paginator(entry_list, 10)
+
+    page = request.GET.get('page', 1)
+    try:
+        authors = author_paginator.page(page)
+    except PageNotAnInteger:
+        authors = author_paginator.page(1)
+    except EmptyPage:
+        authors = author_paginator.page(author_paginator.num_pages)
+
+    url_string = 'csrfmiddlewaretoken=' + str(request.GET.get('csrfmiddlewaretoken')) + '&author_selection=' + str(request.GET.get('author_selection')).replace(" ", "+")
+
+
+    num_of_people = len(entry_list)
+    app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt), pk, pk_alt]
+    return render(request, 'searchBubbleAct.html', {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people, "url_string": url_string})
 
 
 def manual_add(request):
