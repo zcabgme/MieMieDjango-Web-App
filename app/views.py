@@ -120,6 +120,42 @@ def app(request):
 
 
 def bubble_chart_act(request):
+    approach_list = ApproachAct.objects.all().values_list('id', flat=True)
+    speciality_list = SpecialtyAct.objects.all().values_list('id', flat=True)
+    bubbles = BubbleAct.objects.all()
+    approach_dict = {int(i.id): i.name for i in ApproachAct.objects.all()}
+    speciality_dict = {int(i.id): i for i in SpecialtyAct.objects.all()}
+
+    CONST_SCALE_MAX = 25
+    SIZE_MIN = 9
+    curr_max = 0
+    for i in bubbles:
+        if i.list_of_people.count(',') + 1 > curr_max:
+            curr_max = i.list_of_people.count(',') + 1
+
+    bubble_dict = {}
+    for i in approach_list:
+        bubble_dict[approach_dict[i]] = {}
+        for j in speciality_list:
+            try:
+                bubble_obj = bubbles.get(coordinate_approach=int(i), coordinate_speciality=int(j))
+                size = (((bubble_obj.list_of_people.count(',') + 1) / curr_max) * (CONST_SCALE_MAX - SIZE_MIN)) + SIZE_MIN
+                bubble_dict[approach_dict[i]][int(j)] = [bubble_obj, size]
+            except:
+                bubble_dict[approach_dict[i]][int(j)] = ""
+
+    context = {
+        'approach_list': approach_list,
+        'speciality_list': speciality_list,
+        'speciality_dict': speciality_dict,
+        'approach_dict': approach_dict,
+        'bubbles': bubble_dict,
+        'segment': 'bubble_chart'
+    }
+
+    return render(request, 'bubble_chart.html', context)
+
+def bubble_chart_act2(request):
     approach_list = ApproachAct.objects.all()
     specialty_list = SpecialtyAct.objects.all()
     colors = ColorAct.objects.all()

@@ -48,14 +48,30 @@
                 <div class="table-responsive">
                     <table class="table align-items-center table-flush">
                         <thead class="thead-light">
-                            <tr><th scope="col"></th></tr>
+                            <tr>
+                                <th scope="col"></th>
+                                {% for speciality, val in speciality_dict.items %}
+                                    <th scope="col">{{ val.name }}</th>
+                                {% endfor %}
+                            </tr>
                         </thead>
                         <tbody>
-                            {% for approach.id in approa %}
+                            {% for approach, val in bubbles.items %}
                                 <tr>
-                                    {% for speciality.id in data2 %}
-                                        <td> {{ bubble_list.approach.speciality }} </td>
-                                    {% endfor %}
+                                <td>{{ approach }}</td>
+                                {% for speciality, val2 in val.items %}
+                                    {% if val2.0 != "" %}
+                                      <td style="margin-left:auto; margin-top:auto;">
+                                          <svg height="60" width="100%">
+                                              <a href= "{% url 'searchBubbleAct' val2.0.coordinate_approach.id val2.0.coordinate_speciality.id %}">
+                                                  <circle cx="50%" cy="50%" r={{ val2.1 }} fill={{ val2.0.color }} />
+                                              </a>
+                                          </svg>
+                                      </td>
+                                    {% else %}
+                                      <td></td>
+                                    {% endif %}
+                                {% endfor %}
                                 </tr>
                             {% endfor %}
                         </tbody>
