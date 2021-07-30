@@ -57,54 +57,60 @@
         </div>
       </div>
     </form>
+
+    <br><br><br>
+
+    <!-- Data Table -->
+    <div class="row">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header border-0"></div>
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead>
+                <tr>
+                  <th style="text-align: center" title="No Poverty" scope="col">SDG 1</th>
+                  <th style="text-align: center" title="Zero Hunger" scope="col">SDG 2</th>
+                  <th style="text-align: center" title="Good Health and Well-being" scope="col">SDG 3</th>
+                  <th style="text-align: center" title="Quality Education" scope="col">SDG 4</th>
+                  <th style="text-align: center" title="Gender Equality" scope="col">SDG 5</th>
+                  <th style="text-align: center" title="Clean Water and Sanitation" scope="col">SDG 6</th>
+                  <th style="text-align: center" title="Affordable and Clean Energy" scope="col">SDG 7</th>
+                  <th style="text-align: center" title="Decent Work and Economic Growth" scope="col">SDG 8</th>
+                  <th style="text-align: center" title="Industry, Innovation and Infrastructure" scope="col">SDG 9</th>
+                  <th style="text-align: center" title="Reduced Inequality" scope="col">SDG 10</th>
+                  <th style="text-align: center" title="Sustainable Cities and Communities" scope="col">SDG 11</th>
+                  <th style="text-align: center" title="Responsible Consumption and Production" scope="col">SDG 12</th>
+                  <th style="text-align: center" title="Climate Action" scope="col">SDG 13</th>
+                  <th style="text-align: center" title="Life Below Water" scope="col">SDG 14</th>
+                  <th style="text-align: center" title="Life on Land" scope="col">SDG 15</th>
+                  <th style="text-align: center" title="Peace and Justice Strong Institutions" scope="col">SDG 16</th>
+                  <th style="text-align: center" title="Partnerships to achieve the Goal" scope="col">SDG 17</th>
+                  <th style="text-align: center" title="Miscellaneous" scope="col">Misc</th>
+                  <th style="text-align: center" scope="col">Predicted</th>
+                </tr>
+              </thead>
+              <tbody style="text-align: center; vertical-align: middle;">
+                {% if data %}
+                  {% for sdg in data %}
+                    <td style="text-align: center">{{ sdg }}</td>
+                  {% endfor %}
+                  {% if Predicted %}
+                      <td style="text-align: center">{{ Predicted }}</td>
+                  {% else %}
+                      <td style="text-align: center">None</td>
+                  {% endif %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br>
+    {% if graphic != None%}
+      <img src="data:image/png;base64,{{ graphic|safe }}">
+    {% endif %}
   </div>
-
-  <body>    
-  
-  <br><br>
-
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th style="text-align: center" title="No Poverty" scope="col">SDG 1</th>
-        <th style="text-align: center" title="Zero Hunger" scope="col">SDG 2</th>
-        <th style="text-align: center" title="Good Health and Well-being" scope="col">SDG 3</th>
-        <th style="text-align: center" title="Quality Education" scope="col">SDG 4</th>
-        <th style="text-align: center" title="Gender Equality" scope="col">SDG 5</th>
-        <th style="text-align: center" title="Clean Water and Sanitation" scope="col">SDG 6</th>
-        <th style="text-align: center" title="Affordable and Clean Energy" scope="col">SDG 7</th>
-        <th style="text-align: center" title="Decent Work and Economic Growth" scope="col">SDG 8</th>
-        <th style="text-align: center" title="Industry, Innovation and Infrastructure" scope="col">SDG 9</th>
-        <th style="text-align: center" title="Reduced Inequality" scope="col">SDG 10</th>
-        <th style="text-align: center" title="Sustainable Cities and Communities" scope="col">SDG 11</th>
-        <th style="text-align: center" title="Responsible Consumption and Production" scope="col">SDG 12</th>
-        <th style="text-align: center" title="Climate Action" scope="col">SDG 13</th>
-        <th style="text-align: center" title="Life Below Water" scope="col">SDG 14</th>
-        <th style="text-align: center" title="Life on Land" scope="col">SDG 15</th>
-        <th style="text-align: center" title="Peace and Justice Strong Institutions" scope="col">SDG 16</th>
-        <th style="text-align: center" title="Partnerships to achieve the Goal" scope="col">SDG 17</th>
-        <th style="text-align: center" title="Miscellaneous" scope="col">Misc</th>
-        <th style="text-align: center" scope="col">Predicted</th>
-      </tr>
-    </thead>
-    <tbody style="text-align: center; vertical-align: middle;">
-      {% if data %}
-        {% for sdg in data %}
-          <td style="text-align: center">{{ sdg }}</td>
-        {% endfor %}
-        {% if Predicted %}
-            <td style="text-align: center">{{ Predicted }}</td>
-        {% else %}
-            <td style="text-align: center">None</td>
-        {% endif %}
-      {% endif %}
-
-    </tbody>
-  </table>
-
-  <br>
-  {% if graphic != None%}
-    <img src="data:image/png;base64,{{ graphic|safe }}">
-  {% endif %}
-  
 {% endblock %}

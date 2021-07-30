@@ -143,7 +143,7 @@ def bubble_chart_act(request):
                 bubble_dict[approach_dict[i]][int(j)] = [bubble_obj, size]
             except:
                 bubble_dict[approach_dict[i]][int(j)] = None
-        
+        break
 
     context = {
         'approach_list': approach_list,

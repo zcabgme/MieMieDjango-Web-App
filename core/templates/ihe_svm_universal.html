@@ -45,45 +45,52 @@
         </div>
       </div>
     </form>
+  
+    <br><br><br>
+
+    <!-- Data Table -->
+    <div class="row">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header border-0"></div>
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead>
+                <tr>
+                  <th style="text-align: center" title="AI & ML" scope="col">IHE 1</th>
+                  <th style="text-align: center" title="Bioinformatics" scope="col">IHE 2</th>
+                  <th style="text-align: center" title="Cybersecurity" scope="col">IHE 3</th>
+                  <th style="text-align: center" title="Data Sciences" scope="col">IHE 4</th>
+                  <th style="text-align: center" title="Software Engineering" scope="col">IHE 5</th>
+                  <th style="text-align: center" title="Robotics" scope="col">IHE 6</th>
+                  <th style="text-align: center" title="Synthetic Biology" scope="col">IHE 7</th>
+                  <th style="text-align: center" title="Pharmacology & Pharmaceuticals" scope="col">IHE 8</th>
+                  <th style="text-align: center" title="Tissue Engineering & Regenerative Medicine" scope="col">IHE 9</th>
+                  <th style="text-align: center" scope="col">Predicted</th>
+                </tr>
+              </thead>
+              <tbody style="text-align: center; vertical-align: middle;">
+                {% if data %}
+                  {% for ihe in data %}
+                    <td style="text-align: center">{{ ihe }}</td>
+                  {% endfor %}
+                  {% if Predicted %}
+                    <td style="text-align: center">{{ Predicted }}</td>
+                  {% else %}
+                    <td style="text-align: center">None</td>
+                  {% endif %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br>
+    {% if graphic != None%}
+      <img src="data:image/png;base64,{{ graphic|safe }}">
+    {% endif %}
+
   </div>
-
-  <body>    
-  
-  <br><br>
-
-  <table class="table table-striped">
-    <thead>
-        <tr>
-            <th style="text-align: center" title="AI & ML" scope="col">IHE 1</th>
-            <th style="text-align: center" title="Bioinformatics" scope="col">IHE 2</th>
-            <th style="text-align: center" title="Cybersecurity" scope="col">IHE 3</th>
-            <th style="text-align: center" title="Data Sciences" scope="col">IHE 4</th>
-            <th style="text-align: center" title="Software Engineering" scope="col">IHE 5</th>
-            <th style="text-align: center" title="Robotics" scope="col">IHE 6</th>
-            <th style="text-align: center" title="Synthetic Biology" scope="col">IHE 7</th>
-            <th style="text-align: center" title="Pharmacology & Pharmaceuticals" scope="col">IHE 8</th>
-            <th style="text-align: center" title="Tissue Engineering & Regenerative Medicine" scope="col">IHE 9</th>
-
-            <th style="text-align: center" scope="col">Predicted</th>
-        </tr>
-    </thead>
-    <tbody style="text-align: center; vertical-align: middle;">
-        {% if data %}
-            {% for ihe in data %}
-            <td style="text-align: center">{{ ihe }}</td>
-            {% endfor %}
-            {% if Predicted %}
-                <td style="text-align: center">{{ Predicted }}</td>
-            {% else %}
-                <td style="text-align: center">None</td>
-            {% endif %}
-        {% endif %}
-    </tbody>
-  </table>
-
-  <br>
-  {% if graphic != None%}
-    <img src="data:image/png;base64,{{ graphic|safe }}">
-  {% endif %}
-  
 {% endblock %}

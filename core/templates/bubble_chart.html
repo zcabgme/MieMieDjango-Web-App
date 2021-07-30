@@ -38,8 +38,21 @@
       </div>
     </div>
   </div>
+
+  <!-- Search Bar & Selector -->
+  <div class="container-fluid mt--7">
+    <form action="{% url 'universal_SVM_IHE' %}" method="GET">
+      <div class="form-group mb-0">
+        <div class="input-group input-group-alternative">
+          <button type="button" href="{% url 'manual_add' %}" class="btn btn-secondary">
+            <a style="color: white;" href="{% url 'manual_add' %}" target="_blank">Add a researcher</a>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
   
-  <br><br><br><br><br>
+  <br><br><br><br><br><br><br>
 
   <div class="container-fluid mt--7"> 
     <div class="row">
