@@ -5,12 +5,12 @@
 {% block content %}
 
 <!-- Header -->
-<div class="header bg-gradient-primary pb-5 pt-5 pt-md-8">
+<div class="header bg-gradient-primary pb-5 pt-5 pt-md-5">
     <div class="container-fluid">
         <div class="header-body">
             <!-- Card stats -->
             <div class="row">
-                <div class="col-xl-3 col-lg-6">
+                <div class="col-xl-4 col-lg-6">
                     <div class="card card-stats mb-4 mb-xl-0">
                         <div class="card-body">
                             <div class="row">
@@ -53,7 +53,12 @@
                                 </div>
                             </div>
                             <p class="mt-3 mb-0 ">
-                                <span class="text-nowrap">View IHE</span>
+                                <span class="text-wrap">
+                                    Search for publications to see what IHE specialities they cover.
+                                    The numbers shown are the percentage likelihood that the given publication falls under an IHE speciality, calculated by machine learning (LDA).
+                                    If any of these values are above 30%, the publication\ is predicted to fall under that IHE speciality. This is shown in the 'Prediction' column.
+                                    Click on the DOI links to see more about the publications.
+                                </span>
                             </p>
                         </div>
                     </div>

@@ -165,12 +165,10 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
     entry_list = []
 
     if request.method == 'GET':
-        print("THING")
         people = UserProfileAct.objects.all()
         query = request.GET.get('author_selection')
 
         if query == 'UCL Authors':
-            print(query)
             form['UCL Authors'] = "selected"
             form['OTHER Authors'] = "unselected"
             form['ALL'] = "unselected"
@@ -181,7 +179,6 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                         entry_list.append(i)
 
         elif query == 'OTHER Authors':
-            print(query)
             form['OTHER Authors'] = "selected"
             form['UCL Authors'] = "unselected"
             form['ALL'] = "unselected"
@@ -192,7 +189,6 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                         entry_list.append(i)
 
         elif query == 'ALL':
-            print(query)
             form['OTHER Authors'] = "unselected"
             form['UCL Authors'] = "unselected"
             form['ALL'] = "selected"
@@ -241,6 +237,7 @@ def manual_add(request):
                 "author_id": request.POST['author_id'],
                 "fullName": request.POST['fullName'],
                 "affiliation": request.POST['affiliation'],
+                "affiliationID": request.POST['affiliationID'],
                 "approach": request.POST['approach'],
                 "specialty": request.POST['specialty'],
                 "form": form
