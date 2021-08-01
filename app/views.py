@@ -11,10 +11,19 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.decorators.csrf import csrf_exempt
 from django.template.defaulttags import register
 from .forms import BubbleChartAdd
-
-import pyodbc, json, os, csv, time
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+from django.forms.utils import ErrorList
+import pyodbc
+import json
+import os
+import csv
+import time
+import sys
 from io import BytesIO, StringIO
 from colorsys import hsv_to_rgb
 import matplotlib.pyplot as plt
@@ -32,7 +41,48 @@ svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor":
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, global_display_limit = 30, 30, 150
 
+@csrf_exempt
+def auth(request):
+    client_id = "6365571534482801.6682631196341781"
+    client_secret = "82c327d619d750cf5721ece54b9f5aa7aac94e70b4a7c7b1a7c4c41f77eaaeff"
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
+    url = "https://uclapi.com/oauth/authorise?client_id={0}&state={1}".format(client_id, state)
+    r = requests.get(url, verify=False)
+    m = r.text
+    m = m.replace('\t', '').replace('\n', '').replace('\r', '')
 
+    # url = "https://uclapi.com/oauth/token?client_id={0}&client_secret={1}&code={2}".format(
+    #     client_id, client_secret, )
+    # r = requests.get(url, verify=False)
+
+    return render(request, 'auth.html', {"data": m})
+
+@csrf_exempt
+def redirect(request):
+    # print("HOORAYY")
+    print(request.POST)
+    print(request.GET)
+    print(request.META)
+
+    params = {
+        "client_id": "6365571534482801.6682631196341781",
+        "code": "e1s1",
+        "client_secret": "82c327d619d750cf5721ece54b9f5aa7aac94e70b4a7c7b1a7c4c41f77eaaeff"
+        }
+    r = requests.get("https://uclapi.com/oauth/token", params=params)
+
+    with open('response.json', 'w') as outfile:
+        json.dump(str(r.content), outfile)
+
+    return render(request, 'index.html', {})
+
+# @login_required(login_url="/login/")
+def index(request):
+    context = {}
+    context['segment'] = 'index'
+    return render(request, 'index.html', context)
+
+# @login_required(login_url="/login/")
 def app(request):
     global Module_CSV_Data
     global Publication_CSV_Data
@@ -105,8 +155,9 @@ def app(request):
         'urlString': url_string
     }
     global_context = context
-    return render(request, 'index.html', context)
+    return render(request, 'search_engine.html', context)
 
+# @login_required(login_url="/login/")
 def bubble_chart_act(request):
     approach_list = ApproachAct.objects.all()
     specialty_list = SpecialtyAct.objects.all()
@@ -151,13 +202,9 @@ def bubble_chart_act(request):
         x = (-17 * const) + 13 + specialty_index
         y = (-16 * const) + 11 + approach_index
 
-        bubble_dict[bubble] = [x, y, z]
-
-    context = {'bubble_dict': bubble_dict, 'approach_dict': approach_dict,
-               'color_dict': color_dict, 'verticalLength': approachNum + 1, 'horizontalLength': specialtyNum + 1}
-
-    return render(request, 'bubble_chart_act.html', context)
-
+    return render(request, 'bubble_chart.html', context)
+    
+# @login_required(login_url="/login/")
 def searchBubbleAct(request, pk=None, pk_alt=None):
     form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}
     ucl_id = '60022148'
@@ -213,8 +260,10 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
 
     num_of_people = len(entry_list)
     app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt), pk, pk_alt]
-    return render(request, 'searchBubbleAct.html', {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people, "url_string": url_string})
 
+    return render(request, 'search_bubble.html', {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people, "url_string": url_string})
+
+# @login_required(login_url="/login/")
 def manual_add(request):
     approach_list = ApproachAct.objects.all()
     specialty_list = SpecialtyAct.objects.all()
@@ -338,6 +387,7 @@ def returnQuery(request, form, query, all_modules, all_publications):
     global_context = context
     return context
 
+# @login_required(login_url="/login/")
 def iheVisualisation(request):
     client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     db = client.Scopus
@@ -351,6 +401,7 @@ def iheVisualisation(request):
     client.close()
     return render(request, "visualisations/IHE/pyldavis.html", context)
 
+# @login_required(login_url="/login/")
 def sdgVisualisation(request):
     client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     db = client.Scopus
@@ -367,6 +418,8 @@ def sdgVisualisation(request):
 def sortSDG_results(form, obj, ascending):
     return obj.order_by('assignedSDG__Validation__Similarity') if ascending else obj.order_by('-assignedSDG__Validation__Similarity')
 
+
+# @login_required(login_url="/login/")
 def sdg(request):
     form = {"modBox": "unchecked", "pubBox": "unchecked",
                 "Default": "unselected", "ASC": "unselected", "DESC": "unselected"}
@@ -427,8 +480,7 @@ def sdg(request):
         context['lenMod'] = context['mod'].count()
         context['lenPub'] = context['pub'].count()
 
-    return render(request, 'sdg.html', context)
-
+# @login_required(login_url="/login/")
 def module(request, pk):
     try:
         module = Module.objects.get(id=pk)
@@ -436,6 +488,8 @@ def module(request, pk):
         raise ("Module does not exist")
     return render(request, 'module.html', {'mod': module})
 
+
+# @login_required(login_url="/login/")
 def publication(request, pk):
     try:
         publication = Publication.objects.get(id=pk)
@@ -600,6 +654,8 @@ def truncate(n:float, decimals:int =0) -> float:
     multiplier = 10 ** decimals
     return int(n * multiplier) / multiplier
 
+
+# @login_required(login_url="/login/")
 def universal_SVM(request):
     global svm_context
 
@@ -623,10 +679,21 @@ def universal_SVM(request):
             svm_context["data"] = results
             svm_context["Predicted"] = ','.join(predicted_)
             svm_context["graphic"] = drawDonutChart(results)
-
-            return render(request, 'svm.html', svm_context)
+            svm_context['segment'] = 'universal_SVM'
+            return render(request, 'svm_universal.html', svm_context)
         else:
-            return render(request, 'svm.html', {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None})
+            return render(request, 'svm_universal.html', {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None, "segment": "universal_SVM"})
+    svm_context['segment'] = 'universal_SVM'
+    return render(request, 'svm_universal.html', svm_context)
+
+
+# @login_required(login_url="/login/")
+def universal_SVM_IHE(request):
+    svm_context = {}
+
+        #     return render(request, 'svm.html', svm_context)
+        # else:
+        #     return render(request, 'svm.html', {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None})
     
     return render(request, 'svm.html', svm_context)
 
@@ -671,10 +738,7 @@ def export_ihe_csv(request):
 
     return response
 
-@register.filter
-def get_item(dictionary, key):
-    return dictionary.get(key)
-
+# @login_required(login_url="/login/")
 def ihe(request):
     global IHE_CSV_Data
     form = {"Default": "unselected"}
@@ -744,6 +808,8 @@ def getSQL_connection():
     myConnection = pyodbc.connect('DRIVER=' + driver + ';SERVER=' + server +';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
     return myConnection
 
+
+# @login_required(login_url="/login/")
 def tableauVisualisation(request):
     curr = getSQL_connection().cursor()
     checkboxes = {'value1': '', 'value2': '', 'value3': ''}
