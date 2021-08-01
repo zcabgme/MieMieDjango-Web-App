@@ -24,6 +24,15 @@ urlpatterns = [
     path('exportPub', views.export_publications_csv,name='export_publications_csv'),
     path('export_ihe_csv', views.export_ihe_csv, name='export_ihe_csv'),
     path('manual_add', views.manual_add, name='manual_add'),
+<<<<<<< Updated upstream
+=======
+    path('auth', views.auth, name='auth'),
+    path('idp/profile/SAML2/Redirect/SSO', views.redirect, name='redirect'),
+    
+    
+    # Matches any html file
+    # re_path(r'^.*\.*', views.pages, name='pages'),
+>>>>>>> Stashed changes
 ]
 
 # if settings.DEBUG:
