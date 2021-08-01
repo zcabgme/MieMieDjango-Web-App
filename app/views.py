@@ -40,7 +40,7 @@ svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor":
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, global_display_limit = 30, 30, 150
 
-@login_required(login_url="/login/")
+# @login_required(login_url="/login/")
 def index(request):
     context = {}
     context['segment'] = 'index'
