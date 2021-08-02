@@ -1,8 +1,3 @@
-//
-// Chart extension for making the bars rounded
-// Code from: https://codepen.io/jedtrow/full/ygRYgo
-//
-
 Chart.elements.Rectangle.prototype.draw = function() {
 
   var ctx = this._chart.ctx;
@@ -128,3 +123,8 @@ Chart.elements.Rectangle.prototype.draw = function() {
     ctx.stroke();
   }
 };
+
+//
+// Chart extension for making the bars rounded
+// Code from: https://codepen.io/jedtrow/full/ygRYgo
+//
