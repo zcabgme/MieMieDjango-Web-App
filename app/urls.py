@@ -34,6 +34,6 @@ urlpatterns = [
     # re_path(r'^.*\.*', views.pages, name='pages'),
 ]
 
-# if settings.DEBUG:
-#     urlpatterns += static(settings.STATIC_URL,
-#                           view=cache_control(no_cache=True, must_revalidate=True)(serve))
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL,
+                          view=cache_control(no_cache=True, must_revalidate=True)(serve))
