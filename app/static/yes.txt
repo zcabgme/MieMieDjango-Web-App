@@ -1,0 +1,1 @@
+Keep this file so that the static folder is kept in production so the web-app doesn't fail.
