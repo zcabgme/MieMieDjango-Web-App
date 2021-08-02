@@ -5,7 +5,7 @@ from NLP.PREPROCESSING.preprocessor import Preprocessor
 from django.core import serializers
 from django.shortcuts import render, redirect
 from django.db.models.expressions import RawSQL
-from .models import Module, Publication
+from .models import *
 from django.views import View
 from django.contrib import messages
 from django.db.models import Q
@@ -57,8 +57,8 @@ def app(request):
     global global_query
     global global_mod_sdg, global_pub_sdg
 
-    all_modules = Module.objects.all()[:10]
-    all_publications = Publication.objects.all()[:10]
+    all_modules = Module.objects.all()
+    all_publications = Publication.objects.all()
 
     context = {
         'mod': all_modules,
@@ -147,7 +147,6 @@ def bubble_chart_act(request):
                 bubble_dict[approach_dict[i]][int(j)] = [bubble_obj, size]
             except:
                 bubble_dict[approach_dict[i]][int(j)] = None
-        break
 
     context = {
         'approach_list': approach_list,
@@ -304,8 +303,8 @@ def sdg(request):
     global global_query
     global global_mod_sdg, global_pub_sdg
 
-    all_modules = Module.objects.all()[:10]
-    all_publications = Publication.objects.all()[:10]
+    all_modules = Module.objects.all()
+    all_publications = Publication.objects.all()
 
     context = {
         'mod': all_modules,
