@@ -1,9 +1,3 @@
-/*--------------------------------
-
-hermes-dashboard-icons Web Font - built using nucleoapp.com
-License - nucleoapp.com/license/
-
--------------------------------- */
 @font-face {
   font-family: 'NucleoIcons';
   src: url('../fonts/nucleo-icons.eot');
@@ -11,6 +5,13 @@ License - nucleoapp.com/license/
   font-weight: normal;
   font-style: normal;
 }
+
+/*--------------------------------
+
+hermes-dashboard-icons Web Font - built using nucleoapp.com
+License - nucleoapp.com/license/
+
+-------------------------------- */
 
 /*------------------------
     base class definition
