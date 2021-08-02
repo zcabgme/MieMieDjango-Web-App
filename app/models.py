@@ -3,6 +3,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.postgres.fields import ArrayField
 import json
 
+
 class Module(models.Model):
     Department_Name = models.CharField(max_length=400)
     Department_ID = models.CharField(max_length=200)

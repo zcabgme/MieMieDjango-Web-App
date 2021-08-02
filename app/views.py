@@ -1,10 +1,11 @@
+import configparser
 from NLP.PREPROCESSING.module_preprocessor import ModuleCataloguePreprocessor
 from NLP.PREPROCESSING.preprocessor import Preprocessor
 
 from django.core import serializers
 from django.shortcuts import render, redirect
 from django.db.models.expressions import RawSQL
-from .models import *
+from .models import Module, Publication
 from django.views import View
 from django.contrib import messages
 from django.db.models import Q
@@ -262,7 +263,8 @@ def manual_add(request):
 
 # @login_required(login_url="/login/")
 def iheVisualisation(request):
-    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    details = get_details('MONGO_DB', 'client')
+    client = pymongo.MongoClient(details)
     db = client.Scopus
     col = db.Visualisations
     data = list(col.find())[0]
@@ -278,7 +280,8 @@ def iheVisualisation(request):
 
 # @login_required(login_url="/login/")
 def sdgVisualisation(request):
-    client = pymongo.MongoClient("mongodb+srv://admin:admin@cluster0.hw8fo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    details = get_details('MONGO_DB', 'client')
+    client = pymongo.MongoClient(details)
     db = client.Scopus
     col = db.Visualisations
     data = list(col.find())[1]
@@ -779,14 +782,19 @@ def ihe(request):
     return render(request, 'ihe.html', {})
 
 
+def get_details(field, detail):
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    return config[field][detail]
+
+
 def getSQL_connection():
-    server = 'summermiemieservver.database.windows.net'
-    database = 'summermiemiedb'
-    username = 'miemie_login'
-    password = 'e_Paswrd?!'
-    driver = '{ODBC Driver 17 for SQL Server}'
-    myConnection = pyodbc.connect('DRIVER=' + driver + ';SERVER=' + server +
-                                  ';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
+    server = get_details('SQL_SERVER', 'server')
+    database = get_details('SQL_SERVER', 'database')
+    username = get_details('SQL_SERVER', 'username')
+    password = get_details('SQL_SERVER', 'password')
+    driver = get_details('SQL_SERVER', 'driver')
+    myConnection = pyodbc.connect('DRIVER=' + driver + ';SERVER=' + server +';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
     return myConnection
 
 
