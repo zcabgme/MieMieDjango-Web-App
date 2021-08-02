@@ -1,0 +1,99 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+  
+  <!-- Page description -->
+  <div class="header bg-gradient-primary pb-8 pt-5 pt-md-0">
+    <div class="container-fluid">
+      <div class="header-body">
+        <!-- Card stats -->
+        <div class="row">
+          <div class="col-xl-12 col-lg-12">
+            <br><br><br>
+            <div class="card card-stats mb-4 mb-xl-0">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <span class="h2 font-weight-bold mb-0">Page Description</span>
+                  </div>
+                  <div class="col-auto">
+                    <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                      <i class="fas fa-pen"></i>
+                    </div>
+                  </div>
+                </div>
+                <p class="mt-3 mb-0 ">
+                  <span class="text-wrap">
+                    Type or paste in any text to see what IHE specialities our machine learning model classifies it as.
+                    After typing in the text, click the enter button to view the percentage breakdown and a donut chart of how likely the text is to fall under each IHE speciality.
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Bar & Selector -->
+  <div class="container-fluid mt--7">
+    <form action="{% url 'universal_SVM_IHE' %}" method="GET">
+      <div class="form-group mb-0">
+        <div class="input-group input-group-alternative">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input class="form-control" name="box" value="{{request.GET.box}}" placeholder="Paste any text for classification" type="text">
+        </div>
+      </div>
+    </form>
+  
+    <br><br><br>
+
+    <!-- Data Table -->
+    <div class="row">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header border-0"></div>
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead>
+                <tr>
+                  <th style="text-align: center" title="AI & ML" scope="col">IHE 1</th>
+                  <th style="text-align: center" title="Bioinformatics" scope="col">IHE 2</th>
+                  <th style="text-align: center" title="Cybersecurity" scope="col">IHE 3</th>
+                  <th style="text-align: center" title="Data Sciences" scope="col">IHE 4</th>
+                  <th style="text-align: center" title="Software Engineering" scope="col">IHE 5</th>
+                  <th style="text-align: center" title="Robotics" scope="col">IHE 6</th>
+                  <th style="text-align: center" title="Synthetic Biology" scope="col">IHE 7</th>
+                  <th style="text-align: center" title="Pharmacology & Pharmaceuticals" scope="col">IHE 8</th>
+                  <th style="text-align: center" title="Tissue Engineering & Regenerative Medicine" scope="col">IHE 9</th>
+                  <th style="text-align: center" scope="col">Predicted</th>
+                </tr>
+              </thead>
+              <tbody style="text-align: center; vertical-align: middle;">
+                {% if data %}
+                  {% for ihe in data %}
+                    <td style="text-align: center">{{ ihe }}</td>
+                  {% endfor %}
+                  {% if Predicted %}
+                    <td style="text-align: center">{{ Predicted }}</td>
+                  {% else %}
+                    <td style="text-align: center">None</td>
+                  {% endif %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br>
+    {% if graphic != None%}
+      <img src="data:image/png;base64,{{ graphic|safe }}">
+    {% endif %}
+
+  </div>
+{% endblock %}

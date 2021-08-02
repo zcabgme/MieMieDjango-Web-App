@@ -19,11 +19,10 @@ def login_view(request):
     msg = None
 
     if request.method == "POST":
-        
+
         if form.is_valid():
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
-
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
@@ -31,7 +30,7 @@ def login_view(request):
             else:    
                 msg = 'Invalid credentials'    
         else:
-            msg = 'Error validating the form'
+            msg = 'Error validating the form'    
 
     return render(request, "accounts/login.html", {"form": form, "msg" : msg})
 

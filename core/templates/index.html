@@ -1,0 +1,55 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Home {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header pb-8 pt-5 pt-lg-8 d-flex align-items-center" style="min-height: 600px; background-image: url(/static/assets/img/theme/ucl_main_quad.jpg); background-size: cover; background-position: center top;">
+      <!-- Mask -->
+      <span class="mask bg-gradient-default opacity-5"></span>
+      <!-- Header container -->
+      <div class="container-fluid d-flex align-items-center">
+        <div class="row">
+          <div class="col-lg-12 col-md-10">
+            <h1 class="display-2 text-white">Welcome! This is a platform for you to find information about researchers in UCL Digital Health</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid mt--7">
+
+     <div class="row">
+        <div class="col">
+          <div class="card shadow">
+            <div class="card-header bg-transparent">
+              <h3 class="mb-0">Introduction</h3>
+            </div>
+            <div class="card-body">
+                <h4>Problem Statement</h4>
+                <p>The researchers and academics of UCL require an in-depth breakdown of other researchers who are working within the same area; however, this is a long and arduous process that currently requires a manual search and verification process, one that can take months to complete and would make research much more effective if sped up. This is becoming a larger issue as there are more researchers every year, and this process must be completed annually which causes an increasing problem every time this process is redone.</p>
+                <br>
+                <h4>Proposed Solution</h4>
+                <p>Our solution is to automate this process for all areas of research by allowing researchers to search for all other academics using various filters using scraping tools across UCL related websites before cleaning the data and processing it into various forms of visualisations for the researchers to use. This process would be automatically updated each year to include new publications and researchers in order to constantly shorten the time period.</p>
+                <br>
+                <h4>Project Background</h4>
+                <p>Our project came about due to a growing need within UCL, centred around the research facility in which their research administration, namely finding various things based on their topic of research such as names and other key terms. This search was taking longer and longer each year due to the increasing number of articles, papers and other publications on each topic coming out each year. This got us connected to various researchers varying from professors, PhD research students and sustainable development researchers. They all required a method to speed up this process and to help get more accurate data automatically rather than repeating this each year manually.</p>
+                <br>
+                <h4>Legal Statement</h4>
+                <p>The software is an early proof of concept for development purposes and should not be used as-is in a live environment without further redevelopment and/or testing. No warranty is given and no real data or personally identifiable data should be stored. Usage and its liabilities are your own.</p>
+                <p>We have worked hard to ensure that our project completely follow all licensing, copyright and GDPR law. Although no data was collected under GDPR, we do have names of various authors of publications being collected, as well as the names of professors who teach different modules across UCL; however, this information is already publicly available and does not constitute a need for any confidentiality. In line with UK copyright, using the Scopus API stays in line with the moral right that all authors have which means that they are always credited for their own work. We further have a strict contractual relationship, defined through the conditions set within our MoSCoW list (see above). As the contractor team, we have been resolute with ensuring that we complete as many of the minimum defined requirements from our clients. The LDA algorithm we used, was from an open-source library for topic modelling and natural language processing (Gensim) while our GuidedLDA algorithm further uses the LatentDiricletAllocation (LDA) library and is publicly licensed for use by Vikash Singh.</p> 
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}

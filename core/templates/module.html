@@ -1,0 +1,79 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header pb-8 pt-5 pt-lg-8 d-flex align-items-center" style="min-height: 600px; background-image: url(/static/assets/img/theme/ucl_main_quad.jpg); background-size: cover; background-position: center top;">
+      <!-- Mask -->
+      <span class="mask bg-gradient-default opacity-5"></span>
+      <!-- Header container -->
+      <div class="container-fluid d-flex align-items-center">
+        <div class="row">
+          <div class="col-lg-12 col-md-10">
+            <h1 class="display-2 text-white">{{ mod.Module_Name }} ({{ mod.Module_ID }})</h1>
+            <br>
+            <a href="{{ mod.Catalogue_Link }}" target="_blank" class="btn btn-info">View on Module Catalogue</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid mt--7">
+      <div class="row">
+        <div class="col-xl-4 order-xl-2 mb-5 mb-xl-0">
+          <div class="card card-profile shadow">
+            <div class="card-body pt-0 pt-md-4">
+              <div class="text-center">
+                <div class="h5 mt-4">
+                  <i class="ni business_briefcase-24 mr-2"></i>Faculty
+                </div>
+                <div>
+                  <i class="ni education_hat mr-2"></i>{{ mod.Faculty }}
+                </div>
+                <div class="h5 mt-4">
+                  <i class="ni business_briefcase-24 mr-2"></i>Department
+                </div>
+                <div>
+                  <i class="ni education_hat mr-2"></i>{{ mod.Department_Name }}<br>({{ mod.Department_ID }})
+                </div>
+                <div class="h5 mt-4">
+                  <i class="ni business_briefcase-24 mr-2"></i>Module Lead
+                </div>
+                <div>
+                  <i class="ni education_hat mr-2"></i>{{ mod.Module_Lead }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-xl-8 order-xl-1">
+          <div class="card bg-secondary shadow">
+            <div class="card-header bg-white border-0">
+              <div class="row align-items-center">
+                <div class="col-8">
+                  <h3 class="mb-0">Module Description</h3>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h6 class="text mb-4">
+                {% if mod.Description != None %}
+                    <p>{{ mod.Description }}</p>
+                {% else %}
+                    <p>No description present for this module</p>
+                {% endif %}
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}
