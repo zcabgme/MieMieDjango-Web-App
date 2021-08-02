@@ -28,3 +28,4 @@ threadpoolctl==2.1.0
 tqdm==4.59.0
 typing-extensions==3.10.0.0
 nltk==3.5
+python-decouple==3.4
