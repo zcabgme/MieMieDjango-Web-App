@@ -40,7 +40,7 @@ global_query, global_mod_sdg_paginator, global_pub_sdg_paginator = None, None, N
 global_ihe_paginator = None
 svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
-lda_threshold, svm_threshold, global_display_limit, paginator_limiter = 30, 30, 1000, 10
+lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
 
 # @login_required(login_url="/login/")
 def index(request):
@@ -56,8 +56,8 @@ def app(request):
     global global_query
     global global_mod_sdg_paginator, global_pub_sdg_paginator
 
-    all_modules = Module.objects.all()[:global_display_limit]
-    all_publications = Publication.objects.all()[:global_display_limit]
+    all_modules = Module.objects.all()
+    all_publications = Publication.objects.all()
 
     context = {
         'mod': all_modules,
@@ -82,6 +82,8 @@ def app(request):
                 context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
                 lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(Module_Lead__icontains=query) | Q(Description__icontains=query)
                 context['mod'] = Module.objects.filter(lookups).distinct()
+
+                global_query = query
 
                 global_pub_sdg_paginator = Paginator(context['pub'], paginator_limiter)
                 global_mod_sdg_paginator = Paginator(context['mod'], paginator_limiter)
@@ -320,8 +322,8 @@ def sdg(request):
     global global_query
     global global_mod_sdg, global_pub_sdg
 
-    all_modules = Module.objects.all()[:global_display_limit]
-    all_publications = Publication.objects.all()[:global_display_limit]
+    all_modules = Module.objects.all()
+    all_publications = Publication.objects.all()
 
     context = {
         'mod': all_modules,
@@ -745,7 +747,7 @@ def ihe(request):
         form[str(i)] = 'unselected'
 
     context = {
-        'pub': Publication.objects.all()[:global_display_limit],
+        'pub': Publication.objects.all(),
         'len_pub': Publication.objects.count(),
         'form': form,
         'ihe_lookup': lookup,
