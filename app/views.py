@@ -36,8 +36,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 global_context = {}
-global_query, global_mod_sdg_paginator, global_pub_sdg_paginator = None, None, None
-global_ihe_paginator = None
+global_query, global_mod_sdg_paginator, global_pub_sdg_paginator, global_ihe_paginator = None, None, None, None
 svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
@@ -105,15 +104,6 @@ def app(request):
             modules = global_mod_sdg_paginator.page(1)
         except EmptyPage:
             modules = global_mod_sdg_paginator.page(global_mod_sdg_paginator.num_pages)
-        context['mod'] = modules
-
-        mod_page = request.GET.get('modPage')
-        try:
-            modules = global_mod_sdg_paginator.page(mod_page)
-        except PageNotAnInteger:
-            modules = global_mod_sdg_paginator.page(1)
-        except EmptyPage:
-            modules = global_mod_sdg_paginator.page(global_mod_sdg_paginator.num_pages)
         context['modules'] = modules
 
         pub_page = request.GET.get('pubPage')
@@ -129,8 +119,7 @@ def app(request):
         Module_CSV_Data = context['mod']
         Publication_CSV_Data = context['pub']
 
-        if url_string != "":
-            url_string = url_string + "&"
+        if url_string != "": url_string = url_string + "&"
         context['url_string'] = url_string
 
 
@@ -320,15 +309,12 @@ def sortSDG_results(form, obj, ascending):
 def sdg(request):
     global global_context
     global global_query
-    global global_mod_sdg, global_pub_sdg
-
-    all_modules = Module.objects.all()
-    all_publications = Publication.objects.all()
+    global global_mod_sdg_paginator, global_pub_sdg_paginator
 
     context = {
-        'mod': all_modules,
+        'mod': Module.objects.all(),
+        'pub': Publication.objects.all(),
         'modules': None,
-        'pub': all_publications,
         'publications': None,
         'len_mod': None,
         'len_pub': None,
@@ -340,54 +326,47 @@ def sdg(request):
             query = request.GET.get('q')
             print(query)
 
-            if query == global_query and query != '' and query:
-                context['pub'] = global_pub_sdg
-                context['mod'] = global_mod_sdg
-                url_string = "q=" + str(query).replace(" ", "+")
-                context['url_string'] = url_string + '&'
-
-            elif query is not None and query != '' and len(query) != 0:
-                global_pub_sdg = context['pub'] = Publication.objects.filter(
-                    data__icontains=query).distinct()
-                lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(Module_Name__icontains=query) | Q(
-                    Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(Module_Lead__icontains=query) | Q(Description__icontains=query)
-                global_mod_sdg = context['mod'] = Module.objects.filter(
-                    lookups).distinct()
-                url_string = "q=" + str(query).replace(" ", "+")
-                context['url_string'] = url_string + '&'
+            if query is not None and query != '' and len(query) != 0 and query != global_query:
+                context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
+                lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(Module_Lead__icontains=query) | Q(Description__icontains=query)
+                context['mod'] = Module.objects.filter(lookups).distinct()
+                
                 global_query = query
-            else:
-                Module_CSV_Data = None
-                Publication_CSV_Data = None
-    
-    mod_paginator = Paginator(context['mod'], 5)
-    mod_page = request.GET.get('modPage')
-    try:
-        modules = mod_paginator.page(mod_page)
-    except PageNotAnInteger:
-        modules = mod_paginator.page(1)
-    except EmptyPage:
-        modules = mod_paginator.page(mod_paginator.num_pages)
+                global_pub_sdg_paginator = Paginator(context['pub'], 10)
+                global_mod_sdg_paginator = Paginator(context['mod'], 10)
 
-    pub_paginator = Paginator(context['pub'], 5)
-    pub_page = request.GET.get('pubPage')
-    try:
-        publications = pub_paginator.page(pub_page)
-    except PageNotAnInteger:
-        publications = pub_paginator.page(1)
-    except EmptyPage:
-        publications = pub_paginator.page(pub_paginator.num_pages)
+            url_string = "q=" + str(query).replace(" ", "+")
 
-    context['publications'] = publications
-    context['modules'] = modules
+        else:
+            global_pub_sdg_paginator = Paginator(context['pub'], 10)
+            global_mod_sdg_paginator = Paginator(context['mod'], 10)
+            global_query = None
 
-    context['len_mod'] = len(context['mod'])
-    context['len_pub'] = len(context['pub'])
+        mod_page = request.GET.get('modPage')
+        try:
+            modules = global_mod_sdg_paginator.page(mod_page)
+        except PageNotAnInteger:
+            modules = global_mod_sdg_paginator.page(1)
+        except EmptyPage:
+            modules = global_mod_sdg_paginator.page(global_mod_sdg_paginator.num_pages)
+        context['modules'] = modules
 
-    context['pubs_classified'] = len([s for s in context['pub'] if s.assignedSDG['SVM_Prediction'] and s.assignedSDG['SVM_Prediction'] != ''])
-    context['mods_classified'] = len([l for l in context['mod'] if l.assignedSDG['SVM_Prediction']] and l.assignedSDG['SVM_Prediction'] != '')
+        pub_page = request.GET.get('pubPage')
+        try:
+            publications = global_pub_sdg_paginator.page(pub_page)
+        except PageNotAnInteger:
+            publications = global_pub_sdg_paginator.page(1)
+        except EmptyPage:
+            publications = global_pub_sdg_paginator.page(global_pub_sdg_paginator.num_pages)
+        context['publications'] = publications
 
-    global_context = context
+        context['len_mod'] = global_mod_sdg_paginator.count
+        context['len_pub'] = global_pub_sdg_paginator.count
+
+    # # context['pubs_classified'] = len([s for s in context['pub'] if s.assignedSDG['SVM_Prediction'] != '' and s.assignedSDG['SVM_Prediction']])
+    # # context['mods_classified'] = len([l for l in context['mod'] if l.assignedSDG['SVM_Prediction'] != '' and l.assignedSDG['SVM_Prediction']])
+
+    # global_context = context
     return render(request, 'sdg_tables.html', context)
 
 
@@ -795,9 +774,7 @@ def ihe(request):
 
         context['len_pub'] = global_ihe_paginator.count
 
-        return render(request, 'ihe.html', context)
-
-    return render(request, 'ihe.html', {})
+    return render(request, 'ihe.html', context)
 
 
 def get_details(field, detail):
