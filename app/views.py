@@ -363,9 +363,6 @@ def sdg(request):
         context['len_mod'] = global_mod_sdg_paginator.count
         context['len_pub'] = global_pub_sdg_paginator.count
 
-    # # context['pubs_classified'] = len([s for s in context['pub'] if s.assignedSDG['SVM_Prediction'] != '' and s.assignedSDG['SVM_Prediction']])
-    # # context['mods_classified'] = len([l for l in context['mod'] if l.assignedSDG['SVM_Prediction'] != '' and l.assignedSDG['SVM_Prediction']])
-
     # global_context = context
     return render(request, 'sdg_tables.html', context)
 
