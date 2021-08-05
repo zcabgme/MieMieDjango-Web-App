@@ -1,6 +1,7 @@
 *.pkl
 *__pycache
 __pycache__/
+__pycache__/*
 
 local_settings.py
 db.sqlite3

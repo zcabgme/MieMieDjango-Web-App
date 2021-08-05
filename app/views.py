@@ -33,19 +33,20 @@ import numpy as np
 import colorsys
 import random
 import matplotlib
+
 matplotlib.use('Agg')
 
 global_context = {}
 global_query, global_mod_sdg_paginator, global_pub_sdg_paginator, global_ihe_paginator = None, None, None, None
-svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
+svm_context = {"data": None, "Predicted": None,
+               "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
 
+
 # @login_required(login_url="/login/")
 def index(request):
-    context = {}
-    context['segment'] = 'index'
-    return render(request, 'index.html', context)
+    return render(request, 'index.html', {"segment": "index"})
 
 
 # @login_required(login_url="/login/")
@@ -78,12 +79,16 @@ def app(request):
 
             if query is not None and query != '' and len(query) != 0 and query != global_query:
                 context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
-                lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(Module_Lead__icontains=query) | Q(Description__icontains=query)
+                lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(
+                    Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(
+                    Module_Lead__icontains=query) | Q(Description__icontains=query)
                 context['mod'] = Module.objects.filter(lookups).distinct()
 
                 global_query = query
 
-                global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], paginator_limiter), Paginator(context['mod'], paginator_limiter)
+                global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'],
+                                                                               paginator_limiter), Paginator(
+                    context['mod'], paginator_limiter)
 
             else:
                 Module_CSV_Data, Publication_CSV_Data = None, None
@@ -91,7 +96,9 @@ def app(request):
             url_string = "q=" + str(query).replace(" ", "+")
 
         else:
-            global_mod_sdg_paginator, global_pub_sdg_paginator = Paginator(context['mod'], paginator_limiter), Paginator(context['pub'], paginator_limiter)
+            global_mod_sdg_paginator, global_pub_sdg_paginator = Paginator(context['mod'],
+                                                                           paginator_limiter), Paginator(context['pub'],
+                                                                                                         paginator_limiter)
             global_query = None
 
         mod_page = request.GET.get('modPage')
@@ -116,7 +123,6 @@ def app(request):
 
         if url_string != "": url_string = url_string + "&"
         context['url_string'] = url_string
-
 
     context['len_mod'] = global_mod_sdg_paginator.count
     context['len_pub'] = global_pub_sdg_paginator.count
@@ -145,7 +151,8 @@ def bubble_chart_act(request):
         for j in speciality_list:
             try:
                 bubble_obj = bubbles.get(coordinate_approach=int(i), coordinate_speciality=int(j))
-                size = (((bubble_obj.list_of_people.count(',') + 1) / curr_max) * (CONST_SCALE_MAX - SIZE_MIN)) + SIZE_MIN
+                size = (((bubble_obj.list_of_people.count(',') + 1) / curr_max) * (
+                            CONST_SCALE_MAX - SIZE_MIN)) + SIZE_MIN
                 bubble_dict[approach_dict[i]][int(j)] = [bubble_obj, size]
             except:
                 bubble_dict[approach_dict[i]][int(j)] = None
@@ -160,7 +167,7 @@ def bubble_chart_act(request):
     }
 
     return render(request, 'bubble_chart.html', context)
-    
+
 
 def searchBubbleAct(request, pk=None, pk_alt=None):
     form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}
@@ -211,15 +218,20 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
         except EmptyPage:
             authors = author_paginator.page(global_ihe_paginator.num_pages)
 
-    url_string = 'csrfmiddlewaretoken=' + str(request.GET.get('csrfmiddlewaretoken')) + '&author_selection=' + str(request.GET.get('author_selection')).replace(" ", "+") + "&"
+    url_string = 'csrfmiddlewaretoken=' + str(request.GET.get('csrfmiddlewaretoken')) + '&author_selection=' + str(
+        request.GET.get('author_selection')).replace(" ", "+") + "&"
 
     num_of_people = len(entry_list)
     app_spec = [ApproachAct.objects.get(id=pk), SpecialtyAct.objects.get(id=pk_alt), pk, pk_alt]
 
-    return render(request, 'search_bubble.html', {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people, "url_string": url_string})
+    return render(request, 'search_bubble.html',
+                  {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people,
+                   "url_string": url_string})
 
+    return render(request, 'search_bubble.html',
+                  {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people,
+                   "url_string": url_string})
 
-    return render(request, 'search_bubble.html', {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people, "url_string": url_string})
 
 # @login_required(login_url="/login/")
 def manual_add(request):
@@ -257,7 +269,8 @@ def manual_add(request):
         return redirect('manual_add')
 
     else:
-        return render(request, 'manual_add.html', {"form": form, "approach_select": approach_select, "speciality_select": speciality_select})
+        return render(request, 'manual_add.html',
+                      {"form": form, "approach_select": approach_select, "speciality_select": speciality_select})
 
 
 # @login_required(login_url="/login/")
@@ -311,14 +324,18 @@ def sdg(request):
 
             if query is not None and query != '' and len(query) != 0 and query != global_query:
                 context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
-                lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(Module_Lead__icontains=query) | Q(Description__icontains=query)
+                lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(
+                    Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(
+                    Module_Lead__icontains=query) | Q(Description__icontains=query)
                 context['mod'] = Module.objects.filter(lookups).distinct()
                 global_query = query
-                global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], 10), Paginator(context['mod'], 10)
+                global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], 10), Paginator(
+                    context['mod'], 10)
             url_string = "q=" + str(query).replace(" ", "+")
 
         else:
-            global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], 10), Paginator(context['mod'], 10)
+            global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], 10), Paginator(
+                context['mod'], 10)
             global_query = None
 
         mod_page = request.GET.get('modPage')
@@ -363,6 +380,11 @@ def publication(request, pk):
 
 
 def export_modules_csv(request):
+    """
+        Export currently displayed / searched modules on the Search Engine web-page
+        Generates CSV file with relevant fields containing module metadata
+    """
+
     global Module_CSV_Data, global_context
     response = HttpResponse(content_type='text/csv')
 
@@ -377,7 +399,8 @@ def export_modules_csv(request):
         writer.writerow(["Department_Name", "Department_ID", "Module_Name", "Module_ID",
                          "Faculty", "Credit_Value", "Module_Lead", "Catalogue_Link", "Description"])
         modules = Module_CSV_Data.values_list("Department_Name", "Department_ID", "Module_Name",
-                                              "Module_ID", "Faculty", "Credit_Value", "Module_Lead", "Catalogue_Link", "Description")
+                                              "Module_ID", "Faculty", "Credit_Value", "Module_Lead", "Catalogue_Link",
+                                              "Description")
         for module in modules:
             writer.writerow(module)
     except:
@@ -388,8 +411,13 @@ def export_modules_csv(request):
 
 
 def export_publications_csv(request):
-    global Publication_CSV_Data
-    global global_context
+    """
+        Export currently displayed / searched publications on the Search Engine web-page
+        Separates UCL & non-UCL authors into split columns
+        Generates CSV file with relevant fields containing publication metadata
+    """
+
+    global Publication_CSV_Data, global_context
 
     response = HttpResponse(content_type='text/csv')
 
@@ -402,8 +430,10 @@ def export_publications_csv(request):
 
     try:
         writer = csv.writer(response)
-        writer.writerow(["Title", "EID", "DOI", "Year", "Source", "Volume", "Issue", "Page-Start", "Page-End", "Cited By",
-                         "Link", "Abstract", "Author Keywords", "Index Keywords", "Dcoument Type", "Publication Stage", "Open Access", "Subject Areas", "UCL Authors Data", "Other Authors Data"])
+        writer.writerow(
+            ["Title", "EID", "DOI", "Year", "Source", "Volume", "Issue", "Page-Start", "Page-End", "Cited By",
+             "Link", "Abstract", "Author Keywords", "Index Keywords", "Dcoument Type", "Publication Stage",
+             "Open Access", "Subject Areas", "UCL Authors Data", "Other Authors Data"])
     except:
         messages.success(request, ("No publications to export! Please try again."))
         return render(request, 'index.html', global_context)
@@ -425,11 +455,9 @@ def export_publications_csv(request):
         Link = all_contents['Link']
         Abstract = all_contents['Abstract']
         AuthorKeywords = all_contents['AuthorKeywords']
-        if AuthorKeywords:
-            AuthorKeywords = ','.join(AuthorKeywords)
+        if AuthorKeywords: AuthorKeywords = ','.join(AuthorKeywords)
         IndexKeywords = all_contents['IndexKeywords']
-        if IndexKeywords:
-            IndexKeywords = ','.join(IndexKeywords)
+        if IndexKeywords: IndexKeywords = ','.join(IndexKeywords)
         DocumentType = all_contents['DocumentType']
         PublicationStage = all_contents['PublicationStage']
         OpenAccess = all_contents['OpenAccess']
@@ -440,8 +468,7 @@ def export_publications_csv(request):
                 temp.append(area[0])
         SubjectAreas = ','.join(temp)
         AuthorData = all_contents['AuthorData']
-        UCLAuthorsData = []
-        OtherAuthorsData = []
+        UCLAuthorsData, OtherAuthorsData = [], []
         if AuthorData:
             for id_ in AuthorData:
                 name = AuthorData[id_]['Name']
@@ -449,8 +476,7 @@ def export_publications_csv(request):
                 affiliationName = AuthorData[id_]['AffiliationName']
                 if affiliationID == "60022148":
                     if affiliationName:
-                        UCLAuthorsData.append(
-                            name + "(" + affiliationName + ")")
+                        UCLAuthorsData.append(name + "(" + affiliationName + ")")
                     else:
                         UCLAuthorsData.append(name)
                 else:
@@ -459,55 +485,78 @@ def export_publications_csv(request):
                     if not name and not affiliationName:
                         OtherAuthorsData.append("")
                     if name and affiliationName:
-                        OtherAuthorsData.append(
-                            name + "(" + affiliationName + ")")
+                        OtherAuthorsData.append(name + "(" + affiliationName + ")")
 
         UCLAuthorsData = ','.join(UCLAuthorsData)
         OtherAuthorsData = ','.join(OtherAuthorsData)
 
-        writer.writerow([title, EID, DOI, Year, Source, Volume, Issue, PageStart, PageEnd, CitedBy, Link, Abstract, AuthorKeywords,
-                         IndexKeywords, DocumentType, PublicationStage, OpenAccess, SubjectAreas, UCLAuthorsData, OtherAuthorsData])
+        writer.writerow(
+            [title, EID, DOI, Year, Source, Volume, Issue, PageStart, PageEnd, CitedBy, Link, Abstract, AuthorKeywords,
+             IndexKeywords, DocumentType, PublicationStage, OpenAccess, SubjectAreas, UCLAuthorsData, OtherAuthorsData])
 
     return response
 
 
 def unpickle_svm_model(filename):
+    """
+        Returns unpickled SVM model for SVM Universal web-pages (SDG + IHE)
+    """
+
     with open(filename, "rb") as input_file:
         return pickle.load(input_file)
 
 
-def make_SVM_prediction(text, processor: str):
+def make_SVM_prediction(text, processor: str) -> list:
+    """
+        Apply the SVM model on unseen text (for SDG's) using selected preprocessor
+    """
+
     svm = unpickle_svm_model("NLP/SVM/SDG/model.pkl")
     preprocessor = ModuleCataloguePreprocessor() if processor == "module" else Preprocessor()
     predictions = svm.make_text_predictions(text, preprocessor)
     return predictions
-    
 
-def make_SVM_IHE_prediction(text):
+
+def make_SVM_IHE_prediction(text) -> list:
+    """
+        Apply the SVM model on unseen text (for IHE's)
+    """
+
     svm = unpickle_svm_model("NLP/SVM/IHE/model.pkl")
     predictions = svm.make_text_predictions(text, Preprocessor())
     return predictions
 
 
 def check_svm_processor(request, form: dict) -> dict:
+    """
+        Process the drop-down select for preprocessor options (for the SDG SVM Universal web-page)
+    """
+
     form['Default Preprocessor'] = "checked" if request.GET.get('sorting') == "Default Preprocessor" else ""
-    form['UCL Module Catalogue Preprocessor'] = "checked" if request.GET.get('sorting') == "UCL Module Catalogue Preprocessor" else ""
+    form['UCL Module Catalogue Preprocessor'] = "checked" if request.GET.get(
+        'sorting') == "UCL Module Catalogue Preprocessor" else ""
     return form
 
 
 def drawDonutChart(results, labels: list):
+    """
+        Dynamically generate a donut chart for both SDG and IHE predictions from the universal SVM
+        Encodes the image in base64, decoded within HTML web-page using the safe pipe operator '|'
+    """
+
     fig, ax = plt.subplots(figsize=(10, 7), subplot_kw=dict(aspect="equal"))
     wedges, texts = ax.pie(results, wedgeprops=dict(width=0.5), startangle=-40)
     bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
     kw = dict(arrowprops=dict(arrowstyle="-"), bbox=bbox_props, zorder=0, va="center")
 
     for i, p in enumerate(wedges):
-        ang = (p.theta2 - p.theta1)/2. + p.theta1
+        ang = (p.theta2 - p.theta1) / 2. + p.theta1
         x, y = np.cos(np.deg2rad(ang)), np.sin(np.deg2rad(ang))
         horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
         connectionstyle = "angle,angleA=0,angleB={}".format(ang)
         kw["arrowprops"].update({"connectionstyle": connectionstyle})
-        ax.annotate(labels[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), horizontalalignment=horizontalalignment, **kw)
+        ax.annotate(labels[i], xy=(x, y), xytext=(1.35 * np.sign(x), 1.4 * y), horizontalalignment=horizontalalignment,
+                    **kw)
 
     buffer = BytesIO()
     plt.savefig(buffer, format='png')
@@ -521,16 +570,24 @@ def drawDonutChart(results, labels: list):
 
 
 def truncate(n: float, decimals: int = 0) -> float:
+    """
+        Support function to truncate any float value to a specified decimal points
+    """
+
     multiplier = 10 ** decimals
     return int(n * multiplier) / multiplier
 
 
 def universal_SVM(request):
+    """
+        Leverages SVM model to predict SDG category for unseen documents or text
+    """
+
     global svm_context
     sdg_list = ["SDG " + str(i) for i in range(1, 18)]
     sdg_list.append("Misc")
     svm_context['segment'] = 'universal_SVM'
-    
+
     if request.method == "GET":
         svm_context['form'] = check_svm_processor(request, svm_context['form'])
         query = request.GET.get('box')
@@ -546,14 +603,20 @@ def universal_SVM(request):
                     predicted_.append(str(i + 1))
             svm_context["data"] = results
             svm_context["Predicted"] = ','.join(predicted_)
-            svm_context["graphic"] = drawDonutChart(results, sdg_list)            
+            svm_context["graphic"] = drawDonutChart(results, sdg_list)
             return render(request, 'svm_universal.html', svm_context)
         else:
-            return render(request, 'svm_universal.html', {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None, "segment": "universal_SVM"})
+            return render(request, 'svm_universal.html',
+                          {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None,
+                           "segment": "universal_SVM"})
     return render(request, 'svm_universal.html', svm_context)
 
 
 def universal_SVM_IHE(request):
+    """
+        Leverages SVM model to predict IHE category for unseen documents or text
+    """
+
     svm_context = {}
     svm_context['segment'] = 'IHE'
 
@@ -566,8 +629,7 @@ def universal_SVM_IHE(request):
         if query and query != "":
             prediction = make_SVM_IHE_prediction(query)[0]
             prediction_list = prediction.tolist()
-            results = []
-            predicted_ = []
+            results, predicted_ = [], []
             for i in range(len(prediction_list)):
                 temp = truncate(prediction_list[i] * 100, 1)
                 results.append(temp)
@@ -576,26 +638,35 @@ def universal_SVM_IHE(request):
             svm_context["data"] = results
             svm_context["Predicted"] = ','.join(predicted_)
             svm_context["graphic"] = drawDonutChart(results, ihe_list)
-            
+
             return render(request, 'ihe_svm_universal.html', svm_context)
         else:
-            return render(request, 'ihe_svm_universal.html', {"data": None, "Predicted": None, "graphic": None, "segment": "IHE"})
+            return render(request, 'ihe_svm_universal.html',
+                          {"data": None, "Predicted": None, "graphic": None, "segment": "IHE"})
     return render(request, 'ihe_svm_universal.html', svm_context)
 
 
 def getCheckBoxState_ihe(request, form, number_of_ihe):
-    for i in range(1, number_of_ihe+1):
-        form[str(i)] = "selected" if request.GET.get(
-            'prediction') == str(i) else "unselected"
+    """
+        Process the current state of IHE prediction filter
+        (support function for the IHE web-page)
+    """
+
+    for i in range(1, number_of_ihe + 1):
+        form[str(i)] = "selected" if request.GET.get('prediction') == str(i) else "unselected"
     return form
 
 
 def export_ihe_csv(request):
+    """
+        Export authors based on the current IHE viewing page
+        Results in a CSV file with columns: Name, Prediction, DOI, Abstract
+    """
+
     global IHE_CSV_Data
 
     if not IHE_CSV_Data:
-        messages.success(
-            request, ("No IHE publications to export! Please try again."))
+        messages.success(request, ("No IHE publications to export! Please try again."))
         return render(request, 'ihe.html', {})
 
     response = HttpResponse(content_type='text/csv')
@@ -605,8 +676,7 @@ def export_ihe_csv(request):
         writer = csv.writer(response)
         writer.writerow(["Name", "Prediction", "DOI", "Abstract"])
     except:
-        messages.success(
-            request, ("No IHE publications to export! Please try again."))
+        messages.success(request, ("No IHE publications to export! Please try again."))
         return render(request, 'ihe.html', {})
 
     for paper in IHE_CSV_Data:
@@ -627,9 +697,12 @@ def export_ihe_csv(request):
 
 
 def ihe(request):
-    global global_query
-    global global_ihe_paginator
-    global IHE_CSV_Data
+    """
+       IHE assignments display page
+       Allows for search and filtering by IHE assignment 
+    """
+
+    global global_query, global_ihe_paginator, IHE_CSV_Data
 
     form = {"Default": "unselected"}
     number_of_ihe = 9
@@ -646,7 +719,7 @@ def ihe(request):
         "9": "Tissue Engineering & Regenerative Medicine",
     }
 
-    for i in range(1, number_of_ihe+1):
+    for i in range(1, number_of_ihe + 1):
         form[str(i)] = 'unselected'
 
     context = {
@@ -701,22 +774,37 @@ def ihe(request):
 
 
 def get_details(field, detail):
+    """
+        Config parser
+        Reads config.ini file, returns data from an appropriate field and detail
+    """
+
     config = configparser.ConfigParser()
     config.read("config.ini")
     return config[field][detail]
 
 
 def getSQL_connection():
+    """
+        Returns MySQL connection object for data retrieval
+    """
+
     server = get_details('SQL_SERVER', 'server')
     database = get_details('SQL_SERVER', 'database')
     username = get_details('SQL_SERVER', 'username')
     password = get_details('SQL_SERVER', 'password')
     driver = get_details('SQL_SERVER', 'driver')
-    myConnection = pyodbc.connect('DRIVER=' + driver + ';SERVER=' + server +';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
+    myConnection = pyodbc.connect(
+        'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
     return myConnection
 
 
 def tableauVisualisation(request):
+    """
+        Tableau alternative page
+        Draws 3 bubble charts based on MySQL database data using embedded JavaScript
+    """
+
     curr = getSQL_connection().cursor()
     checkboxes = {'value1': '', 'value2': '', 'value3': ''}
 
@@ -747,7 +835,9 @@ def tableauVisualisation(request):
             checkboxes['value1'] = 'checked'
             checkboxes['value2'] = ''
             checkboxes['value3'] = ''
-            return render(request, 'tableau_vis.html', {'selector': 'modules', 'bubble_list': module_bubble_list, 'radios': checkboxes, 'segment': tableauVisualisation})
+            return render(request, 'tableau_vis.html',
+                          {'selector': 'modules', 'bubble_list': module_bubble_list, 'radios': checkboxes,
+                           'segment': tableauVisualisation})
 
         if query == "department_sdg_bubble":
             query = """
@@ -756,8 +846,7 @@ def tableauVisualisation(request):
                 INNER JOIN StudentsPerModule ON ModuleData.Module_ID = StudentsPerModule.ModuleID
                 GROUP BY ModuleData.Department_Name"""
             curr.execute(query)
-            # (department name, num of modules, sdg coverage, num of students)
-            department_bubble_sdg = curr.fetchall()
+            department_bubble_sdg = curr.fetchall()  # (department name, num of modules, sdg coverage, num of students)
             department_bubble_list = list()
             for departments in department_bubble_sdg:
                 department_bubble_list.append({
@@ -769,16 +858,18 @@ def tableauVisualisation(request):
 
             colour_dict = {}
             for departments in department_bubble_list:
-                h, s, l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
-                r, g, b = [int(256*i) for i in colorsys.hls_to_rgb(h, l, s)]
+                h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
+                r, g, b = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
                 rgb = (round(r), round(g), round(b))
                 colour_dict[str(departments['Department'])
-                            ] = '#%02x%02x%02x' % rgb
+                ] = '#%02x%02x%02x' % rgb
 
             checkboxes['value1'] = ''
             checkboxes['value2'] = 'checked'
             checkboxes['value3'] = ''
-            return render(request, 'tableau_vis.html', {'selector': 'departments', 'bubble_list': department_bubble_list, 'colours': colour_dict, 'radios': checkboxes, 'segment': tableauVisualisation})
+            return render(request, 'tableau_vis.html',
+                          {'selector': 'departments', 'bubble_list': department_bubble_list, 'colours': colour_dict,
+                           'radios': checkboxes, 'segment': tableauVisualisation})
 
         if query == "faculty_sdg_bubble":
             query = """
@@ -799,14 +890,16 @@ def tableauVisualisation(request):
 
             colour_dict = {}
             for faculties in faculty_bubble_list:
-                h, s, l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
-                r, g, b = [int(256*i) for i in colorsys.hls_to_rgb(h, l, s)]
+                h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
+                r, g, b = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
                 rgb = (round(r), round(g), round(b))
                 colour_dict[str(faculties['Faculty'])] = '#%02x%02x%02x' % rgb
 
             checkboxes['value1'] = ''
             checkboxes['value2'] = ''
             checkboxes['value3'] = 'checked'
-            return render(request, 'tableau_vis.html', {'selector': 'faculties', 'bubble_list': faculty_bubble_list, 'colours': colour_dict, 'radios': checkboxes, 'segment': tableauVisualisation})
+            return render(request, 'tableau_vis.html',
+                          {'selector': 'faculties', 'bubble_list': faculty_bubble_list, 'colours': colour_dict,
+                           'radios': checkboxes, 'segment': tableauVisualisation})
 
     return render(request, 'tableau_vis.html', {})
