@@ -43,16 +43,14 @@ lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
 
 # @login_required(login_url="/login/")
 def index(request):
-    context = {}
     context['segment'] = 'index'
-    return render(request, 'index.html', context)
+    return render(request, 'index.html', {})
 
 
 # @login_required(login_url="/login/")
 def app(request):
     global Module_CSV_Data, Publication_CSV_Data
-    global global_context
-    global global_query
+    global global_context, global_query
     global global_mod_sdg_paginator, global_pub_sdg_paginator
 
     all_modules = Module.objects.all()
@@ -84,8 +82,7 @@ def app(request):
 
                 global_query = query
 
-                global_pub_sdg_paginator = Paginator(context['pub'], paginator_limiter)
-                global_mod_sdg_paginator = Paginator(context['mod'], paginator_limiter)
+                global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], paginator_limiter), Paginator(context['mod'], paginator_limiter)
 
             else:
                 Module_CSV_Data, Publication_CSV_Data = None, None
@@ -93,8 +90,7 @@ def app(request):
             url_string = "q=" + str(query).replace(" ", "+")
 
         else:
-            global_mod_sdg_paginator = Paginator(context['mod'], paginator_limiter)
-            global_pub_sdg_paginator = Paginator(context['pub'], paginator_limiter)
+            global_mod_sdg_paginator, global_pub_sdg_paginator = Paginator(context['mod'], paginator_limiter), Paginator(context['pub'], paginator_limiter)
             global_query = None
 
         mod_page = request.GET.get('modPage')
@@ -115,9 +111,7 @@ def app(request):
             publications = global_pub_sdg_paginator.page(global_pub_sdg_paginator.num_pages)
         context['publications'] = publications
 
-
-        Module_CSV_Data = context['mod']
-        Publication_CSV_Data = context['pub']
+        Module_CSV_Data, Publication_CSV_Data = context['mod'], context['pub']
 
         if url_string != "": url_string = url_string + "&"
         context['url_string'] = url_string
@@ -138,8 +132,7 @@ def bubble_chart_act(request):
     approach_dict = {int(i.id): i.name for i in ApproachAct.objects.all()}
     speciality_dict = {int(i.id): i for i in SpecialtyAct.objects.all()}
 
-    CONST_SCALE_MAX = 25
-    SIZE_MIN = 9
+    CONST_SCALE_MAX, SIZE_MIN = 25, 9
     curr_max = 0
     for i in bubbles:
         if i.list_of_people.count(',') + 1 > curr_max:
@@ -256,12 +249,10 @@ def manual_add(request):
                 "specialty": request.POST['specialty'],
                 "form": form
             }
-            messages.success(
-                request, ("There was an error in your form! Please try again."))
+            messages.success(request, ("There was an error in your form! Please try again."))
             return render(request, 'manual_add.html', saved_data)
 
-        messages.success(
-            request, ("Your form has been submitted successfully!"))
+        messages.success(request, ("Your form has been submitted successfully!"))
         return redirect('manual_add')
 
     else:
@@ -270,10 +261,8 @@ def manual_add(request):
 
 # @login_required(login_url="/login/")
 def iheVisualisation(request):
-    details = get_details('MONGO_DB', 'client')
-    client = pymongo.MongoClient(details)
-    db = client.Scopus
-    col = db.Visualisations
+    client = pymongo.MongoClient(get_details('MONGO_DB', 'client'))
+    col = client.Scopus.Visualisations
     data = list(col.find())[0]
 
     context = {
@@ -287,10 +276,8 @@ def iheVisualisation(request):
 
 # @login_required(login_url="/login/")
 def sdgVisualisation(request):
-    details = get_details('MONGO_DB', 'client')
-    client = pymongo.MongoClient(details)
-    db = client.Scopus
-    col = db.Visualisations
+    client = pymongo.MongoClient(get_details('MONGO_DB', 'client'))
+    col = client.Scopus.Visualisations
     data = list(col.find())[1]
 
     context = {
@@ -300,10 +287,6 @@ def sdgVisualisation(request):
     }
     client.close()
     return render(request, "sdg_model_vis.html", context)
-
-
-def sortSDG_results(form, obj, ascending):
-    return obj.order_by('assignedSDG__Validation__Similarity') if ascending else obj.order_by('-assignedSDG__Validation__Similarity')
 
 
 def sdg(request):
@@ -324,22 +307,17 @@ def sdg(request):
     if request.method == 'GET':
         if "q" in request.GET:
             query = request.GET.get('q')
-            print(query)
 
             if query is not None and query != '' and len(query) != 0 and query != global_query:
                 context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
                 lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(Module_Lead__icontains=query) | Q(Description__icontains=query)
                 context['mod'] = Module.objects.filter(lookups).distinct()
-                
                 global_query = query
-                global_pub_sdg_paginator = Paginator(context['pub'], 10)
-                global_mod_sdg_paginator = Paginator(context['mod'], 10)
-
+                global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], 10), Paginator(context['mod'], 10)
             url_string = "q=" + str(query).replace(" ", "+")
 
         else:
-            global_pub_sdg_paginator = Paginator(context['pub'], 10)
-            global_mod_sdg_paginator = Paginator(context['mod'], 10)
+            global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], 10), Paginator(context['mod'], 10)
             global_query = None
 
         mod_page = request.GET.get('modPage')
@@ -384,8 +362,7 @@ def publication(request, pk):
 
 
 def export_modules_csv(request):
-    global Module_CSV_Data
-    global global_context
+    global Module_CSV_Data, global_context
     response = HttpResponse(content_type='text/csv')
 
     if not Module_CSV_Data:
@@ -416,8 +393,7 @@ def export_publications_csv(request):
     response = HttpResponse(content_type='text/csv')
 
     if not Publication_CSV_Data:
-        messages.success(
-            request, ("No publications to export! Please try again."))
+        messages.success(request, ("No publications to export! Please try again."))
         return render(request, 'index.html', global_context)
 
     response = HttpResponse(content_type='text/csv')
@@ -428,8 +404,7 @@ def export_publications_csv(request):
         writer.writerow(["Title", "EID", "DOI", "Year", "Source", "Volume", "Issue", "Page-Start", "Page-End", "Cited By",
                          "Link", "Abstract", "Author Keywords", "Index Keywords", "Dcoument Type", "Publication Stage", "Open Access", "Subject Areas", "UCL Authors Data", "Other Authors Data"])
     except:
-        messages.success(
-            request, ("No publications to export! Please try again."))
+        messages.success(request, ("No publications to export! Please try again."))
         return render(request, 'index.html', global_context)
 
     publications = Publication_CSV_Data.values_list("data")
@@ -500,83 +475,38 @@ def unpickle_svm_model(filename):
         return pickle.load(input_file)
 
 
-def make_SVM_prediction(text, processor):
+def make_SVM_prediction(text, processor: str):
     svm = unpickle_svm_model("NLP/SVM/SDG/model.pkl")
-
-    if processor == "module":
-        preprocessor = ModuleCataloguePreprocessor()
-    else:
-        preprocessor = Preprocessor()
+    preprocessor = ModuleCataloguePreprocessor() if processor == "module" else Preprocessor()
     predictions = svm.make_text_predictions(text, preprocessor)
     return predictions
-
+    
 
 def make_SVM_IHE_prediction(text):
     svm = unpickle_svm_model("NLP/SVM/IHE/model.pkl")
-    preprocessor = Preprocessor()
-    predictions = svm.make_text_predictions(text, preprocessor)
+    predictions = svm.make_text_predictions(text, Preprocessor())
     return predictions
 
 
-def check_svm_processor(request, form):
-    form['Default Preprocessor'] = "checked" if request.GET.get(
-        'sorting') == "Default Preprocessor" else ""
-    form['UCL Module Catalogue Preprocessor'] = "checked" if request.GET.get(
-        'sorting') == "UCL Module Catalogue Preprocessor" else ""
+def check_svm_processor(request, form: dict) -> dict:
+    form['Default Preprocessor'] = "checked" if request.GET.get('sorting') == "Default Preprocessor" else ""
+    form['UCL Module Catalogue Preprocessor'] = "checked" if request.GET.get('sorting') == "UCL Module Catalogue Preprocessor" else ""
     return form
 
 
-def drawDonutChart(results):
+def drawDonutChart(results, labels: list):
     fig, ax = plt.subplots(figsize=(10, 7), subplot_kw=dict(aspect="equal"))
-    recipe = ["SDG 1", "SDG 2", "SDG 3", "SDG 4", "SDG 5", "SDG 6",
-              "SDG 7", "SDG 8", "SDG 9", "SDG 10", "SDG 11", "SDG 12",
-              "SDG 13", "SDG 14", "SDG 15", "SDG 16", "SDG 17", "Misc"]
-
     wedges, texts = ax.pie(results, wedgeprops=dict(width=0.5), startangle=-40)
     bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
-    kw = dict(arrowprops=dict(arrowstyle="-"),
-              bbox=bbox_props, zorder=0, va="center")
+    kw = dict(arrowprops=dict(arrowstyle="-"), bbox=bbox_props, zorder=0, va="center")
 
     for i, p in enumerate(wedges):
         ang = (p.theta2 - p.theta1)/2. + p.theta1
-        y = np.sin(np.deg2rad(ang))
-        x = np.cos(np.deg2rad(ang))
+        x, y = np.cos(np.deg2rad(ang)), np.sin(np.deg2rad(ang))
         horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
         connectionstyle = "angle,angleA=0,angleB={}".format(ang)
         kw["arrowprops"].update({"connectionstyle": connectionstyle})
-        ax.annotate(recipe[i], xy=(x, y), xytext=(
-            1.35*np.sign(x), 1.4*y), horizontalalignment=horizontalalignment, **kw)
-
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    buffer.close()
-
-    graphic = base64.b64encode(image_png)
-    graphic = graphic.decode('utf-8')
-    return graphic
-
-
-def drawDonutChartIHE(results):
-    fig, ax = plt.subplots(figsize=(10, 7), subplot_kw=dict(aspect="equal"))
-    recipe = ["IHE 1", "IHE 2", "IHE 3", "IHE 4", "IHE 5", "IHE 6",
-              "IHE 7", "IHE 8", "IHE 9"]
-
-    wedges, texts = ax.pie(results, wedgeprops=dict(width=0.5), startangle=-40)
-    bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
-    kw = dict(arrowprops=dict(arrowstyle="-"),
-              bbox=bbox_props, zorder=0, va="center")
-
-    for i, p in enumerate(wedges):
-        ang = (p.theta2 - p.theta1)/2. + p.theta1
-        y = np.sin(np.deg2rad(ang))
-        x = np.cos(np.deg2rad(ang))
-        horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
-        connectionstyle = "angle,angleA=0,angleB={}".format(ang)
-        kw["arrowprops"].update({"connectionstyle": connectionstyle})
-        ax.annotate(recipe[i], xy=(x, y), xytext=(
-            1.35*np.sign(x), 1.4*y), horizontalalignment=horizontalalignment, **kw)
+        ax.annotate(labels[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), horizontalalignment=horizontalalignment, **kw)
 
     buffer = BytesIO()
     plt.savefig(buffer, format='png')
@@ -596,19 +526,18 @@ def truncate(n: float, decimals: int = 0) -> float:
 
 def universal_SVM(request):
     global svm_context
+    sdg_list = ["SDG " + str(i) for i in range(1, 18)]
+    sdg_list.append("Misc")
+    svm_context['segment'] = 'universal_SVM'
     
     if request.method == "GET":
         svm_context['form'] = check_svm_processor(request, svm_context['form'])
         query = request.GET.get('box')
-        if svm_context['form']['UCL Module Catalogue Preprocessor'] == "checked":
-            preprocessor = "module"
-        else:
-            preprocessor = "default"
+        preprocessor = "module" if svm_context['form']['UCL Module Catalogue Preprocessor'] == "checked" else "default"
         if query and query != "":
             prediction = make_SVM_prediction(query, processor=preprocessor)[0]
             prediction_list = prediction.tolist()
-            results = []
-            predicted_ = []
+            results, predicted_ = [], []
             for i in range(len(prediction_list)):
                 temp = truncate(prediction_list[i] * 100, 1)
                 results.append(temp)
@@ -616,17 +545,19 @@ def universal_SVM(request):
                     predicted_.append(str(i + 1))
             svm_context["data"] = results
             svm_context["Predicted"] = ','.join(predicted_)
-            svm_context["graphic"] = drawDonutChart(results)
-            svm_context['segment'] = 'universal_SVM'
+            svm_context["graphic"] = drawDonutChart(results, sdg_list)            
             return render(request, 'svm_universal.html', svm_context)
         else:
             return render(request, 'svm_universal.html', {"data": None, "Predicted": None, "form": svm_context['form'], "graphic": None, "segment": "universal_SVM"})
-    svm_context['segment'] = 'universal_SVM'
     return render(request, 'svm_universal.html', svm_context)
 
 
 def universal_SVM_IHE(request):
     svm_context = {}
+    svm_context['segment'] = 'IHE'
+
+    l = ApproachAct.objects.all().count()
+    ihe_list = ["IHE " + str(i + 1) for i in range(l)]
 
     if request.method == "GET":
         query = request.GET.get('box')
@@ -643,12 +574,11 @@ def universal_SVM_IHE(request):
                     predicted_.append(str(i + 1))
             svm_context["data"] = results
             svm_context["Predicted"] = ','.join(predicted_)
-            svm_context["graphic"] = drawDonutChartIHE(results)
-            svm_context['segment'] = 'IHE'
+            svm_context["graphic"] = drawDonutChart(results, ihe_list)
+            
             return render(request, 'ihe_svm_universal.html', svm_context)
         else:
             return render(request, 'ihe_svm_universal.html', {"data": None, "Predicted": None, "graphic": None, "segment": "IHE"})
-    svm_context['segment'] = 'IHE'
     return render(request, 'ihe_svm_universal.html', svm_context)
 
 
@@ -657,10 +587,6 @@ def getCheckBoxState_ihe(request, form, number_of_ihe):
         form[str(i)] = "selected" if request.GET.get(
             'prediction') == str(i) else "unselected"
     return form
-
-
-def filter_ihe_by_prediction(context, key):
-    return context.filter(assignedSDG__IHE_Prediction=key)
 
 
 def export_ihe_csv(request):
@@ -750,9 +676,8 @@ def ihe(request):
 
         for key, val in form.items():
             if val == "selected" and key != "Default":
-                context['pub'] = filter_ihe_by_prediction(context['pub'], key)
-                global_ihe_paginator = Paginator(
-                    context['pub'], paginator_limiter)
+                context['pub'] = context['pub'].filter(assignedSDG__IHE_Prediction=key)
+                global_ihe_paginator = Paginator(context['pub'], paginator_limiter)
                 url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
 
         ihe_page = request.GET.get('ihePage')
