@@ -46,18 +46,28 @@ lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
 
 # @login_required(login_url="/login/")
 def index(request):
-    return render(request, 'index.html', {"segment": "index"})
+    """
+        Returns the render for the Home page
+    """
+
+    context = {}
+    context['segment'] = 'index'
+    return render(request, 'index.html', context)
 
 
 # @login_required(login_url="/login/")
 def app(request):
+    """
+        Returns the render for the Search Engine page
+    """
+
     global Module_CSV_Data, Publication_CSV_Data
     global global_context, global_query
     global global_mod_sdg_paginator, global_pub_sdg_paginator
 
+    # Generate base context
     all_modules = Module.objects.all()
     all_publications = Publication.objects.all()
-
     context = {
         'mod': all_modules,
         'modules': None,
@@ -72,35 +82,32 @@ def app(request):
 
     if request.method == 'GET':
         if "q" in request.GET:
-
+            # If the user has entered something to search
             query = request.GET.get('q')
             url_string = "q=" + str(query).replace(" ", "+")
             context['url_string'] = url_string + '&'
 
             if query is not None and query != '' and len(query) != 0 and query != global_query:
+                # If the search is valid and different to the previous search, get new results
                 context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
                 lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(
                     Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(
                     Module_Lead__icontains=query) | Q(Description__icontains=query)
                 context['mod'] = Module.objects.filter(lookups).distinct()
-
+                # Set the global query and paginator to reflect the new search
                 global_query = query
-
-                global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'],
-                                                                               paginator_limiter), Paginator(
-                    context['mod'], paginator_limiter)
-
+                global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], paginator_limiter), Paginator(context['mod'], paginator_limiter)
             else:
                 Module_CSV_Data, Publication_CSV_Data = None, None
 
             url_string = "q=" + str(query).replace(" ", "+")
 
         else:
-            global_mod_sdg_paginator, global_pub_sdg_paginator = Paginator(context['mod'],
-                                                                           paginator_limiter), Paginator(context['pub'],
-                                                                                                         paginator_limiter)
+            # Base case if the user has just come to the page
+            global_mod_sdg_paginator, global_pub_sdg_paginator = Paginator(context['mod'], paginator_limiter), Paginator(context['pub'], paginator_limiter)
             global_query = None
 
+        #Pagination
         mod_page = request.GET.get('modPage')
         try:
             modules = global_mod_sdg_paginator.page(mod_page)
@@ -133,30 +140,40 @@ def app(request):
 
 # @login_required(login_url="/login/")
 def bubble_chart_act(request):
+    """
+        Returns the render for the Bubble Chart page
+    """
+
+    # Gather and set the approaches and specialities
     approach_list = ApproachAct.objects.all().values_list('id', flat=True)
     speciality_list = SpecialtyAct.objects.all().values_list('id', flat=True)
     bubbles = BubbleAct.objects.all()
     approach_dict = {int(i.id): i.name for i in ApproachAct.objects.all()}
     speciality_dict = {int(i.id): i for i in SpecialtyAct.objects.all()}
 
+    # Calculate the highest number of authors currently in a bubble in order to determine sizes
     CONST_SCALE_MAX, SIZE_MIN = 25, 9
     curr_max = 0
     for i in bubbles:
         if i.list_of_people.count(',') + 1 > curr_max:
             curr_max = i.list_of_people.count(',') + 1
 
+    # Make a dict with the bubbles by coordinate and their scaled sizes
     bubble_dict = {}
     for i in approach_list:
         bubble_dict[approach_dict[i]] = {}
         for j in speciality_list:
             try:
+                # Try: check if a bubble exists, calculate its size and populate the dict
                 bubble_obj = bubbles.get(coordinate_approach=int(i), coordinate_speciality=int(j))
                 size = (((bubble_obj.list_of_people.count(',') + 1) / curr_max) * (
                             CONST_SCALE_MAX - SIZE_MIN)) + SIZE_MIN
                 bubble_dict[approach_dict[i]][int(j)] = [bubble_obj, size]
             except:
+                # Except: bubble doesn't exist, there is nothing in that coordinate
                 bubble_dict[approach_dict[i]][int(j)] = None
 
+    # Generate final context
     context = {
         'approach_list': approach_list,
         'speciality_list': speciality_list,
@@ -170,16 +187,24 @@ def bubble_chart_act(request):
 
 
 def searchBubbleAct(request, pk=None, pk_alt=None):
+    """
+        Returns the render for the Search Bubble page (when user clicks on a bubble)
+    """
+
     form = {"ALL": "selected", "UCL Authors": "unselected", "OTHER Authors": "unselected"}
     ucl_id = '60022148'
+
+    # Get the bubble the user has clicked on and get the list of emails
     obj = BubbleAct.objects.get(coordinate_approach=pk, coordinate_speciality=pk_alt)
     list_of_emails = obj.list_of_people.split(',')
     entry_list = []
 
     if request.method == 'GET':
+        # Get list of all authors and the user's selection of which ones to return
         people = UserProfileAct.objects.all()
         query = request.GET.get('author_selection')
 
+        # Find and generate the entry_list based on user's choice of authors
         if query == 'UCL Authors':
             form['UCL Authors'] = "selected"
             form['OTHER Authors'] = "unselected"
@@ -209,6 +234,7 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                 if i != "null" and i.author_id in list_of_emails:
                     entry_list.append(i)
 
+        # Pagination
         author_paginator = Paginator(entry_list, 10)
         author_page = request.GET.get('page')
         try:
@@ -228,17 +254,18 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                   {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people,
                    "url_string": url_string})
 
-    return render(request, 'search_bubble.html',
-                  {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people,
-                   "url_string": url_string})
-
-
 # @login_required(login_url="/login/")
 def manual_add(request):
+    """
+        Returns the render for the Manual Add page
+    """
+
+    # Gets the lists of all approaches and specialities with the manual add form
     approach_list = ApproachAct.objects.all()
     specialty_list = SpecialtyAct.objects.all()
     form = BubbleChartAdd()
 
+    # Selectors for approach and speciality
     approach_select = {"Default": "unselected"}
     for i in approach_list:
         approach_select[i] = "unselected"
@@ -248,11 +275,14 @@ def manual_add(request):
         speciality_select[i] = "unselected"
 
     if request.method == "POST":
+        # Once user has clicked submit, receive the submitted form
         form = BubbleChartAdd(request.POST or None)
 
         if form.is_valid():
+            # Save to database if it's valid
             form.save()
         else:
+            # Else store what they entered to autofill the form and return them to the page
             saved_data = {
                 "author_id": request.POST['author_id'],
                 "fullName": request.POST['fullName'],
@@ -269,16 +299,22 @@ def manual_add(request):
         return redirect('manual_add')
 
     else:
-        return render(request, 'manual_add.html',
-                      {"form": form, "approach_select": approach_select, "speciality_select": speciality_select})
+        # Base case if the user has just come to the page
+        return render(request, 'manual_add.html', {"form": form, "approach_select": approach_select, "speciality_select": speciality_select})
 
 
 # @login_required(login_url="/login/")
 def iheVisualisation(request):
+    """
+        Returns the render for the IHE Visualisation page
+    """
+
+    # Get the visualisation data from MongoDB
     client = pymongo.MongoClient(get_details('MONGO_DB', 'client'))
     col = client.Scopus.Visualisations
     data = list(col.find())[0]
 
+    # Generate the context for IHE specific PyLDAvis and t-SNE visualisations
     context = {
         "pylda": data['PyLDA_ihe'],
         "tsne": data['TSNE_ihe'],
@@ -290,10 +326,16 @@ def iheVisualisation(request):
 
 # @login_required(login_url="/login/")
 def sdgVisualisation(request):
+    """
+        Returns the render for the SDG Visualisation page
+    """
+
+    # Get the visualisation data from MongoDB
     client = pymongo.MongoClient(get_details('MONGO_DB', 'client'))
     col = client.Scopus.Visualisations
     data = list(col.find())[1]
 
+    # Generate the context for SDG specific PyLDAvis and t-SNE visualisations
     context = {
         "pylda": data['PyLDA_sdg'],
         "tsne": data['TSNE_sdg'],
@@ -304,10 +346,15 @@ def sdgVisualisation(request):
 
 
 def sdg(request):
+    """
+        Returns the render for the SDG Tables page
+    """
+
     global global_context
     global global_query
     global global_mod_sdg_paginator, global_pub_sdg_paginator
 
+    # Generate base context
     context = {
         'mod': Module.objects.all(),
         'pub': Publication.objects.all(),
@@ -320,24 +367,28 @@ def sdg(request):
 
     if request.method == 'GET':
         if "q" in request.GET:
+            # If the user has entered something to search
             query = request.GET.get('q')
 
             if query is not None and query != '' and len(query) != 0 and query != global_query:
+                # If the search is valid and different to the previous search, get new results
                 context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
                 lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(
                     Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(
                     Module_Lead__icontains=query) | Q(Description__icontains=query)
                 context['mod'] = Module.objects.filter(lookups).distinct()
+                # Set the global query and paginator to reflect the new search
                 global_query = query
                 global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], 10), Paginator(
                     context['mod'], 10)
             url_string = "q=" + str(query).replace(" ", "+")
 
         else:
-            global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], 10), Paginator(
-                context['mod'], 10)
+            # Base case if the user has just come to the page
+            global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], 10), Paginator(context['mod'], 10)
             global_query = None
 
+        # Pagination
         mod_page = request.GET.get('modPage')
         try:
             modules = global_mod_sdg_paginator.page(mod_page)
@@ -359,11 +410,14 @@ def sdg(request):
         context['len_mod'] = global_mod_sdg_paginator.count
         context['len_pub'] = global_pub_sdg_paginator.count
 
-    # global_context = context
     return render(request, 'sdg_tables.html', context)
 
 
 def module(request, pk):
+    """
+        Returns the render for the Module page
+    """
+    # Get the module specified by the user if it exists to display information about it
     try:
         module = Module.objects.get(id=pk)
     except Module.DoesNotExist:
@@ -372,6 +426,10 @@ def module(request, pk):
 
 
 def publication(request, pk):
+    """
+        Returns the render for the Publication page
+    """
+    # Get the publication specified by the user if it exists to display information about it
     try:
         publication = Publication.objects.get(id=pk)
     except Publication.DoesNotExist:
