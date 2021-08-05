@@ -49,7 +49,7 @@ def index(request):
         Returns the render for the Home page
     """
 
-    return render(request, 'index.html', {"segment", "index"})
+    return render(request, 'index.html', {"segment": "index"})
 
 
 # @login_required(login_url="/login/")
