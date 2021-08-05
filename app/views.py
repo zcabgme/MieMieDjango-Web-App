@@ -38,8 +38,7 @@ matplotlib.use('Agg')
 
 global_context = {}
 global_query, global_mod_sdg_paginator, global_pub_sdg_paginator, global_ihe_paginator = None, None, None, None
-svm_context = {"data": None, "Predicted": None,
-               "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
+svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
 
@@ -50,24 +49,18 @@ def index(request):
         Returns the render for the Home page
     """
 
-    context = {}
-    context['segment'] = 'index'
-    return render(request, 'index.html', context)
+    return render(request, 'index.html', {"segment", "index"})
 
 
 # @login_required(login_url="/login/")
 def app(request):
-    """
-        Returns the render for the Search Engine page
-    """
-
     global Module_CSV_Data, Publication_CSV_Data
     global global_context, global_query
     global global_mod_sdg_paginator, global_pub_sdg_paginator
 
-    # Generate base context
     all_modules = Module.objects.all()
     all_publications = Publication.objects.all()
+
     context = {
         'mod': all_modules,
         'modules': None,
@@ -82,53 +75,36 @@ def app(request):
 
     if request.method == 'GET':
         if "q" in request.GET:
-            # If the user has entered something to search
+
             query = request.GET.get('q')
             url_string = "q=" + str(query).replace(" ", "+")
             context['url_string'] = url_string + '&'
 
             if query is not None and query != '' and len(query) != 0 and query != global_query:
-                # If the search is valid and different to the previous search, get new results
                 context['pub'] = Publication.objects.filter(data__icontains=query).distinct()
                 lookups = Q(Department_Name__icontains=query) | Q(Department_ID__icontains=query) | Q(
                     Module_Name__icontains=query) | Q(Module_ID__icontains=query) | Q(Faculty__icontains=query) | Q(
                     Module_Lead__icontains=query) | Q(Description__icontains=query)
                 context['mod'] = Module.objects.filter(lookups).distinct()
-                # Set the global query and paginator to reflect the new search
                 global_query = query
                 global_pub_sdg_paginator, global_mod_sdg_paginator = Paginator(context['pub'], paginator_limiter), Paginator(context['mod'], paginator_limiter)
+
             else:
                 Module_CSV_Data, Publication_CSV_Data = None, None
-
             url_string = "q=" + str(query).replace(" ", "+")
 
         else:
-            # Base case if the user has just come to the page
             global_mod_sdg_paginator, global_pub_sdg_paginator = Paginator(context['mod'], paginator_limiter), Paginator(context['pub'], paginator_limiter)
             global_query = None
 
-        #Pagination
-        mod_page = request.GET.get('modPage')
-        try:
-            modules = global_mod_sdg_paginator.page(mod_page)
-        except PageNotAnInteger:
-            modules = global_mod_sdg_paginator.page(1)
-        except EmptyPage:
-            modules = global_mod_sdg_paginator.page(global_mod_sdg_paginator.num_pages)
-        context['modules'] = modules
-
-        pub_page = request.GET.get('pubPage')
-        try:
-            publications = global_pub_sdg_paginator.page(pub_page)
-        except PageNotAnInteger:
-            publications = global_pub_sdg_paginator.page(1)
-        except EmptyPage:
-            publications = global_pub_sdg_paginator.page(global_pub_sdg_paginator.num_pages)
-        context['publications'] = publications
-
+        # Pagination
+        context['modules'] = pagination_management(global_mod_sdg_paginator, request.GET.get('modPage'))
+        context['publications'] = pagination_management(global_pub_sdg_paginator, request.GET.get('pubPage'))
+        
         Module_CSV_Data, Publication_CSV_Data = context['mod'], context['pub']
 
-        if url_string != "": url_string = url_string + "&"
+        if url_string != "":
+            url_string = url_string + "&"
         context['url_string'] = url_string
 
     context['len_mod'] = global_mod_sdg_paginator.count
@@ -137,6 +113,20 @@ def app(request):
     global_context = context
     return render(request, 'search_engine.html', context)
 
+
+def pagination_management(paginator, selected_page):
+    """
+        Manages pagination for data display
+        For: search engine, SDG data display, IHE data display, Bubble Chart author display
+    """
+    
+    try:
+        objects = paginator.page(selected_page)
+    except PageNotAnInteger:
+        objects = paginator.page(1)
+    except EmptyPage:
+        objects = paginator.page(paginator.num_pages)
+    return objects
 
 # @login_required(login_url="/login/")
 def bubble_chart_act(request):
@@ -235,14 +225,7 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                     entry_list.append(i)
 
         # Pagination
-        author_paginator = Paginator(entry_list, 10)
-        author_page = request.GET.get('page')
-        try:
-            authors = author_paginator.page(author_page)
-        except PageNotAnInteger:
-            authors = author_paginator.page(1)
-        except EmptyPage:
-            authors = author_paginator.page(global_ihe_paginator.num_pages)
+        authors = pagination_management(Paginator(entry_list, 10), request.GET.get('page'))
 
     url_string = 'csrfmiddlewaretoken=' + str(request.GET.get('csrfmiddlewaretoken')) + '&author_selection=' + str(
         request.GET.get('author_selection')).replace(" ", "+") + "&"
@@ -389,23 +372,8 @@ def sdg(request):
             global_query = None
 
         # Pagination
-        mod_page = request.GET.get('modPage')
-        try:
-            modules = global_mod_sdg_paginator.page(mod_page)
-        except PageNotAnInteger:
-            modules = global_mod_sdg_paginator.page(1)
-        except EmptyPage:
-            modules = global_mod_sdg_paginator.page(global_mod_sdg_paginator.num_pages)
-        context['modules'] = modules
-
-        pub_page = request.GET.get('pubPage')
-        try:
-            publications = global_pub_sdg_paginator.page(pub_page)
-        except PageNotAnInteger:
-            publications = global_pub_sdg_paginator.page(1)
-        except EmptyPage:
-            publications = global_pub_sdg_paginator.page(global_pub_sdg_paginator.num_pages)
-        context['publications'] = publications
+        context['modules'] = pagination_management(global_mod_sdg_paginator, request.GET.get('modPage'))
+        context['publications'] = pagination_management(global_pub_sdg_paginator, request.GET.get('pubPage'))
 
         context['len_mod'] = global_mod_sdg_paginator.count
         context['len_pub'] = global_pub_sdg_paginator.count
@@ -812,14 +780,8 @@ def ihe(request):
                 global_ihe_paginator = Paginator(context['pub'], paginator_limiter)
                 url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
 
-        ihe_page = request.GET.get('ihePage')
-        try:
-            ihes = global_ihe_paginator.page(ihe_page)
-        except PageNotAnInteger:
-            ihes = global_ihe_paginator.page(1)
-        except EmptyPage:
-            ihes = global_ihe_paginator.page(global_ihe_paginator.num_pages)
-        context['ihes'] = ihes
+        # Pagination
+        context['ihes'] = pagination_management(global_ihe_paginator, request.GET.get('ihePage'))
 
         IHE_CSV_Data = context['pub']
 

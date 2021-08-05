@@ -14,7 +14,6 @@ class Module(models.Model):
     Module_Lead = models.CharField(max_length=200, null=True, blank=True)
     Catalogue_Link = models.CharField(max_length=400)
     Description = models.TextField(null=True, blank=True)
-    # Last_Updated = models.DateTimeField
     assignedSDG = models.JSONField(null=True, blank=True)
 
     def __str__(self):
