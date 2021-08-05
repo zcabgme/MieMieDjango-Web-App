@@ -43,8 +43,9 @@ lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
 
 # @login_required(login_url="/login/")
 def index(request):
+    context = {}
     context['segment'] = 'index'
-    return render(request, 'index.html', {})
+    return render(request, 'index.html', context)
 
 
 # @login_required(login_url="/login/")
