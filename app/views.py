@@ -107,8 +107,8 @@ def app(request):
             url_string = url_string + "&"
         context['url_string'] = url_string
 
-    context['len_mod'] = global_mod_sdg_paginator.count
-    context['len_pub'] = global_pub_sdg_paginator.count
+        context['len_mod'] = global_mod_sdg_paginator.count
+        context['len_pub'] = global_pub_sdg_paginator.count
 
     global_context = context
     return render(request, 'search_engine.html', context)
