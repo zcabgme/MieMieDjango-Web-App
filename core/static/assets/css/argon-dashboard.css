@@ -4991,6 +4991,12 @@ input[type="button"].btn-block {
   border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+.card-footer-2 {
+  padding: 1.25rem 1.5rem;
+  background-color: #1c345d;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 .card-footer:last-child {
   border-radius: 0 0 calc(0.375rem - 1px) calc(0.375rem - 1px);
 }

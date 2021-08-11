@@ -60,6 +60,7 @@ class ColorAct(models.Model):
 class SpecialtyAct(models.Model):
     name = models.CharField(max_length=200)
     color = models.ForeignKey('ColorAct', on_delete=models.CASCADE,)
+    methodology = models.CharField(default="", max_length=100)
 
     def __str__(self):
         return self.name
@@ -81,13 +82,10 @@ class ApproachAct(models.Model):
 
 
 class BubbleAct(models.Model):
-    coordinate_approach = models.ForeignKey(
-        'ApproachAct', null=True, on_delete=models.CASCADE)
-    coordinate_speciality = models.ForeignKey(
-        'SpecialtyAct', null=True, on_delete=models.CASCADE)
+    coordinate_approach = models.ForeignKey('ApproachAct', null=True, on_delete=models.CASCADE)
+    coordinate_speciality = models.ForeignKey('SpecialtyAct', null=True, on_delete=models.CASCADE)
     color = models.ForeignKey('ColorAct', on_delete=models.CASCADE)
-    list_of_people = models.TextField(
-        null=True, blank=True)  # csv formatted email list
+    list_of_people = models.TextField(null=True, blank=True)  # csv formatted email list
 
 
 class UserProfileAct(models.Model):

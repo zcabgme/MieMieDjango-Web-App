@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models.functions import Length
 from django.views.decorators.csrf import csrf_exempt
 from django.template.defaulttags import register
 from .forms import BubbleChartAdd
@@ -38,6 +39,8 @@ matplotlib.use('Agg')
 
 global_context = {}
 global_query, global_mod_sdg_paginator, global_pub_sdg_paginator, global_ihe_paginator = None, None, None, None
+prev_ihe_selector = 'Default'
+num_of_lda_specialities = 0
 svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
@@ -137,10 +140,15 @@ def bubble_chart_act(request):
     # Gather and set the approaches and specialities
     approach_list = ApproachAct.objects.all().values_list('id', flat=True)
     speciality_list = SpecialtyAct.objects.all().values_list('id', flat=True)
+    speciality_list = speciality_list.order_by('id')
     bubbles = BubbleAct.objects.all()
+
+
+
     approach_dict = {int(i.id): i.name for i in ApproachAct.objects.all()}
     speciality_dict = {int(i.id): i for i in SpecialtyAct.objects.all()}
 
+    
     # Calculate the highest number of authors currently in a bubble in order to determine sizes
     CONST_SCALE_MAX, SIZE_MIN = 25, 9
     curr_max = 0
@@ -156,12 +164,13 @@ def bubble_chart_act(request):
             try:
                 # Try: check if a bubble exists, calculate its size and populate the dict
                 bubble_obj = bubbles.get(coordinate_approach=int(i), coordinate_speciality=int(j))
-                size = (((bubble_obj.list_of_people.count(',') + 1) / curr_max) * (
-                            CONST_SCALE_MAX - SIZE_MIN)) + SIZE_MIN
+                size = (((bubble_obj.list_of_people.count(',') + 1) / curr_max) * (CONST_SCALE_MAX - SIZE_MIN)) + SIZE_MIN
                 bubble_dict[approach_dict[i]][int(j)] = [bubble_obj, size]
             except:
                 # Except: bubble doesn't exist, there is nothing in that coordinate
                 bubble_dict[approach_dict[i]][int(j)] = None
+    
+
 
     # Generate final context
     context = {
@@ -728,10 +737,13 @@ def ihe(request):
        Allows for search and filtering by IHE assignment 
     """
 
-    global global_query, global_ihe_paginator, IHE_CSV_Data
+    global global_query, global_ihe_paginator, IHE_CSV_Data, prev_ihe_selector, num_of_lda_specialities
+
+    if num_of_lda_specialities == 0:
+        num_of_lda_specialities = SpecialtyAct.objects.all().filter(methodology='LDA').count()
+
 
     form = {"Default": "unselected"}
-    number_of_ihe = 9
 
     lookup = {
         "1": "AI and Machine Learning",
@@ -743,7 +755,16 @@ def ihe(request):
         "7": "Synthetic Biology",
         "8": "Pharmacology & Pharmaceuticals",
         "9": "Tissue Engineering & Regenerative Medicine",
+        "10": "Development and Evaluation of Medical Devices",
+        "11": "Personalised Medicine",
+        "12": "Healthy Ageing",
+        "13": "Health Economics",
+        "14": "Health Ethics and Policy",
+        "15": "Research methodology",
+        "16": "Patient data",
     }
+
+    number_of_ihe = len(lookup)
 
     for i in range(1, number_of_ihe + 1):
         form[str(i)] = 'unselected'
@@ -753,8 +774,10 @@ def ihe(request):
         'len_pub': Publication.objects.count(),
         'form': form,
         'ihe_lookup': lookup,
-        'segment': 'ihe'
+        'segment': 'ihe',
+        'table_select': ''
     }
+
     url_string = ""
 
     if request.method == 'GET':
@@ -774,12 +797,38 @@ def ihe(request):
             global_ihe_paginator = Paginator(context['pub'], paginator_limiter)
             global_query = None
 
-        for key, val in form.items():
-            if val == "selected" and key != "Default":
-                context['pub'] = context['pub'].filter(assignedSDG__IHE_Prediction=key)
-                global_ihe_paginator = Paginator(context['pub'], paginator_limiter)
-                url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
 
+        for key, val in form.items():
+            if val == "selected" and key != "Default" and key != prev_ihe_selector:
+                k = int(key)
+                if k <= num_of_lda_specialities:
+                    context['table_select'] = 'LDA'
+                    context['pub'] = context['pub'].filter(assignedSDG__IHE_Prediction__iregex=r'^.*{0}.*$'.format(key))
+
+                    for publ in context['pub']:
+                        if len(publ.assignedSDG['IHE_Prediction']) > 1:
+                            predictions = publ.assignedSDG['IHE_Prediction'].split(',')
+                            if key not in predictions:
+                                context['pub'] = context['pub'].exclude(pk=publ.pk)
+                else:
+                    context['table_select'] = 'String'
+                    context['pub'] = context['pub'].filter(assignedSDG__IHE_String_Speciality_Prediction__iregex=r'^.*{0}.*$'.format(key))
+
+                    for publ in context['pub']:
+                        if len(publ.assignedSDG['IHE_String_Speciality_Prediction']) > 1:
+                            predictions = publ.assignedSDG['IHE_String_Speciality_Prediction'].split(',')
+                            if key not in predictions:
+                                context['pub'] = context['pub'].exclude(pk=publ.pk)
+                
+                prev_ihe_selector = key
+                global_ihe_paginator = Paginator(context['pub'], paginator_limiter)
+                
+            if val == "selected" and key != "Default":
+                url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
+            
+            context['table_select'] = 'Default' if prev_ihe_selector == 'Default' else 'LDA' if int(
+                prev_ihe_selector) <= num_of_lda_specialities else 'String'
+            
         # Pagination
         context['ihes'] = pagination_management(global_ihe_paginator, request.GET.get('ihePage'))
 
@@ -787,7 +836,6 @@ def ihe(request):
 
         if url_string != "": url_string = url_string + "&"
         context['url_string'] = url_string
-
         context['len_pub'] = global_ihe_paginator.count
 
     return render(request, 'ihe.html', context)
