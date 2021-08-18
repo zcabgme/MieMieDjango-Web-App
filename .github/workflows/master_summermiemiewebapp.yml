@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - summermiemiedjango
+name: Build and deploy Python app to Azure Web App - summermiemiewebapp
 
 on:
   push:
@@ -57,6 +57,6 @@ jobs:
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'summermiemiedjango'
+          app-name: 'summermiemiewebapp'
           slot-name: 'production'
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_5ae72133e0334bed830dcd8694650974 }}
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_70ef18d8625540eeaee67d123af43dc6 }}
