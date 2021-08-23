@@ -731,6 +731,15 @@ def export_ihe_csv(request):
     return response
 
 
+def get_columns() -> dict:
+    columns = SpecialtyAct.objects.all()
+    result = {}
+
+    for i in columns:
+        result[i.id] = str(i)
+
+    return result
+
 def ihe(request):
     """
        IHE assignments display page
@@ -749,25 +758,7 @@ def ihe(request):
 
     form = {"Default": "unselected"}
 
-
-    lookup = {
-        "1": "AI and Machine Learning",
-        "2": "Bioinformatics",
-        "3": "Cybersecurity",
-        "4": "Data Sciences",
-        "5": "Software Engineering",
-        "6": "Robotics",
-        "7": "Synthetic Biology",
-        "8": "Pharmacology & Pharmaceuticals",
-        "9": "Tissue Engineering & Regenerative Medicine",
-        "10": "Development and Evaluation of Medical Devices",
-        "11": "Personalised Medicine",
-        "12": "Healthy Ageing",
-        "13": "Health Economics",
-        "14": "Health Ethics and Policy",
-        "15": "Research methodology",
-        "16": "Patient data",
-    }
+    lookup = get_columns()
 
     number_of_ihe = len(lookup)
 
