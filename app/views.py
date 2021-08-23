@@ -20,6 +20,7 @@ from django.contrib.auth.decorators import login_required
 import pyodbc
 import json
 import os
+import math
 import csv
 import time
 import sys
@@ -740,6 +741,7 @@ def get_columns() -> dict:
 
     return result
 
+
 def ihe(request):
     """
        IHE assignments display page
@@ -747,6 +749,7 @@ def ihe(request):
     """
 
     global global_query, global_ihe_paginator, IHE_CSV_Data, prev_ihe_selector, num_of_lda_specialities
+    number_of_LDA_specialities = SpecialtyAct.objects.all().filter(methodology='LDA').count()
     
     if 'prediction' not in request.GET:
         prev_ihe_selector = 'Default'
@@ -770,6 +773,7 @@ def ihe(request):
         'len_pub': Publication.objects.count(),
         'form': form,
         'ihe_lookup': lookup,
+        'number_of_LDA_specialities': number_of_LDA_specialities,
         'segment': 'ihe',
         'table_select': ''
     }
@@ -820,12 +824,6 @@ def ihe(request):
                 
             if val == "selected" and key != "Default":
                 url_string = url_string + "&prediction=" + str(request.GET.get('prediction'))
-
-            # if key == "Default" and val == "selected":
-            #     print(key, val)
-            #     l = len("&prediction=" + str(request.GET.get('prediction')))
-            #     url_string = url_string[:-l]
-
             
             context['table_select'] = 'Default' if prev_ihe_selector == 'Default' else 'LDA' if int(prev_ihe_selector) <= num_of_lda_specialities else 'String'
             
