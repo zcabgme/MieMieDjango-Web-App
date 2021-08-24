@@ -36,9 +36,9 @@ jobs:
       uses: jannekem/run-python-script-action@v1.2
       with:
         script: 
-          import sys
-          import subprocess
-          subprocess.check_call([sys.executable, "-m", "pip", "install", "nltk"])
+          #import sys
+          #import subprocess
+          #subprocess.check_call([sys.executable, "-m", "pip", "install", "nltk"])
           import nltk
           nltk.download('stopwords')
           nltk.download('averaged_perceptron_tagger')
