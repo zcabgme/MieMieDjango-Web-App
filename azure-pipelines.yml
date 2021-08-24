@@ -46,14 +46,6 @@ stages:
         pip install -r requirements.txt
       workingDirectory: $(projectRoot)
       displayName: "Install requirements"
-    - task: PythonScript@0
-      inputs:
-        scriptSource: 'inline'
-        script: |
-          import nltk
-          nltk.download('stopwords')
-          nltk.download('averaged_perceptron_tagger')
-          nltk.download('wordnet')
 
     - task: ArchiveFiles@2
       displayName: 'Archive files'
@@ -67,6 +59,15 @@ stages:
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Upload package'
       artifact: drop
+      
+    - task: PythonScript@0
+      inputs:
+        scriptSource: 'inline'
+        script: |
+          import nltk
+          nltk.download('stopwords')
+          nltk.download('averaged_perceptron_tagger')
+          nltk.download('wordnet')
 
 - stage: Deploy
   displayName: 'Deploy Web App'
