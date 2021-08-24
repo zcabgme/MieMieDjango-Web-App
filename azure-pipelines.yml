@@ -60,14 +60,21 @@ stages:
       displayName: 'Upload package'
       artifact: drop
       
-    - task: PythonScript@0
-      inputs:
-        scriptSource: 'inline'
-        script: |
-          import nltk
-          nltk.download('stopwords')
-          nltk.download('averaged_perceptron_tagger')
-          nltk.download('wordnet')
+      
+    - script: |
+        python -m venv antenv
+        source antenv/bin/activate
+        python -m pip install --upgrade pip
+        pip install nltk
+        python
+        import nltk
+        nltk.download('stopwords')
+        nltk.download('averaged_perceptron_tagger')
+        nltk.download('wordnet')
+        exit()
+      workingDirectory: $(projectRoot)
+      displayName: "Install NLTK Packages"
+
 
 - stage: Deploy
   displayName: 'Deploy Web App'
