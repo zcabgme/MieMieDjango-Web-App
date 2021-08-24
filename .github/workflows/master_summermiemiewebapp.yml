@@ -35,10 +35,10 @@ jobs:
       # uses: jannekem/run-python-script-action@088ec07b341540e5742f0426f5fdaf81950bac45
       uses: jannekem/run-python-script-action@v1.2
       with:
-        script: 
-          #import sys
-          #import subprocess
-          #subprocess.check_call([sys.executable, "-m", "pip", "install", "nltk"])
+        script: |
+          import sys
+          import subprocess
+          subprocess.check_call([sys.executable, "-m", "pip", "install", "nltk"])
           import nltk
           nltk.download('stopwords')
           nltk.download('averaged_perceptron_tagger')
