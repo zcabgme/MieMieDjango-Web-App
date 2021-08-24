@@ -68,9 +68,10 @@ jobs:
     #needs: deploy
     
     #steps:    
-      - name: Run Python Script
+      - name: NLTK Packages Installation
         uses: jannekem/run-python-script-action@v1.2
         with:
+          run: source venv/bin/activate 
           script: |
             import sys
             import subprocess
