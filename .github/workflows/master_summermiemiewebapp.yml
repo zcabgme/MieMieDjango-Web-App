@@ -31,14 +31,18 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
       
-    - name: NLTK
-      run: |
-        python
-        import nltk
-        nltk.download('stopwords')
-        nltk.download('averaged_perceptron_tagger')
-        nltk.download('wordnet')
-        exit()
+    - name: NLTK Packages Installation
+      uses: jannekem/run-python-script-action@v1.2
+      with:
+        run: source venv/bin/activate 
+        script: |
+          import sys
+          import subprocess
+          subprocess.check_call([sys.executable, "-m", "pip", "install", "nltk"])
+          import nltk
+          nltk.download('stopwords')
+          nltk.download('averaged_perceptron_tagger')
+          nltk.download('wordnet')
 
     # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
