@@ -1,6 +1,7 @@
 import configparser
 from NLP.PREPROCESSING.module_preprocessor import ModuleCataloguePreprocessor
 from NLP.PREPROCESSING.preprocessor import Preprocessor
+from NLP.SVM.IHE import ihe_svm
 
 from django.core import serializers
 from django.shortcuts import render, redirect
@@ -144,12 +145,9 @@ def bubble_chart_act(request):
     speciality_list = speciality_list.order_by('id')
     bubbles = BubbleAct.objects.all()
 
-
-
     approach_dict = {int(i.id): i.name for i in ApproachAct.objects.all()}
     speciality_dict = {int(i.id): i for i in SpecialtyAct.objects.all()}
 
-    
     # Calculate the highest number of authors currently in a bubble in order to determine sizes
     CONST_SCALE_MAX, SIZE_MIN = 25, 9
     curr_max = 0
@@ -171,8 +169,6 @@ def bubble_chart_act(request):
                 # Except: bubble doesn't exist, there is nothing in that coordinate
                 bubble_dict[approach_dict[i]][int(j)] = None
     
-
-
     # Generate final context
     context = {
         'approach_list': approach_list,

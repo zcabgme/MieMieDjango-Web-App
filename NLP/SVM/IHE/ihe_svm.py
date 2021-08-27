@@ -49,4 +49,3 @@ class IheSvm(Svm):
         self.serialize(model)
 
         print("Done.")
-
