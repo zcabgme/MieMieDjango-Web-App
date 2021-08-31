@@ -35,7 +35,6 @@ def login_view(request):
     return render(request, "accounts/login.html", {"form": form, "msg" : msg})
 
 def register_user(request):
-
     msg     = None
     success = False
 

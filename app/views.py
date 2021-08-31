@@ -47,7 +47,7 @@ Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
 
 
-# @login_required(login_url="/login/")
+@login_required(login_url="/login/")
 def index(request):
     """
         Returns the render for the Home page
@@ -56,7 +56,7 @@ def index(request):
     return render(request, 'index.html', {"segment": "index"})
 
 
-# @login_required(login_url="/login/")
+@login_required(login_url="/login/")
 def app(request):
     global Module_CSV_Data, Publication_CSV_Data
     global global_context, global_query
@@ -132,7 +132,7 @@ def pagination_management(paginator, selected_page):
         objects = paginator.page(paginator.num_pages)
     return objects
 
-# @login_required(login_url="/login/")
+@login_required(login_url="/login/")
 def bubble_chart_act(request):
     """
         Returns the render for the Bubble Chart page
@@ -247,7 +247,7 @@ def searchBubbleAct(request, pk=None, pk_alt=None):
                   {"form": form, "entry_list": authors, "assignments": app_spec, "num_of_people": num_of_people,
                    "url_string": url_string})
 
-# @login_required(login_url="/login/")
+@login_required(login_url="/login/")
 def manual_add(request):
     """
         Returns the render for the Manual Add page
@@ -296,7 +296,7 @@ def manual_add(request):
         return render(request, 'manual_add.html', {"form": form, "approach_select": approach_select, "speciality_select": speciality_select})
 
 
-# @login_required(login_url="/login/")
+@login_required(login_url="/login/")
 def iheVisualisation(request):
     """
         Returns the render for the IHE Visualisation page
@@ -317,7 +317,7 @@ def iheVisualisation(request):
     return render(request, "ihe_model_vis.html", context)
 
 
-# @login_required(login_url="/login/")
+@login_required(login_url="/login/")
 def sdgVisualisation(request):
     """
         Returns the render for the SDG Visualisation page
@@ -338,6 +338,7 @@ def sdgVisualisation(request):
     return render(request, "sdg_model_vis.html", context)
 
 
+@login_required(login_url="/login/")
 def sdg(request):
     """
         Returns the render for the SDG Tables page
@@ -391,6 +392,7 @@ def sdg(request):
     return render(request, 'sdg_tables.html', context)
 
 
+@login_required(login_url="/login/")
 def module(request, pk):
     """
         Returns the render for the Module page
@@ -403,6 +405,7 @@ def module(request, pk):
     return render(request, 'module.html', {'mod': module})
 
 
+@login_required(login_url="/login/")
 def publication(request, pk):
     """
         Returns the render for the Publication page
@@ -415,6 +418,7 @@ def publication(request, pk):
     return render(request, 'publication.html', {'pub': publication})
 
 
+@login_required(login_url="/login/")
 def export_modules_csv(request):
     """
         Export currently displayed / searched modules on the Search Engine web-page
@@ -446,6 +450,7 @@ def export_modules_csv(request):
     return response
 
 
+@login_required(login_url="/login/")
 def export_publications_csv(request):
     """
         Export currently displayed / searched publications on the Search Engine web-page
@@ -614,6 +619,7 @@ def truncate(n: float, decimals: int = 0) -> float:
     return int(n * multiplier) / multiplier
 
 
+@login_required(login_url="/login/")
 def universal_SVM(request):
     """
         Leverages SVM model to predict SDG category for unseen documents or text
@@ -648,6 +654,7 @@ def universal_SVM(request):
     return render(request, 'svm_universal.html', svm_context)
 
 
+@login_required(login_url="/login/")
 def universal_SVM_IHE(request):
     """
         Leverages SVM model to predict IHE category for unseen documents or text
@@ -693,6 +700,7 @@ def getCheckBoxState_ihe(request, form, number_of_ihe):
     return form
 
 
+@login_required(login_url="/login/")
 def export_ihe_csv(request):
     """
         Export authors based on the current IHE viewing page
@@ -742,6 +750,7 @@ def get_columns() -> dict:
     return result
 
 
+@login_required(login_url="/login/")
 def ihe(request):
     """
        IHE assignments display page
@@ -865,6 +874,7 @@ def getSQL_connection():
     return myConnection
 
 
+@login_required(login_url="/login/")
 def tableauVisualisation(request):
     """
         Tableau alternative page
