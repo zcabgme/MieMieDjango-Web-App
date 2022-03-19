@@ -1,0 +1,121 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+  
+    <!-- Page description -->
+    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-0">
+        <div class="container-fluid">
+            <div class="header-body">
+            <!-- Card stats -->
+            <div class="row">
+                <div class="col-xl-12 col-lg-12">
+                <br><br><br>
+                <div class="card card-stats mb-4 mb-xl-0">
+                    <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                        <span class="h2 font-weight-bold mb-0">Page Description</span>
+                        </div>
+                        <div class="col-auto">
+                        <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                            <i class="fas fa-pen"></i>
+                        </div>
+                        </div>
+                    </div>
+                    <p class="mt-3 mb-0 ">
+                        <span class="text-wrap">
+                            Select what bar chart you want to see. You can choose by SDG or by Faculty
+                        </span>
+                    </p>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+<br></br>
+
+<div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header border-0">
+          
+        </div>
+        <div class="table-responsive">
+          <table class="table align-items-center table-flush">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">SDG</th>
+                    <th scope="col">Faculty</th>
+                </tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td><a href= {% url "SDG1" %}> SDG 1 </a></td>
+                        <td><a href={% url "Faculty1" %}>Faculty of Arts and Humanities</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG2" %}> SDG 2 </a></td>
+                        <td><a href={% url "Faculty2" %}>Faculty of Social and Historical Sciences</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG3" %}> SDG 3 </a></td>
+                        <td><a href={% url "Faculty3" %}>Faculty of Brain Sciences</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG4" %}> SDG 4 </a></td>
+                        <td><a href={% url "Faculty4" %}>Faculty of Life Sciences</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG5" %}> SDG 5 </a></td>
+                        <td><a href={% url "Faculty5" %}>Faculty of the Built Environment</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG6" %}> SDG 6 </a></td>
+                        <td><a href={% url "Faculty6" %}>School of Slavonic and Eastern European Studies</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG7" %}> SDG 7 </a></td>
+                        <td><a href={% url "Faculty7" %}>Institute of Education</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG8" %}> SDG 8 </a></td>
+                        <td><a href={% url "Faculty8" %}>Faculty of Engineering Science</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG9" %}> SDG 9 </a></td>
+                        <td><a href={% url "Faculty9" %}>Faculty of Maths & Physical Sciences</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG10" %}> SDG 10 </a></td>
+                        <td><a href={% url "Faculty10" %}>Faculty of Medical Sciences</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG11" %}> SDG 11 </a></td>
+                        <td><a href={% url "Faculty11" %}>Faculty of Pop Health Sciences</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG12" %}> SDG 12 </a></td>
+                        <td><a href={% url "Faculty12" %}>Faculty of Laws</a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG13" %}> SDG 13 </a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG14" %}> SDG 14 </a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG15" %}> SDG 15 </a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG16" %}> SDG 16 </a></td>
+                    </tr>
+                    <tr>
+                        <td><a href={% url "SDG17" %}> SDG 17 </a></td>
+                    </tr>
+            </tbody>
+          </table>
+        </div>
+  
+{% endblock %}
