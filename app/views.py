@@ -636,13 +636,6 @@ def Faculty11(request):
     
     return render(request, 'Faculty11.html')
 
-@login_required(login_url="/login/")
-def Faculty12(request):
-    """
-        Returns the render for the sdg graph
-    """
-    
-    return render(request, 'Faculty12.html')
 
 @login_required(login_url="/login/")
 def HA1(request):

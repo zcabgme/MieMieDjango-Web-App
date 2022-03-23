@@ -56,16 +56,13 @@ urlpatterns = [
     path('Faculty9', views.Faculty9, name='Faculty9'),
     path('Faculty10', views.Faculty10, name='Faculty10'),
     path('Faculty11', views.Faculty11, name='Faculty11'),
-    path('Faculty12', views.Faculty12, name='Faculty12'),
     path('viewInformationSDG', views.viewInformationSDG, name='viewInformationSDG'),
-    path('viewInformationFaculty', views.viewInformationFaculty, name='viewInformationFaculty'),
     path('viewInformationHA', views.viewInformationHA, name='viewInformationHA'),
+    path('viewInformationFaculty', views.viewInformationFaculty, name='viewInformationFaculty'),
     path('HaIndex', views.HaIndex, name='HaIndex'),
     path('HA1', views.HA1, name='HA1'),
 
     # path('auth', views.auth, name='auth'),
-    # path('idp/profile/SAML2/Redirect/SSO', views.redirect, name='redirect'),
-    
     
     # Matches any html file
     # re_path(r'^.*\.*', views.pages, name='pages'),
