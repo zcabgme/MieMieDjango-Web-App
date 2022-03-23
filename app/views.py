@@ -316,6 +316,14 @@ def iheVisualisation(request):
     client.close()
     return render(request, "ihe_model_vis.html", context)
 
+@login_required(login_url="/login/")
+def selectSDGorFaculty(request):
+    """
+        Returns the render for the SDG selection page
+    """
+
+    return render(request, "SdgFacultyIndex.html")
+
 
 @login_required(login_url="/login/")
 def sdgVisualisation(request):
@@ -324,7 +332,7 @@ def sdgVisualisation(request):
     """
 
     # Get the visualisation data from MongoDB
-    client = pymongo.MongoClient(get_details('MONGO_DB', 'client'))
+    client = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
     col = client.Scopus.Visualisations
     data = list(col.find())[1]
 
@@ -403,6 +411,305 @@ def module(request, pk):
     except Module.DoesNotExist:
         raise ("Module does not exist")
     return render(request, 'module.html', {'mod': module})
+
+@login_required(login_url="/login/")
+def SDG1(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG1.html')
+
+@login_required(login_url="/login/")
+def SDG2(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG2.html')
+
+@login_required(login_url="/login/")
+def SDG3(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG3.html')
+
+@login_required(login_url="/login/")
+def SDG4(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG4.html')
+
+@login_required(login_url="/login/")
+def SDG5(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG5.html')
+
+@login_required(login_url="/login/")
+def SDG6(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG6.html')
+
+@login_required(login_url="/login/")
+def SDG7(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG7.html')
+
+@login_required(login_url="/login/")
+def SDG8(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG8.html')
+
+@login_required(login_url="/login/")
+def SDG9(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG9.html')
+
+@login_required(login_url="/login/")
+def SDG10(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG10.html')
+
+@login_required(login_url="/login/")
+def SDG11(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG11.html')
+
+@login_required(login_url="/login/")
+def SDG12(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG12.html')
+
+@login_required(login_url="/login/")
+def SDG13(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG13.html')
+
+@login_required(login_url="/login/")
+def SDG14(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG14.html')
+
+@login_required(login_url="/login/")
+def SDG15(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG15.html')
+
+@login_required(login_url="/login/")
+def SDG16(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG16.html')
+
+@login_required(login_url="/login/")
+def SDG17(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'SDG17.html')
+
+@login_required(login_url="/login/")
+def Faculty1(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty1.html')
+
+@login_required(login_url="/login/")
+def Faculty2(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty2.html')
+
+@login_required(login_url="/login/")
+def Faculty3(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty3.html')
+
+@login_required(login_url="/login/")
+def Faculty4(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty4.html')
+
+@login_required(login_url="/login/")
+def Faculty5(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty5.html')
+
+@login_required(login_url="/login/")
+def Faculty6(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty6.html')
+
+@login_required(login_url="/login/")
+def Faculty7(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty7.html')
+
+@login_required(login_url="/login/")
+def Faculty8(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty8.html')
+
+@login_required(login_url="/login/")
+def Faculty9(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty9.html')
+
+@login_required(login_url="/login/")
+def Faculty10(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty10.html')
+
+@login_required(login_url="/login/")
+def Faculty11(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty11.html')
+
+@login_required(login_url="/login/")
+def Faculty12(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'Faculty12.html')
+
+@login_required(login_url="/login/")
+def HA1(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'HA1.html')
+
+@login_required(login_url="/login/")
+def HaIndex(request):
+    """
+        Returns the render for the sdg graph
+    """
+    
+    return render(request, 'HaIndex.html')
+
+@login_required(login_url="/login/")
+def viewInformationSDG(request):
+    """
+        Returns the render for the sdg table
+
+    """
+    connection = getSQL_connection()
+    cursor = connection.cursor()
+    query = """SELECT testmodassign.SDG, COUNT(DISTINCT testmodassign.Module_ID), SUM(studentspermodule.NumberOfStudents)
+                FROM testmodassign
+                INNER JOIN studentspermodule ON testmodassign.Module_ID=studentspermodule.ModuleID 
+                GROUP BY testmodassign.SDG;"""
+    result = cursor.execute(query)
+    sdgs = result.fetchall()
+    context = list()
+    for sdg in sdgs:
+         context.append({"Faculties": sdgs[0],
+            "Module Code": sdgs[1],
+            "Number of Students":sdgs[2] })
+
+    return render(request, 'viewInformationSDG.html', {"context": context})
+
+@login_required(login_url="/login/")
+def viewInformationFaculty(request):
+    """
+        Returns the render for the faculty table
+
+    """
+    #connection = getSQL_connection()
+
+
+    #context = {"Faculties": ,
+            #"Modules": ,
+            #"Number of Students": }
+    return render(request, 'viewInformationFaculty.html')
+
+@login_required(login_url="/login/")
+def viewInformationHA(request):
+    """
+        Returns the render for the ha table
+
+    """
+    #connection = getSQL_connection()
+
+
+    #context = {"Faculties": ,
+            #"Modules": ,
+            #"Number of Students": }
+    return render(request, 'viewInformationHA.html')
+
 
 
 @login_required(login_url="/login/")
@@ -863,14 +1170,8 @@ def getSQL_connection():
     """
         Returns MySQL connection object for data retrieval
     """
+    myConnection = pyodbc.connect('DRIVER=/usr/local/mysql-connector-odbc-8.0.28-macos11-x86-64bit/lib/libmyodbc8a.so;SERVER=127.0.0.1;DATABASE=mysqlmiemie;UID=root;PWD=Gomeni73;')
 
-    server = get_details('SQL_SERVER', 'server')
-    database = get_details('SQL_SERVER', 'database')
-    username = get_details('SQL_SERVER', 'username')
-    password = get_details('SQL_SERVER', 'password')
-    driver = get_details('SQL_SERVER', 'driver')
-    myConnection = pyodbc.connect(
-        'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
     return myConnection
 
 
@@ -894,10 +1195,10 @@ def tableauVisualisation(request):
 
         if query == "sdg_bubble":
             query = """
-                SELECT TestModAssign.SDG, COUNT(DISTINCT TestModAssign.Module_ID), SUM(StudentsPerModule.NumberOfStudents)
-                FROM [dbo].[TestModAssign]
-                INNER JOIN StudentsPerModule ON TestModAssign.Module_ID=StudentsPerModule.ModuleID 
-                GROUP BY TestModAssign.SDG"""
+                SELECT testmodassign.SDG, COUNT(DISTINCT testmodassign.Module_ID), SUM(studentspermodule.NumberOfStudents)
+                FROM testmodassign
+                INNER JOIN studentspermodule ON testmodassign.Module_ID=studentspermodule.ModuleID 
+                GROUP BY testmodassign.SDG;"""
             curr.execute(query)
             sdg_bubbles = curr.fetchall()  # (assigned sdg, module id, number of students)
             module_bubble_list = list()
@@ -907,20 +1208,27 @@ def tableauVisualisation(request):
                     'Number_Students': sdg[2],
                     'Number_Modules': sdg[1]
                 })
+            colour_dict = {}
+            for sdg in module_bubble_list:
+                h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
+                r, g, b = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
+                rgb = (round(r), round(g), round(b))
+                colour_dict[str(sdg['SDG'])] = '#%02x%02x%02x' % rgb
+
 
             checkboxes['value1'] = 'checked'
             checkboxes['value2'] = ''
             checkboxes['value3'] = ''
             return render(request, 'tableau_vis.html',
-                          {'selector': 'modules', 'bubble_list': module_bubble_list, 'radios': checkboxes,
+                          {'selector': 'modules', 'bubble_list': module_bubble_list, 'colours': colour_dict, 'radios': checkboxes,
                            'segment': tableauVisualisation})
 
         if query == "department_sdg_bubble":
             query = """
-                SELECT ModuleData.Department_Name, COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)), SUM(StudentsPerModule.NumberOfStudents) FROM [dbo].[ModuleData]
-                INNER JOIN TestModAssign ON ModuleData.Module_ID = TestModAssign.Module_ID
-                INNER JOIN StudentsPerModule ON ModuleData.Module_ID = StudentsPerModule.ModuleID
-                GROUP BY ModuleData.Department_Name"""
+                SELECT moduledata.Department_Name, COUNT(testmodassign.Module_ID), COUNT(DISTINCT(testmodassign.SDG)), SUM(studentspermodule.NumberOfStudents) FROM moduledata
+                INNER JOIN testmodassign ON moduledata.Module_ID = testmodassign.Module_ID
+                INNER JOIN studentspermodule ON moduledata.Module_ID = studentspermodule.ModuleID
+                GROUP BY moduledata.Department_Name;"""
             curr.execute(query)
             department_bubble_sdg = curr.fetchall()  # (department name, num of modules, sdg coverage, num of students)
             department_bubble_list = list()
@@ -949,10 +1257,10 @@ def tableauVisualisation(request):
 
         if query == "faculty_sdg_bubble":
             query = """
-                SELECT ModuleData.Faculty, SUM(StudentsPerModule.NumberOfStudents), COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)) FROM [dbo].[StudentsPerModule]
-                INNER JOIN ModuleData ON StudentsPerModule.ModuleID = ModuleData.Module_ID
-                INNER JOIN TestModAssign ON StudentsPerModule.ModuleID = TestModAssign.Module_ID
-                GROUP BY ModuleData.Faculty"""
+                SELECT moduledata.Faculty, SUM(studentspermodule.NumberOfStudents), COUNT(testmodassign.Module_ID), COUNT(DISTINCT(testmodassign.SDG)) FROM studentspermodule
+                INNER JOIN moduledata ON studentspermodule.ModuleID = moduledata.Module_ID
+                INNER JOIN testmodassign ON studentspermodule.ModuleID = testmodassign.Module_ID
+                GROUP BY moduledata.Faculty;"""
             curr.execute(query)
             faculty_bubble_sdg = curr.fetchall()
             faculty_bubble_list = list()
@@ -979,3 +1287,103 @@ def tableauVisualisation(request):
                            'radios': checkboxes, 'segment': tableauVisualisation})
 
     return render(request, 'tableau_vis.html', {})
+
+@login_required(login_url="/login/")
+def tableauVisualisationHA(request):
+    curr = getSQL_connection().cursor()
+    checkboxes = {'value1': '', 'value2': '', 'value3': ''}
+
+    hue = random.randrange(0, 360)
+    saturation = random.uniform(0, 1)
+    luminance = random.uniform(30, 70)
+    rgb = colorsys.hsv_to_rgb(hue, saturation, luminance)
+
+    if request.method == 'GET':
+        query = request.GET.get('exampleRadios')
+
+        if query == "sdg_bubble":
+            query = """
+                SELECT testmodassign.SDG, COUNT(DISTINCT testmodassign.Module_ID), SUM(studentspermodule.NumberOfStudents)
+                FROM [dbo].[testmodassign]
+                INNER JOIN studentspermodule ON testmodmssign.Module_ID=studentspermodule.ModuleID 
+                GROUP BY testmodassign.SDG;"""
+            curr.execute(query)
+            sdg_bubbles = curr.fetchall()  # (assigned sdg, module id, number of students)
+            module_bubble_list = list()
+            for sdg in sdg_bubbles:
+                module_bubble_list.append({
+                    'SDG': str(sdg[0]),
+                    'Number_Students': sdg[2],
+                    'Number_Modules': sdg[1]
+                })
+
+            checkboxes['value1'] = 'checked'
+            checkboxes['value2'] = ''
+            checkboxes['value3'] = ''
+            return render(request, 'tableau_vis_ha.html',
+                          {'selector': 'modules', 'bubble_list': module_bubble_list, 'radios': checkboxes,
+                           'segment': tableauVisualisation})
+
+        if query == "department_sdg_bubble":
+            query = """
+                SELECT ModuleData.Department_Name, COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)), SUM(StudentsPerModule.NumberOfStudents) FROM [dbo].[ModuleData]
+                INNER JOIN TestModAssign ON ModuleData.Module_ID = TestModAssign.Module_ID
+                INNER JOIN StudentsPerModule ON ModuleData.Module_ID = StudentsPerModule.ModuleID
+                GROUP BY ModuleData.Department_Name;"""
+            curr.execute(query)
+            department_bubble_sdg = curr.fetchall()  # (department name, num of modules, sdg coverage, num of students)
+            department_bubble_list = list()
+            for departments in department_bubble_sdg:
+                department_bubble_list.append({
+                    'Department': departments[0],
+                    'Number_Modules': departments[1],
+                    'SDG_Count': departments[2],
+                    'Number_Students': departments[3]
+                })
+
+            colour_dict = {}
+            for departments in department_bubble_list:
+                h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
+                r, g, b = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
+                rgb = (round(r), round(g), round(b))
+                colour_dict[str(departments['Department'])
+                ] = '#%02x%02x%02x' % rgb
+
+            checkboxes['value1'] = ''
+            checkboxes['value2'] = 'checked'
+            checkboxes['value3'] = ''
+            return render(request, 'tableau_vis_ha.html',
+                          {'selector': 'departments', 'bubble_list': department_bubble_list, 'colours': colour_dict,
+                           'radios': checkboxes, 'segment': tableauVisualisation})
+
+        if query == "faculty_sdg_bubble":
+            query = """
+                SELECT ModuleData.Faculty, SUM(StudentsPerModule.NumberOfStudents), COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)) FROM [dbo].[StudentsPerModule]
+                INNER JOIN ModuleData ON StudentsPerModule.ModuleID = ModuleData.Module_ID
+                INNER JOIN TestModAssign ON StudentsPerModule.ModuleID = TestModAssign.Module_ID
+                GROUP BY ModuleData.Faculty;"""
+            curr.execute(query)
+            faculty_bubble_sdg = curr.fetchall()
+            faculty_bubble_list = list()
+            for faculties in faculty_bubble_sdg:
+                faculty_bubble_list.append({
+                    'Faculty': faculties[0],
+                    'Number_Modules': faculties[2],
+                    'SDG_Count': faculties[3],
+                    'Number_Students': faculties[1]
+                })
+
+            colour_dict = {}
+            for faculties in faculty_bubble_list:
+                h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
+                r, g, b = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
+                rgb = (round(r), round(g), round(b))
+                colour_dict[str(faculties['Faculty'])] = '#%02x%02x%02x' % rgb
+
+            checkboxes['value1'] = ''
+            checkboxes['value2'] = ''
+            checkboxes['value3'] = 'checked'
+            return render(request, 'tableau_vis_ha.html',
+                          {'selector': 'faculties', 'bubble_list': faculty_bubble_list, 'colours': colour_dict,
+                           'radios': checkboxes, 'segment': tableauVisualisation})
+    return render(request, 'tableau_vis_ha.html', {})

@@ -74,11 +74,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'summermiemiepostgreserver',
-        'HOST': 'summermiemiepostgreserver.postgres.database.azure.com',
+        'NAME': 'postgres',
+        'HOST': 'localhost',
         'PORT': 5432,
-        'USER': 'miemie_admin@summermiemiepostgreserver',
-        'PASSWORD': 'e_Paswrd?!'
+        'USER': 'postgres',
+        'PASSWORD': 'Gomeni73'
     }
 }
 

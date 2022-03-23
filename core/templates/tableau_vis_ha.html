@@ -1,0 +1,336 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+  
+    <!-- Page description -->
+    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-0">
+        <div class="container-fluid">
+            <div class="header-body">
+            <!-- Card stats -->
+            <div class="row">
+                <div class="col-xl-12 col-lg-12">
+                <br><br><br>
+                <div class="card card-stats mb-4 mb-xl-0">
+                    <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                        <span class="h2 font-weight-bold mb-0">Page Description</span>
+                        </div>
+                        <div class="col-auto">
+                        <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                            <i class="fas fa-pen"></i>
+                        </div>
+                        </div>
+                    </div>
+                    <p class="mt-3 mb-0 ">
+                        <span class="text-wrap">
+                            Select an option below and click the 'View' button to see the specified Tableau visualisation.
+                            Hover over a bubble to see more information about its contents.
+                        </span>
+                    </p>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar & Selector -->
+    <div class="container-fluid mt--7">
+        <form action="{% url 'tableauVisualisationHA' %}" method="GET">
+            <div class="form-group mb-0">
+                <div class="input-group input-group-alternative">
+                    <form method="POST" action="#">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="sdg_bubble" {{ radios.value1 }}>
+                            <label style="color: white" class="form-check-label" for="exampleRadios1">UCL Reasearchers</label>
+                        </div>
+                        <div class="form-check"></div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="department_sdg_bubble" {{ radios.value2 }}>
+                            <label style="color: white" class="form-check-label" for="exampleRadios2">Non-UCL Researchers</label>
+                        </div>
+                        <div class="form-check"></div>
+                        <input type="submit" name="submit" value="View"/> 
+                    </form>
+                </div>
+            </div>
+        </form>
+    
+        <br><br><br>
+    
+        <div class="row">
+            <div class="col">
+                <div class="card shadow">
+                    <div class="table-responsive">
+                        <table class="table align-items-center table-flush">
+                            <thead class="thead-light">
+                                <tr><th scope="col"></th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <svg id="bubble-chart"></svg>
+                                    <div class="tooltip">
+                                        <img alt="" />
+                                        <div><a></a><span></span></div>
+                                    </div>
+                                    <script src="https://d3js.org/d3.v6.js"></script>
+                                    {% if selector == "modules" %}
+                                        <script type="text/javascript">
+                                            const width = window.innerWidth;
+                                            const height = window.innerHeight;
+                                            const colors = {
+                                                1: '#E5243B',
+                                                2: '#DDA63A',
+                                                3: '#4C9F38',
+                                                4: '#C5192D',
+                                                5: '#FF3A21',
+                                                6: '#26BDE2',
+                                                7: '#FCC30B',
+                                                8: '#A21942',
+                                                9: '#FD6925',
+                                                10: '#DD1367',
+                                                11: '#FD9D24',
+                                                12: '#BF8B2E',
+                                                13: '#3F7E44',
+                                                14: '#0A97D9',
+                                                15: '#56C02B',
+                                                16: '#00689D',
+                                                17: '#19486A',
+                                                18: '#CCCC00',
+                                            };
+
+                                            const generateChart = data => {
+                                                const bubble = data => d3.pack()
+                                                    .size([width, height])
+                                                    .padding(2)(d3.hierarchy({ children: data }).sum(d => d.Number_Students));
+
+                                                const svg = d3.select('#bubble-chart')
+                                                    .style('width', width)
+                                                    .style('height', height);
+                                                
+                                                const root = bubble(data);
+
+                                                var tooltip = d3.select("body")
+                                                    .append("div")
+                                                    .style("position", "absolute")
+                                                    .style("z-index", "10")
+                                                    .style("margin-left", "2%")
+                                                    .style("background", "#c8c8c8")
+                                                    .style("visibility", "hidden")
+
+                                                const node = svg.selectAll()
+                                                    .data(root.children)
+                                                    .enter().append('g')
+                                                    .attr('transform', `translate(${width / 2}, ${height / 2})`);
+                                                
+                                                const circle = node.append('circle')
+                                                    .style('fill', d => colors[d.data.SDG])
+                                                    .on('mouseover', function (e, d) {
+                                                        tooltip.html("Number of students: " + d.data.Number_Students + 
+                                                        "<br>Number of modules: " + d.data.Number_Modules);
+                                                        tooltip.style('visibility', 'visible');
+
+                                                        d3.select(this).style('stroke', '#222');
+                                                    })
+                                                    .on('mousemove', e => tooltip.style('top', `${e.pageY}px`)
+                                                                                .style('left', `${e.pageX + 10}px`))
+                                                    .on('mouseout', function () {
+                                                        d3.select(this).style('stroke', 'none');
+                                                        return tooltip.style('visibility', 'hidden');
+                                                    })
+                                                    // .on('click', (e, d) => window.open(d.data.link));
+                                                
+                                                const label = node.append('text')
+                                                    .attr('dy', 2)
+                                                    .text(d => d.data.SDG);
+
+                                                node.transition()
+                                                    .ease(d3.easeExpInOut)
+                                                    .duration(1000)
+                                                    .attr('transform', d => `translate(${d.x}, ${d.y})`);
+                                                
+                                                circle.transition()
+                                                    .ease(d3.easeExpInOut)
+                                                    .duration(1000)
+                                                    .attr('r', d => d.r);
+                                                
+                                                label.transition()
+                                                    .delay(700)
+                                                    .ease(d3.easeExpInOut)
+                                                    .duration(1000)
+                                                    .style('opacity', 1)
+                                            };
+
+                                            (async () => {
+                                                data = {{ bubble_list|safe }};
+                                                generateChart(data);
+                                            })();
+                                        </script>
+                                    {% endif %}
+
+                                    {% if selector == "departments" %}
+                                        <script type="text/javascript">
+                                            const width = window.innerWidth;
+                                            const height = window.innerHeight;
+                                            const colors = {{ colours|safe }}
+
+                                            const generateChart = data => {
+                                                const bubble = data => d3.pack()
+                                                    .size([width, height])
+                                                    .padding(2)(d3.hierarchy({ children: data }).sum(d => d.SDG_Count));
+
+                                                const svg = d3.select('#bubble-chart')
+                                                    .style('width', width)
+                                                    .style('height', height);
+                                                
+                                                const root = bubble(data);
+
+                                                var tooltip = d3.select("body")
+                                                    .append("div")
+                                                    .style("position", "absolute")
+                                                    .style("z-index", "10")
+                                                    .style("margin-left", "2%")
+                                                    .style("background", "#c8c8c8")
+                                                    .style("visibility", "hidden")
+                                                    .text("");
+
+                                                const node = svg.selectAll()
+                                                    .data(root.children)
+                                                    .enter().append('g')
+                                                    .attr('transform', `translate(${width / 2}, ${height / 2})`);
+                                                
+                                                const circle = node.append('circle')
+                                                    .style('fill', d => colors[d.data.Department])
+                                                    .on('mouseover', function (e, d) {
+                                                        tooltip.html("Department name: " + d.data.Department +
+                                                        "<br>SDG Count: " + d.data.SDG_Count +
+                                                        "<br>Number of modules: " + d.data.Number_Modules +
+                                                        "<br>Number of students: " + d.data.Number_Students);
+                                                        tooltip.style('visibility', 'visible');
+
+                                                        d3.select(this).style('stroke', '#222');
+                                                    })
+                                                    .on('mousemove', e => tooltip.style('top', `${e.pageY}px`)
+                                                                                .style('left', `${e.pageX + 10}px`))
+                                                    .on('mouseout', function () {
+                                                        d3.select(this).style('stroke', 'none');
+                                                        return tooltip.style('visibility', 'hidden');
+                                                    })
+                                                    // .on('click', (e, d) => window.open(d.data.link));
+                                                
+                                                const label = node.append('text')
+                                                    .attr('dy', 2)
+                                                    .text(d => d.data.Department.substring(0, d.r / 3));
+
+                                                node.transition()
+                                                    .ease(d3.easeExpInOut)
+                                                    .duration(1000)
+                                                    .attr('transform', d => `translate(${d.x}, ${d.y})`);
+                                                
+                                                circle.transition()
+                                                    .ease(d3.easeExpInOut)
+                                                    .duration(1000)
+                                                    .attr('r', d => d.r);
+                                                
+                                                label.transition()
+                                                    .delay(700)
+                                                    .ease(d3.easeExpInOut)
+                                                    .duration(1000)
+                                                    .style('opacity', 1)
+                                            };
+
+                                            (async () => {
+                                                data = {{ bubble_list|safe }};
+                                                generateChart(data);
+                                            })();
+                                        </script>
+                                    {% endif %}
+
+                                    {% if selector == "faculties" %}
+                                        <script type="text/javascript">
+                                            const width = window.innerWidth;
+                                            const height = window.innerHeight;
+                                            const colors = {{ colours|safe }}
+
+                                            const generateChart = data => {
+                                                const bubble = data => d3.pack()
+                                                    .size([width, height])
+                                                    .padding(2)(d3.hierarchy({ children: data }).sum(d => d.SDG_Count));
+
+                                                const svg = d3.select('#bubble-chart')
+                                                    .style('width', width)
+                                                    .style('height', height);
+                                                
+                                                const root = bubble(data);
+
+                                                var tooltip = d3.select("body")
+                                                    .append("div")
+                                                    .style("position", "absolute")
+                                                    .style("z-index", "10")
+                                                    .style("margin-left", "2%")
+                                                    .style("background", "#c8c8c8")
+                                                    .style("visibility", "hidden")
+                                                    .text("");
+
+                                                const node = svg.selectAll()
+                                                    .data(root.children)
+                                                    .enter().append('g')
+                                                    .attr('transform', `translate(${width / 2}, ${height / 2})`);
+                                                
+                                                const circle = node.append('circle')
+                                                    .style('fill', d => colors[d.data.Faculty])
+                                                    .on('mouseover', function (e, d) {
+                                                        tooltip.html("Faculty name: " + d.data.Faculty +
+                                                        "<br>SDG Count: " + d.data.SDG_Count +
+                                                        "<br>Number of modules: " + d.data.Number_Modules +
+                                                        "<br>Number of students: " + d.data.Number_Students);
+                                                        tooltip.style('visibility', 'visible');
+
+                                                        d3.select(this).style('stroke', '#222');
+                                                    })
+                                                    .on('mousemove', e => tooltip.style('top', `${e.pageY}px`)
+                                                                                .style('left', `${e.pageX + 10}px`))
+                                                    .on('mouseout', function () {
+                                                        d3.select(this).style('stroke', 'none');
+                                                        return tooltip.style('visibility', 'hidden');
+                                                    })
+                                                    // .on('click', (e, d) => window.open(d.data.link));
+                                                
+                                                const label = node.append('text')
+                                                    .attr('dy', 2)
+                                                    .text(d => String(d.data.Faculty).substring(0, d.r / 3));
+
+                                                node.transition()
+                                                    .ease(d3.easeExpInOut)
+                                                    .duration(1000)
+                                                    .attr('transform', d => `translate(${d.x}, ${d.y})`);
+                                                
+                                                circle.transition()
+                                                    .ease(d3.easeExpInOut)
+                                                    .duration(1000)
+                                                    .attr('r', d => d.r);
+                                                
+                                                label.transition()
+                                                    .delay(700)
+                                                    .ease(d3.easeExpInOut)
+                                                    .duration(1000)
+                                                    .style('opacity', 1)
+                                            };
+
+                                            (async () => {
+                                                data = {{ bubble_list|safe }};
+                                                generateChart(data);
+                                            })();
+                                        </script>
+                                    {% endif %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
