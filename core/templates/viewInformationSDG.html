@@ -52,41 +52,14 @@
                 </tr>
             </thead>
             <tbody>
-                    <tr>
-                        <td>Faculty of Arts and Humanities</td>
-                        <td>BASC0010</td>
-                        <td>23</td>
-                    </tr>
-                    <tr>
-                        <td>Faculty of Social and Historical Sciences</td>
-                        <td>AMER0002</td>
-                        <td>21</td>
-                    </tr>
-                    <tr>
-                        <td>Faculty of Life Sciences</td>
-                        <td>ANAT0002</td>
-                        <td>33</td>
-                    </tr>
-                    <tr>
-                        <td>Faculty of the Built Environment</td>
-                        <td>BARC0001</td>
-                        <td>70</td>
-                    </tr>
-                    <tr>
-                        <td>School of Slavonic and Eastern European Studies</td>
-                        <td>SEES0058</td>
-                        <td>21</td>
-                    </tr>
-                    <tr>
-                        <td>Faculty of Medical Sciences</td>
-                        <td>CINS0009</td>
-                        <td>63</td>
-                    </tr>
-                    <tr>
-                        <td>...</td>
-                        <td>...</td>
-                        <td>...</td>
-                    </tr>
+                    {% for item in context %}
+
+                        <tr>
+                            <td>{{ item.Faculties }}</td>
+                            <td>{{ item.Module_Code  }}</td>
+                            <td>{{ item.Number_of_Students }}</td>
+                        </tr>
+                    {% endfor %}
                    
             </tbody>
           </table>

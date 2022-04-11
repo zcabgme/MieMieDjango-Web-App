@@ -128,19 +128,7 @@
         <ul class="navbar-nav mb-md-3">
 
           <li class="nav-item">
-            <a class="nav-link {% if 'ihe' == segment %} active {% endif %}" href={% url 'ihe' %}>
-              <i class="ni ni-ui-04"></i> View Data
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link {% if 'IHE' == segment %} active {% endif %}" href={% url 'universal_SVM_IHE' %}>
-              <i class="ni ni-spaceship"></i> SVM Universal
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link {% if 'iheVisualisation' == segment %} active {% endif %}" href={% url 'iheVisualisation' %}>
+            <a class="nav-link {% if 'haVisualisation' == segment %} active {% endif %}" href={% url 'haVisualisation' %}>
               <i class="ni ni-spaceship"></i> Model Visualisations
             </a>
           </li>
@@ -156,6 +144,17 @@
             </a>
           </li>
         </ul>
+         <!-- Divider -->
+         <hr class="my-3">
+         <!-- Navigation -->
+         <ul class="navbar-nav mb-md-3">
+ 
+           <li class="nav-item">
+             <a class="nav-link {% if 'refreshCsvFiles' == segment %} active {% endif %}" href={% url 'refreshCsvFiles' %}>
+               <i class="ni ni-ui-04"></i> Refresh CSV Files (Approx. 30 mins)
+             </a>
+           </li>
+         </ul>
 
         <ul class="navbar-nav">
           <li class="nav-item">

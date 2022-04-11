@@ -52,41 +52,14 @@
                 </tr>
             </thead>
             <tbody>
-                    <tr>
-                        <td>SDG 1</td>
-                        <td>BASC0010</td>
-                        <td>23</td>
-                    </tr>
-                    <tr>
-                        <td>SDG 2</td>
-                        <td>BASC0002</td>
-                        <td>187</td>
-                    </tr>
-                    <tr>
-                        <td>SDG 4</td>
-                        <td>BASC0003</td>
-                        <td>195</td>
-                    </tr>
-                    <tr>
-                        <td>SDG 1</td>
-                        <td>CLAS0117</td>
-                        <td>4</td>
-                    </tr>
-                    <tr>
-                        <td>SDG 11</td>
-                        <td>BASC0037</td>
-                        <td>98</td>
-                    </tr>
-                    <tr>
-                        <td>SDG 7</td>
-                        <td>CMII0050</td>
-                        <td>16</td>
-                    </tr>
-                    <tr>
-                        <td>...</td>
-                        <td>...</td>
-                        <td>...</td>
-                    </tr>
+                {% for item in context %}
+
+                <tr>
+                    <td>{{ item.SDG }}</td>
+                    <td>{{ item.Module_Code  }}</td>
+                    <td>{{ item.Number_of_Students }}</td>
+                </tr>
+                {% endfor %}
                    
             </tbody>
           </table>

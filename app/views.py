@@ -35,6 +35,11 @@ import numpy as np
 import colorsys
 import random
 import matplotlib
+import pymysql
+import pandas as pd
+import plotly
+import plotly.express as px
+import re
 
 matplotlib.use('Agg')
 
@@ -45,7 +50,11 @@ num_of_lda_specialities = 0
 svm_context = {"data": None, "Predicted": None, "form": {"Default Preprocessor": "selected", "UCL Module Catalogue Preprocessor": ""}}
 Module_CSV_Data, Publication_CSV_Data, IHE_CSV_Data = None, None, None
 lda_threshold, svm_threshold, paginator_limiter = 30, 30, 10
-
+FacultyIndex = {"1": "Faculty of Arts and Humanities", "2": "Faculty of Social and Historical Sciences", "3": "Faculty of Brain Sciences", "4": "Faculty of Life Sciences", "5": "Faculty of the Built Environment", "6": "School of Slavonic and Eastern European Studies", "7": "Institute of Education", "8": "Faculty of Engineering Science", "9": "Faculty of Maths & Physical Sciences", "10": "Faculty of Medical Sciences", "11": "Faculty of Population Health Sciences"}
+Faculty = ['Faculty of Arts and Humanities','Faculty of Social and Historical Sciences','Faculty of Brain Sciences','Faculty of Life Sciences','Faculty of the Built Environment', 'School of Slavonic and Eastern European Studies'
+                   ,'Institute of Education', 'Faculty of Engineering Sciences','Faculty of Mathematical and Physical Sciences', 'Faculty of Medical Sciences','Faculty of Population Health Sciences']
+ha_goals_no_regex = ['HA 1','HA 2','HA 3','HA 4','HA 5','HA 6','HA 7','HA 8','HA 9','HA 10','HA 11','HA 12','HA 13','HA 14','HA 15','HA 16','HA 17','HA 18','HA 19']  
+ha_goals = ['.*HA 1".*','.*HA 2.*','.*HA 3.*','.*HA 4.*','.*HA 5.*','.*HA 6.*','.*HA 7.*','.*HA 8.*','.*HA 9.*','.*HA 10.*','.*HA 11.*','.*HA 12.*','.*HA 13.*','.*HA 14.*','.*HA 15.*','.*HA 16.*','.*HA 17.*','.*HA 18.*','.*HA 19.*']
 
 @login_required(login_url="/login/")
 def index(request):
@@ -305,7 +314,7 @@ def iheVisualisation(request):
     # Get the visualisation data from MongoDB
     client = pymongo.MongoClient(get_details('MONGO_DB', 'client'))
     col = client.Scopus.Visualisations
-    data = list(col.find())[0]
+    data = list(col.find())[1]
 
     # Generate the context for IHE specific PyLDAvis and t-SNE visualisations
     context = {
@@ -315,6 +324,26 @@ def iheVisualisation(request):
     }
     client.close()
     return render(request, "ihe_model_vis.html", context)
+
+@login_required(login_url="/login/")
+def haVisualisation(request):
+    """
+        Returns the render for the HA Visualisation page
+    """
+
+    # Get the visualisation data from MongoDB
+    client = pymongo.MongoClient(get_details('MONGO_DB', 'client'))
+    col = client.Scopus.Visualisations
+    data = list(col.find())[3]
+
+    # Generate the context for IHE specific PyLDAvis and t-SNE visualisations
+    context = {
+        "pylda": data['PyLDA_ha'],
+        "tsne": data['TSNE_ha'],
+        "segment": "haVisualisation"
+    }
+    client.close()
+    return render(request, "ha_model_vis.html", context)
 
 @login_required(login_url="/login/")
 def selectSDGorFaculty(request):
@@ -334,7 +363,7 @@ def sdgVisualisation(request):
     # Get the visualisation data from MongoDB
     client = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
     col = client.Scopus.Visualisations
-    data = list(col.find())[1]
+    data = list(col.find())[0]
 
     # Generate the context for SDG specific PyLDAvis and t-SNE visualisations
     context = {
@@ -417,7 +446,11 @@ def SDG1(request):
     """
         Returns the render for the sdg graph
     """
-    
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 1", labels = {"Faculty":"Faculties",
+    "SDG 1": "Number of Modules Corresponding to SDG 1"})
+    figure.write_image("core/static/SDG1.png")
+
     return render(request, 'SDG1.html')
 
 @login_required(login_url="/login/")
@@ -425,7 +458,11 @@ def SDG2(request):
     """
         Returns the render for the sdg graph
     """
-    
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 2", labels = {"Faculty":"Faculties",
+    "SDG 2": "Number of Modules Corresponding to SDG 2"})
+    figure.write_image("core/static/SDG2.png")
+
     return render(request, 'SDG2.html')
 
 @login_required(login_url="/login/")
@@ -433,6 +470,10 @@ def SDG3(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 3", labels = {"Faculty":"Faculties",
+    "SDG 3": "Number of Modules Corresponding to SDG 3"})
+    figure.write_image("core/static/SDG3.png")
     
     return render(request, 'SDG3.html')
 
@@ -441,6 +482,10 @@ def SDG4(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 4", labels = {"Faculty":"Faculties",
+    "SDG 4": "Number of Modules Corresponding to SDG 4"})
+    figure.write_image("core/static/SDG4.png")
     
     return render(request, 'SDG4.html')
 
@@ -449,6 +494,10 @@ def SDG5(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 5", labels = {"Faculty":"Faculties",
+    "SDG 5": "Number of Modules Corresponding to SDG 5"})
+    figure.write_image("core/static/SDG5.png")
     
     return render(request, 'SDG5.html')
 
@@ -457,6 +506,10 @@ def SDG6(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 6", labels = {"Faculty":"Faculties",
+    "SDG 6": "Number of Modules Corresponding to SDG 6"})
+    figure.write_image("core/static/SDG6.png")
     
     return render(request, 'SDG6.html')
 
@@ -465,7 +518,11 @@ def SDG7(request):
     """
         Returns the render for the sdg graph
     """
-    
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 7", labels = {"Faculty":"Faculties",
+    "SDG 7": "Number of Modules Corresponding to SDG 7"})
+    figure.write_image("core/static/SDG7.png")
+
     return render(request, 'SDG7.html')
 
 @login_required(login_url="/login/")
@@ -473,6 +530,10 @@ def SDG8(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 8", labels = {"Faculty":"Faculties",
+    "SDG 8": "Number of Modules Corresponding to SDG 8"})
+    figure.write_image("core/static/SDG8.png")
     
     return render(request, 'SDG8.html')
 
@@ -481,6 +542,10 @@ def SDG9(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 9", labels = {"Faculty":"Faculties",
+    "SDG 9": "Number of Modules Corresponding to SDG 9"})
+    figure.write_image("core/static/SDG9.png")
     
     return render(request, 'SDG9.html')
 
@@ -489,6 +554,10 @@ def SDG10(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 10", labels = {"Faculty":"Faculties",
+    "SDG 10": "Number of Modules Corresponding to SDG 10"})
+    figure.write_image("core/static/SDG10.png")
     
     return render(request, 'SDG10.html')
 
@@ -497,7 +566,11 @@ def SDG11(request):
     """
         Returns the render for the sdg graph
     """
-    
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 11", labels = {"Faculty":"Faculties",
+    "SDG 11": "Number of Modules Corresponding to SDG 11"})
+    figure.write_image("core/static/SDG11.png")
+
     return render(request, 'SDG11.html')
 
 @login_required(login_url="/login/")
@@ -505,6 +578,10 @@ def SDG12(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 12", labels = {"Faculty":"Faculties",
+    "SDG 12": "Number of Modules Corresponding to SDG 12"})
+    figure.write_image("core/static/SDG12.png")
     
     return render(request, 'SDG12.html')
 
@@ -513,6 +590,10 @@ def SDG13(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 13", labels = {"Faculty":"Faculties",
+    "SDG 13": "Number of Modules Corresponding to SDG 13"})
+    figure.write_image("core/static/SDG13.png")
     
     return render(request, 'SDG13.html')
 
@@ -521,6 +602,10 @@ def SDG14(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 14", labels = {"Faculty":"Faculties",
+    "SDG 14": "Number of Modules Corresponding to SDG 14"})
+    figure.write_image("core/static/SDG14.png")
     
     return render(request, 'SDG14.html')
 
@@ -529,6 +614,10 @@ def SDG15(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 15", labels = {"Faculty":"Faculties",
+    "SDG 15": "Number of Modules Corresponding to SDG 15"})
+    figure.write_image("core/static/SDG15.png")
     
     return render(request, 'SDG15.html')
 
@@ -537,6 +626,10 @@ def SDG16(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 16", labels = {"Faculty":"Faculties",
+    "SDG 16": "Number of Modules Corresponding to SDG 16"})
+    figure.write_image("core/static/SDG16.png")
     
     return render(request, 'SDG16.html')
 
@@ -545,14 +638,26 @@ def SDG17(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG()
+    figure = px.bar(data, x = 'Faculty', y = "SDG 17", labels = {"Faculty":"Faculties",
+    "SDG 17": "Number of Modules Corresponding to SDG 17"})
+    figure.write_image("core/static/SDG17.png")
     
     return render(request, 'SDG17.html')
+
 
 @login_required(login_url="/login/")
 def Faculty1(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["1"], labels = {"Faculty":"SDGs",
+    FacultyIndex["1"]:"Number of Modules Corresponding to Faculty 1"})
+    figure.write_image("core/static/Faculty1.png")
     
     return render(request, 'Faculty1.html')
 
@@ -561,6 +666,13 @@ def Faculty2(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["2"], labels = {"Faculty":"SDGs",
+    FacultyIndex["2"]:"Number of Modules Corresponding to Faculty 2"})
+    figure.write_image("core/static/Faculty2.png")
     
     return render(request, 'Faculty2.html')
 
@@ -569,6 +681,13 @@ def Faculty3(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["3"], labels = {"Faculty":"SDGs",
+    FacultyIndex["3"]:"Number of Modules Corresponding to Faculty 3"})
+    figure.write_image("core/static/Faculty3.png")
     
     return render(request, 'Faculty3.html')
 
@@ -577,6 +696,13 @@ def Faculty4(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["4"], labels = {"Faculty":"SDGs",
+    FacultyIndex["4"]:"Number of Modules Corresponding to Faculty 4"})
+    figure.write_image("core/static/Faculty4.png")
     
     return render(request, 'Faculty4.html')
 
@@ -585,6 +711,13 @@ def Faculty5(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["5"], labels = {"Faculty":"SDGs",
+    FacultyIndex["5"]:"Number of Modules Corresponding to Faculty 5"})
+    figure.write_image("core/static/Faculty5.png")
     
     return render(request, 'Faculty5.html')
 
@@ -593,6 +726,13 @@ def Faculty6(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["6"], labels = {"Faculty":"SDGs",
+    FacultyIndex["6"]:"Number of Modules Corresponding to Faculty 6"})
+    figure.write_image("core/static/Faculty6.png")
     
     return render(request, 'Faculty6.html')
 
@@ -601,6 +741,13 @@ def Faculty7(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["7"], labels = {"Faculty":"SDGs",
+    FacultyIndex["7"]:"Number of Modules Corresponding to Faculty 7"})
+    figure.write_image("core/static/Faculty7.png")
     
     return render(request, 'Faculty7.html')
 
@@ -609,6 +756,13 @@ def Faculty8(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["8"], labels = {"Faculty":"SDGs",
+    FacultyIndex["8"]:"Number of Modules Corresponding to Faculty 8"})
+    figure.write_image("core/static/Faculty8.png")
     
     return render(request, 'Faculty8.html')
 
@@ -617,6 +771,13 @@ def Faculty9(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["9"], labels = {"Faculty":"SDGs",
+    FacultyIndex["9"]:"Number of Modules Corresponding to Faculty 9"})
+    figure.write_image("core/static/Faculty9.png")
     
     return render(request, 'Faculty9.html')
 
@@ -625,6 +786,13 @@ def Faculty10(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["10"], labels = {"Faculty":"SDGs",
+    FacultyIndex["10"]:"Number of Modules Corresponding to Faculty 10"})
+    figure.write_image("core/static/Faculty10.png")
     
     return render(request, 'Faculty10.html')
 
@@ -633,6 +801,13 @@ def Faculty11(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameSDG().drop(columns = "Misc")
+    data2 = data.T
+    data3 = data2.reset_index(level = 0)
+    data4=data3.rename(columns=data3.iloc[0]).drop(data3.index[0])
+    figure = px.bar(data4, x = "Faculty", y = FacultyIndex["11"], labels = {"Faculty":"SDGs",
+    FacultyIndex["11"]:"Number of Modules Corresponding to Faculty 11"})
+    figure.write_image("core/static/Faculty11.png")
     
     return render(request, 'Faculty11.html')
 
@@ -642,8 +817,228 @@ def HA1(request):
     """
         Returns the render for the sdg graph
     """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 1", labels = {"Faculty":"Faculties",
+    "HA1":"Number of Modules Corresponding to HA 1"})
+    figure.write_image("core/static/HA1.png")
     
     return render(request, 'HA1.html')
+
+@login_required(login_url="/login/")
+def HA2(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 2", labels = {"Faculty":"Faculties",
+    "HA2":"Number of Modules Corresponding to HA 2"})
+    figure.write_image("core/static/HA2.png")
+    
+    return render(request, 'HA2.html')
+
+@login_required(login_url="/login/")
+def HA3(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 3", labels = {"Faculty":"Faculties",
+    "HA3":"Number of Modules Corresponding to HA 3"})
+    figure.write_image("core/static/HA3.png")
+    
+    return render(request, 'HA3.html')
+
+@login_required(login_url="/login/")
+def HA4(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 4", labels = {"Faculty":"Faculties",
+    "HA4":"Number of Modules Corresponding to HA 4"})
+    figure.write_image("core/static/HA4.png")
+    
+    return render(request, 'HA4.html')
+
+@login_required(login_url="/login/")
+def HA5(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 5", labels = {"Faculty":"Faculties",
+    "HA5":"Number of Modules Corresponding to HA 5"})
+    figure.write_image("core/static/HA5.png")
+    
+    return render(request, 'HA5.html')
+
+@login_required(login_url="/login/")
+def HA6(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 6", labels = {"Faculty":"Faculties",
+    "HA6":"Number of Modules Corresponding to HA 6"})
+    figure.write_image("core/static/HA6.png")
+    
+    return render(request, 'HA6.html')
+
+@login_required(login_url="/login/")
+def HA7(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 7", labels = {"Faculty":"Faculties",
+    "HA7":"Number of Modules Corresponding to HA 7"})
+    figure.write_image("core/static/HA7.png")
+    
+    return render(request, 'HA7.html')
+
+@login_required(login_url="/login/")
+def HA8(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 8", labels = {"Faculty":"Faculties",
+    "HA8":"Number of Modules Corresponding to HA 8"})
+    figure.write_image("core/static/HA8.png")
+    
+    return render(request, 'HA8.html')
+
+@login_required(login_url="/login/")
+def HA9(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 9", labels = {"Faculty":"Faculties",
+    "HA9":"Number of Modules Corresponding to HA 9"})
+    figure.write_image("core/static/HA9.png")
+    
+    return render(request, 'HA9.html')
+
+@login_required(login_url="/login/")
+def HA10(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 10", labels = {"Faculty":"Faculties",
+    "HA10":"Number of Modules Corresponding to HA 10"})
+    figure.write_image("core/static/HA10.png")
+    
+    return render(request, 'HA10.html')
+
+@login_required(login_url="/login/")
+def HA11(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 11", labels = {"Faculty":"Faculties",
+    "HA11":"Number of Modules Corresponding to HA 11"})
+    figure.write_image("core/static/HA11.png")
+    
+    return render(request, 'HA11.html')
+
+@login_required(login_url="/login/")
+def HA12(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 12", labels = {"Faculty":"Faculties",
+    "HA12":"Number of Modules Corresponding to HA 12"})
+    figure.write_image("core/static/HA12.png")
+    
+    return render(request, 'HA12.html')
+
+@login_required(login_url="/login/")
+def HA13(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 13", labels = {"Faculty":"Faculties",
+    "HA13":"Number of Modules Corresponding to HA 13"})
+    figure.write_image("core/static/HA13.png")
+    
+    return render(request, 'HA13.html')
+
+@login_required(login_url="/login/")
+def HA14(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 14", labels = {"Faculty":"Faculties",
+    "HA14":"Number of Modules Corresponding to HA 14"})
+    figure.write_image("core/static/HA14.png")
+    
+    return render(request, 'HA14.html')
+
+@login_required(login_url="/login/")
+def HA15(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 15", labels = {"Faculty":"Faculties",
+    "HA15":"Number of Modules Corresponding to HA 15"})
+    figure.write_image("core/static/HA15.png")
+    
+    return render(request, 'HA15.html')
+
+@login_required(login_url="/login/")
+def HA16(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 16", labels = {"Faculty":"Faculties",
+    "HA16":"Number of Modules Corresponding to HA 16"})
+    figure.write_image("core/static/HA16.png")
+    
+    return render(request, 'HA16.html')
+
+@login_required(login_url="/login/")
+def HA17(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 17", labels = {"Faculty":"Faculties",
+    "HA17":"Number of Modules Corresponding to HA 17"})
+    figure.write_image("core/static/HA17.png")
+    
+    return render(request, 'HA17.html')
+
+@login_required(login_url="/login/")
+def HA18(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 18", labels = {"Faculty":"Faculties",
+    "HA18":"Number of Modules Corresponding to HA 18"})
+    figure.write_image("core/static/HA18.png")
+    
+    return render(request, 'HA18.html')
+
+@login_required(login_url="/login/")
+def HA19(request):
+    """
+        Returns the render for the sdg graph
+    """
+    data = dataFrameHA()
+    figure = px.bar(data, x = "Faculty", y = "HA 19", labels = {"Faculty":"Faculties",
+    "HA19":"Number of Modules Corresponding to HA 19"})
+    figure.write_image("core/static/HA19.png")
+    
+    return render(request, 'HA19.html')
 
 @login_required(login_url="/login/")
 def HaIndex(request):
@@ -659,19 +1054,26 @@ def viewInformationSDG(request):
         Returns the render for the sdg table
 
     """
+    url = request.META.get('HTTP_REFERER')
+    sdg_key = url[-1]
+
     connection = getSQL_connection()
     cursor = connection.cursor()
-    query = """SELECT testmodassign.SDG, COUNT(DISTINCT testmodassign.Module_ID), SUM(studentspermodule.NumberOfStudents)
-                FROM testmodassign
-                INNER JOIN studentspermodule ON testmodassign.Module_ID=studentspermodule.ModuleID 
-                GROUP BY testmodassign.SDG;"""
-    result = cursor.execute(query)
+    query = """SELECT moduledata.Faculty, moduledata.Module_ID, studentspermodule.NumberOfStudents FROM studentspermodule
+            INNER JOIN moduledata ON studentspermodule.ModuleID = moduledata.Module_ID
+            INNER JOIN testmodassign ON studentspermodule.ModuleID = testmodassign.Module_ID
+            WHERE testmodassign.SDG = "{0}"
+            ORDER BY Faculty;
+                """
+    query2 = query.format(sdg_key)
+
+    result = cursor.execute(query2)
     sdgs = result.fetchall()
     context = list()
     for sdg in sdgs:
-         context.append({"Faculties": sdgs[0],
-            "Module Code": sdgs[1],
-            "Number of Students":sdgs[2] })
+         context.append({"Faculties": sdg[0],
+            "Module_Code": sdg[1],
+            "Number_of_Students":sdg[2] })
 
     return render(request, 'viewInformationSDG.html', {"context": context})
 
@@ -681,13 +1083,28 @@ def viewInformationFaculty(request):
         Returns the render for the faculty table
 
     """
-    #connection = getSQL_connection()
+    url = request.META.get('HTTP_REFERER')
+    sdg_key = url[-1]
+    faculty = FacultyIndex[sdg_key]
+    connection = getSQL_connection()
+    cursor = connection.cursor()
+    query = """SELECT DISTINCT testmodassign.SDG, moduledata.Module_ID, studentspermodule.NumberOfStudents FROM studentspermodule
+            INNER JOIN moduledata ON studentspermodule.ModuleID = moduledata.Module_ID
+            INNER JOIN testmodassign ON studentspermodule.ModuleID = testmodassign.Module_ID
+            WHERE moduledata.Faculty = "{0}"
+            ORDER BY SDG;
+                """
+    query2 = query.format(faculty)
 
+    result = cursor.execute(query2)
+    sdgs = result.fetchall()
+    context = list()
+    for sdg in sdgs:
+         context.append({"SDG": sdg[0],
+            "Module_Code": sdg[1],
+            "Number_of_Students":sdg[2] })
 
-    #context = {"Faculties": ,
-            #"Modules": ,
-            #"Number of Students": }
-    return render(request, 'viewInformationFaculty.html')
+    return render(request, 'viewInformationFaculty.html', {"context": context})
 
 @login_required(login_url="/login/")
 def viewInformationHA(request):
@@ -695,13 +1112,38 @@ def viewInformationHA(request):
         Returns the render for the ha table
 
     """
-    #connection = getSQL_connection()
+    url = request.META.get('HTTP_REFERER')
+    ha_key = url[-1]
 
+    module_list_ha = getHaModuleList(ha_key)
 
-    #context = {"Faculties": ,
-            #"Modules": ,
-            #"Number of Students": }
-    return render(request, 'viewInformationHA.html')
+    connection = getSQL_connection()
+    cursor = connection.cursor()
+    query = """SELECT studentspermodule.ModuleID, studentspermodule.NumberOfStudents FROM studentspermodule
+                ORDER BY ModuleID;
+                """
+    result = cursor.execute(query)
+    has = result.fetchall()
+    all_modules = list()
+    context = list()
+    for ha in has:
+        if ha[1] == None:
+            ha[1] = "0"
+        all_modules.append({"Module_Code": ha[0].replace("\x00", ""),
+            "Number_of_Students": ha[1].replace("\x00", "")})
+    for i in range(len(module_list_ha)):
+        for j in range(len(all_modules)):
+            if module_list_ha[i]["Module_Code"] == all_modules[j]["Module_Code"]:
+                module_list_ha[i]["Number_of_Students"] = all_modules[j]["Number_of_Students"]
+                context.append(module_list_ha[i])
+    context2 = list()
+    for i in range(len(context)-1):
+        if context[i]["Module_Code"] == context[i+1]["Module_Code"]:
+            context2.append(context[i])
+
+    #pass modules and faculty from mongodb and compare module id to get the number of students
+
+    return render(request, 'viewInformationHA.html', {"context": context2})
 
 
 
@@ -1167,6 +1609,262 @@ def getSQL_connection():
 
     return myConnection
 
+def getSQL_connection_for_csv():
+    """
+        Returns MySQL connection object using pymysql 
+    """
+    con_sql = pymysql.connect(host="localhost", port=3306, db="mysqlmiemie", user="root", password="Gomeni73")
+
+    return con_sql
+
+def dataFrameHA():
+
+    df = pd.read_csv("ha_csv_new.csv")
+
+    return df
+
+def dataFrameHA2():
+
+    df = pd.read_csv("ha_csv_new2.csv")
+
+    return df
+
+def dataFrameSDG():
+
+    df = pd.read_csv("sdg_csv_new.csv")
+
+    return df
+
+def dataFrameSDG2():
+
+    df = pd.read_csv("sdg_csv_new2.csv")
+
+    return df
+
+def getHaModuleList(ha_goal):
+
+    df = dataFrameHA2()
+    mylist = list()
+    for i in range(0,11):
+        data=df["HA "+ha_goal][i]
+        faculty=df["Faculty"][i]
+        data2 = data.split(",")
+        for j in data2:
+            newitem = re.sub('[^a-zA-Z0-9]+', '', j)
+            mylist.append({"Faculty":faculty, "Module_Code": newitem})
+    
+    return mylist
+
+
+def generate_csv_file_ha(self):
+        con_mongo = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
+        con_sql = getSQL_connection_for_csv()
+        cursor = con_sql.cursor(pymysql.cursors.DictCursor)
+        db = con_mongo.Scopus
+        collection = db.MatchedHAModules
+        with open("ha_csv_new.csv","w+",encoding='utf-8') as file:
+             csv_writer = csv.writer(file)
+             csv_writer.writerow(["Faculty","HA 1","HA 2","HA 3","HA 4","HA 5","HA 6","HA 7","HA 8","HA 9","HA 10","HA 11","HA 12","HA 13","HA 14","HA 15","HA 16","HA 17","HA 18","HA 19"])
+             for a in self.Faculty:
+                newlist = []
+                for b in range(0,len(self.ha_goals)):
+                #--------------------------------------------------------------
+                    ha_file1 = self.ha_goals[b]
+                    ha_file = ha_file1.replace(" ",'')
+                    if len(ha_file) == 8:
+                        ha_file = ha_file[2:6]
+                    elif len(ha_file) == 9 and ha_file[6] != "\"":
+                        ha_file = ha_file[2:7]
+                    else:
+                        ha_file = ha_file[2:6]
+                    ha_list_id = []
+                    result = collection.find({"Related_HA"+"."+self.ha_goals_no_regex[b]: {'$exists': True}})
+                    for i in result:
+                        ha_list_id.append(i["Module_ID"])
+                    ha_list_faculty = []
+                    sql = "SELECT * FROM moduledata"
+                    # execute SQL
+                    cursor.execute(sql)
+                    # get SQL data
+                    results = cursor.fetchall()
+                    for row in results:
+                        id = row['Module_ID']
+                        faculty = row['Faculty']
+                        for i in ha_list_id:
+                            if i == row['Module_ID']:
+                                ha_list_faculty.append(faculty)
+                    newlist.append(ha_list_faculty)
+                                   
+                    #----------------------------------------------------------------------------
+                csv_writer.writerow([a,newlist[0].count(a),newlist[1].count(a),newlist[2].count(a),newlist[3].count(a),newlist[4].count(a),newlist[5].count(a),newlist[6].count(a),newlist[7].count(a),newlist[8].count(a),newlist[9].count(a),newlist[10].count(a),newlist[11].count(a),newlist[12].count(a),newlist[13].count(a),newlist[14].count(a),newlist[15].count(a),newlist[16].count(a),newlist[17].count(a),newlist[18].count(a)])
+        # close SQL
+        con_sql.close()
+
+def generate_csv_file_ha_2(self):
+        con_mongo = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
+        con_sql = getSQL_connection_for_csv()
+        cursor = con_sql.cursor(pymysql.cursors.DiclocalhosttCursor)
+        db = con_mongo.Scopus
+        collection = db.MatchedHAModules
+        with open("ha_csv_new2.csv","w+",encoding='utf-8') as file:
+             csv_writer = csv.writer(file)
+             csv_writer.writerow(["Faculty","HA 1","HA 2","HA 3","HA 4","HA 5","HA 6","HA 7","HA 8","HA 9","HA 10","HA 11","HA 12","HA 13","HA 14","HA 15","HA 16","HA 17","HA 18","HA 19"])
+             for a in self.Faculty:
+                newlist = []
+                for b in range(0,len(self.ha_goals)):
+                #--------------------------------------------------------------
+                    ha_file1 = self.ha_goals[b]
+                    ha_file = ha_file1.replace(" ",'')
+                    if len(ha_file) == 8:
+                        ha_file = ha_file[2:6]
+                    elif len(ha_file) == 9 and ha_file[6] != "\"":
+                        ha_file = ha_file[2:7]
+                    else:
+                        ha_file = ha_file[2:6]
+                    ha_list_id = []
+                    result = collection.find({"Related_HA"+"."+self.ha_goals_no_regex[b]: {'$exists': True}})
+                    for i in result:
+                        ha_list_id.append(i["Module_ID"])
+                    ha_list_faculty = []
+                    ha_list_mod = []
+                    sql = "SELECT * FROM moduledata"
+                    # execute SQL
+                    cursor.execute(sql)
+                    # get SQL data
+                    results = cursor.fetchall()           
+                    for row in results:
+                        id = row['Module_ID']
+                        faculty = row['Faculty']
+                        for i in ha_list_id:
+                            if i == row['Module_ID']:
+                                res = []
+                                res.append(id)
+                                res.append(faculty)
+                                ha_list_mod.append(res)
+                    
+                    ha_mod_res = []
+                    for j in range( 0, len(ha_list_mod)):
+                            if ha_list_mod[j][1] == a:
+                                ha_mod_res.append(ha_list_mod[j][0])
+                    if ha_mod_res == []:
+                        newlist.append("")
+                    else:
+                        newlist.append(ha_mod_res)
+                    
+                    #----------------------------------------------------------------------------
+                csv_writer.writerow([a,newlist[0],newlist[1],newlist[2],newlist[3],newlist[4],newlist[5],newlist[6],newlist[7],newlist[8],newlist[9],newlist[10],newlist[11],newlist[12],newlist[13],newlist[14],newlist[15],newlist[16],newlist[17],newlist[18]])
+        # close SQL
+        con_sql.close()
+
+def generate_csv_file_sdg(self):
+        con_mongo = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
+        con_sql = getSQL_connection_for_csv()
+        cursor = con_sql.cursor(pymysql.cursors.DictCursor)
+        db = con_mongo.Scopus
+        collection = db.MatchedModules
+        with open("sdg_csv_new.csv","w+",encoding='utf-8') as file:
+             csv_writer = csv.writer(file)
+             csv_writer.writerow(["Faculty","SDG 1","SDG 2","SDG 3","SDG 4","SDG 5","SDG 6","SDG 7","SDG 8","SDG 9","SDG 10","SDG 11","SDG 12","SDG 13","SDG 14","SDG 15","SDG 16","SDG 17","Misc"])
+             for a in self.Faculty:
+                newlist = []
+                for b in range(0,len(self.sdg_goals)):
+                #--------------------------------------------------------------
+                    sdg_file1 = self.sdg_goals[b]
+                    sdg_file = sdg_file1.replace(" ",'')
+                    if len(sdg_file) == 8:
+                        sdg_file = sdg_file[2:6]
+                    elif len(sdg_file) == 9 and sdg_file[6] != "\"":
+                        sdg_file = sdg_file[2:7]
+                    else:
+                        sdg_file = sdg_file[2:6]
+                    sdg_list_id = []
+                    result = collection.find({"Related_SDG"+"."+self.sdg_goals_no_regex[b]: {'$exists': True}})
+                    for i in result:
+                        sdg_list_id.append(i["Module_ID"])
+                    sdg_list_faculty = []
+                    sql = "SELECT * FROM moduledata"
+                    # execute SQL
+                    cursor.execute(sql)
+                    # get SQL data
+                    results = cursor.fetchall()
+                    for row in results:
+                        id = row['Module_ID']
+                        faculty = row['Faculty']
+                        for i in sdg_list_id:
+                            if i == row['Module_ID']:
+                                sdg_list_faculty.append(faculty)
+                    newlist.append(sdg_list_faculty)
+                                   
+                    #----------------------------------------------------------------------------
+                csv_writer.writerow([a,newlist[0].count(a),newlist[1].count(a),newlist[2].count(a),newlist[3].count(a),newlist[4].count(a),newlist[5].count(a),newlist[6].count(a),newlist[7].count(a),newlist[8].count(a),newlist[9].count(a),newlist[10].count(a),newlist[11].count(a),newlist[12].count(a),newlist[13].count(a),newlist[14].count(a),newlist[15].count(a),newlist[16].count(a),newlist[17].count(a)])
+        # close SQL
+        con_sql.close()
+
+def generate_csv_file_sdg_2(self):
+        con_mongo = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
+        con_sql = getSQL_connection_for_csv()
+        cursor = con_sql.cursor(pymysql.cursors.DictCursor)
+        db = con_mongo.Scopus
+        collection = db.MatchedModules
+        with open("sdg_csv_new2.csv","w+",encoding='utf-8') as file:
+             csv_writer = csv.writer(file)
+             csv_writer.writerow(["Faculty","SDG 1","SDG 2","SDG 3","SDG 4","SDG 5","SDG 6","SDG 7","SDG 8","SDG 9","SDG 10","SDG 11","SDG 12","SDG 13","SDG 14","SDG 15","SDG 16","SDG 17","Misc"])
+             for a in self.Faculty:
+                newlist = []
+                for b in range(0,len(self.sdg_goals)):
+                #--------------------------------------------------------------
+                    sdg_file1 = self.sdg_goals[b]
+                    sdg_file = sdg_file1.replace(" ",'')
+                    if len(sdg_file) == 8:
+                        sdg_file = sdg_file[2:6]
+                    elif len(sdg_file) == 9 and sdg_file[6] != "\"":
+                        sdg_file = sdg_file[2:7]
+                    else:
+                        sdg_file = sdg_file[2:6]
+                    sdg_list_id = []
+                    result = collection.find({"Related_SDG"+"."+self.sdg_goals_no_regex[b]: {'$exists': True}})
+                    for i in result:
+                        sdg_list_id.append(i["Module_ID"])
+                    sdg_list_faculty = []
+                    sdg_list_mod = []
+                    sql = "SELECT * FROM moduledata"
+                    # execute SQL
+                    cursor.execute(sql)
+                    # get SQL data
+                    results = cursor.fetchall()           
+                    for row in results:
+                        id = row['Module_ID']
+                        faculty = row['Faculty']
+                        for i in sdg_list_id:
+                            if i == row['Module_ID']:
+                                res = []
+                                res.append(id)
+                                res.append(faculty)
+                                sdg_list_mod.append(res)
+                    
+                    sdg_mod_res = []
+                    for j in range( 0, len(sdg_list_mod)):
+                            if sdg_list_mod[j][1] == a:
+                                sdg_mod_res.append(sdg_list_mod[j][0])
+                    if sdg_mod_res == []:
+                        newlist.append("")
+                    else:
+                        newlist.append(sdg_mod_res)
+                    
+                    #----------------------------------------------------------------------------
+                csv_writer.writerow([a,newlist[0],newlist[1],newlist[2],newlist[3],newlist[4],newlist[5],newlist[6],newlist[7],newlist[8],newlist[9],newlist[10],newlist[11],newlist[12],newlist[13],newlist[14],newlist[15],newlist[16],newlist[17]])
+        # close SQL
+        con_sql.close()
+
+@login_required(login_url="/login/")
+def refreshCsvFiles(request):
+    generate_csv_file_ha()
+    generate_csv_file_ha_2()
+    generate_csv_file_sdg()
+    generate_csv_file_sdg_2()
+
+    return render(request, "refresh_csv.html")
+
 
 @login_required(login_url="/login/")
 def tableauVisualisation(request):
@@ -1283,100 +1981,34 @@ def tableauVisualisation(request):
 
 @login_required(login_url="/login/")
 def tableauVisualisationHA(request):
-    curr = getSQL_connection().cursor()
-    checkboxes = {'value1': '', 'value2': '', 'value3': ''}
+    module_list_ha = list()
+    for i in range(1,20):
+        module_list_ha += getHaModuleList(str(i))
 
-    hue = random.randrange(0, 360)
-    saturation = random.uniform(0, 1)
-    luminance = random.uniform(30, 70)
-    rgb = colorsys.hsv_to_rgb(hue, saturation, luminance)
+    connection = getSQL_connection()
+    cursor = connection.cursor()
+    query = """SELECT moduledata.Module_Name, studentspermodule.ModuleID, studentspermodule.NumberOfStudents FROM studentspermodule
+                INNER JOIN moduledata ON moduledata.Module_ID = studentspermodule.ModuleID
+                ORDER BY ModuleID;
+                """
+    result = cursor.execute(query)
+    has = result.fetchall()
+    all_modules = list()
+    context = list()
+    for ha in has:
+        if ha[2] == None:
+            ha[2] = "0"
+        all_modules.append({"Module_Name": ha[0], "Module_Code": ha[1].replace("\x00", ""),
+            "Number_of_Students": ha[2].replace("\x00", "")})
+    for i in range(len(module_list_ha)):
+        for j in range(len(all_modules)):
+            if module_list_ha[i]["Module_Code"] == all_modules[j]["Module_Code"]:
+                module_list_ha[i]["Module_Name"] = all_modules[j]["Module_Name"]
+                module_list_ha[i]["Number_of_Students"] = all_modules[j]["Number_of_Students"]
+                context.append(module_list_ha[i])
+    context2 = list()
+    for i in range(len(context)-1):
+        if context[i]["Module_Code"] == context[i+1]["Module_Code"]:
+            context2.append(context[i])
 
-    if request.method == 'GET':
-        query = request.GET.get('exampleRadios')
-
-        if query == "sdg_bubble":
-            query = """
-                SELECT testmodassign.SDG, COUNT(DISTINCT testmodassign.Module_ID), SUM(studentspermodule.NumberOfStudents)
-                FROM [dbo].[testmodassign]
-                INNER JOIN studentspermodule ON testmodmssign.Module_ID=studentspermodule.ModuleID 
-                GROUP BY testmodassign.SDG;"""
-            curr.execute(query)
-            sdg_bubbles = curr.fetchall()  # (assigned sdg, module id, number of students)
-            module_bubble_list = list()
-            for sdg in sdg_bubbles:
-                module_bubble_list.append({
-                    'SDG': str(sdg[0]),
-                    'Number_Students': sdg[2],
-                    'Number_Modules': sdg[1]
-                })
-
-            checkboxes['value1'] = 'checked'
-            checkboxes['value2'] = ''
-            checkboxes['value3'] = ''
-            return render(request, 'tableau_vis_ha.html',
-                          {'selector': 'modules', 'bubble_list': module_bubble_list, 'radios': checkboxes,
-                           'segment': tableauVisualisation})
-
-        if query == "department_sdg_bubble":
-            query = """
-                SELECT ModuleData.Department_Name, COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)), SUM(StudentsPerModule.NumberOfStudents) FROM [dbo].[ModuleData]
-                INNER JOIN TestModAssign ON ModuleData.Module_ID = TestModAssign.Module_ID
-                INNER JOIN StudentsPerModule ON ModuleData.Module_ID = StudentsPerModule.ModuleID
-                GROUP BY ModuleData.Department_Name;"""
-            curr.execute(query)
-            department_bubble_sdg = curr.fetchall()  # (department name, num of modules, sdg coverage, num of students)
-            department_bubble_list = list()
-            for departments in department_bubble_sdg:
-                department_bubble_list.append({
-                    'Department': departments[0],
-                    'Number_Modules': departments[1],
-                    'SDG_Count': departments[2],
-                    'Number_Students': departments[3]
-                })
-
-            colour_dict = {}
-            for departments in department_bubble_list:
-                h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
-                r, g, b = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
-                rgb = (round(r), round(g), round(b))
-                colour_dict[str(departments['Department'])
-                ] = '#%02x%02x%02x' % rgb
-
-            checkboxes['value1'] = ''
-            checkboxes['value2'] = 'checked'
-            checkboxes['value3'] = ''
-            return render(request, 'tableau_vis_ha.html',
-                          {'selector': 'departments', 'bubble_list': department_bubble_list, 'colours': colour_dict,
-                           'radios': checkboxes, 'segment': tableauVisualisation})
-
-        if query == "faculty_sdg_bubble":
-            query = """
-                SELECT ModuleData.Faculty, SUM(StudentsPerModule.NumberOfStudents), COUNT(TestModAssign.Module_ID), COUNT(DISTINCT(TestModAssign.SDG)) FROM [dbo].[StudentsPerModule]
-                INNER JOIN ModuleData ON StudentsPerModule.ModuleID = ModuleData.Module_ID
-                INNER JOIN TestModAssign ON StudentsPerModule.ModuleID = TestModAssign.Module_ID
-                GROUP BY ModuleData.Faculty;"""
-            curr.execute(query)
-            faculty_bubble_sdg = curr.fetchall()
-            faculty_bubble_list = list()
-            for faculties in faculty_bubble_sdg:
-                faculty_bubble_list.append({
-                    'Faculty': faculties[0],
-                    'Number_Modules': faculties[2],
-                    'SDG_Count': faculties[3],
-                    'Number_Students': faculties[1]
-                })
-
-            colour_dict = {}
-            for faculties in faculty_bubble_list:
-                h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
-                r, g, b = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
-                rgb = (round(r), round(g), round(b))
-                colour_dict[str(faculties['Faculty'])] = '#%02x%02x%02x' % rgb
-
-            checkboxes['value1'] = ''
-            checkboxes['value2'] = ''
-            checkboxes['value3'] = 'checked'
-            return render(request, 'tableau_vis_ha.html',
-                          {'selector': 'faculties', 'bubble_list': faculty_bubble_list, 'colours': colour_dict,
-                           'radios': checkboxes, 'segment': tableauVisualisation})
-    return render(request, 'tableau_vis_ha.html', {})
+    return render(request, 'tableau_vis_ha.html', {"context": context2})
