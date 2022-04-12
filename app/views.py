@@ -649,7 +649,7 @@ def SDG17(request):
 @login_required(login_url="/login/")
 def Faculty1(request):
     """
-        Returns the render for the sdg graph
+        Returns the render for the faculty graph
     """
     data = dataFrameSDG().drop(columns = "Misc")
     data2 = data.T
