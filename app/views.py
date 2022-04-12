@@ -1605,7 +1605,7 @@ def getSQL_connection():
     """
         Returns MySQL connection object for data retrieval
     """
-    myConnection = pyodbc.connect('DRIVER=/usr/local/mysql-connector-odbc-8.0.28-macos11-x86-64bit/lib/libmyodbc8a.so;SERVER=127.0.0.1;DATABASE=mysqlmiemie;UID=root;PWD=Gomeni73;')
+    myConnection = pyodbc.connect('DRIVER=/home/uclteam43/Downloads/mysql-connector-odbc-8.0.28-linux-glibc2.12-x86-64bit/lib/libmyodbc8a.so;SERVER=127.0.0.1;DATABASE=miemie;UID=root;PWD=UCLmiemie2021;')
 
     return myConnection
 
@@ -1613,7 +1613,7 @@ def getSQL_connection_for_csv():
     """
         Returns MySQL connection object using pymysql 
     """
-    con_sql = pymysql.connect(host="localhost", port=3306, db="mysqlmiemie", user="root", password="Gomeni73")
+    con_sql = pymysql.connect(host="localhost", port=3306, db="miemie", user="root", password="UCLmiemie2021")
 
     return con_sql
 
