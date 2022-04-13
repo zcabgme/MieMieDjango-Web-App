@@ -1605,7 +1605,7 @@ def getSQL_connection():
     """
         Returns MySQL connection object for data retrieval
     """
-    myConnection = pyodbc.connect('DRIVER=/home/uclteam43/Downloads/mysql-connector-odbc-8.0.28-linux-glibc2.12-x86-64bit/lib/libmyodbc8a.so;SERVER=127.0.0.1;DATABASE=miemie;UID=root;PWD=UCLmiemie2021;')
+    myConnection = pyodbc.connect('DRIVER=/home/uclteam43/Downloads/mysql-connector-odbc-8.0.28-linux-glibc2.12-x86-64bit/lib/libmyodbc8w.so;SERVER=127.0.0.1;DATABASE=miemie;UID=root;PWD=UCLmiemie2021;')
 
     return myConnection
 
