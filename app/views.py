@@ -1656,7 +1656,7 @@ def getHaModuleList(ha_goal):
     return mylist
 
 
-def generate_csv_file_ha(self):
+def generate_csv_file_ha():
         con_mongo = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
         con_sql = getSQL_connection_for_csv()
         cursor = con_sql.cursor(pymysql.cursors.DictCursor)
@@ -1665,11 +1665,11 @@ def generate_csv_file_ha(self):
         with open("ha_csv_new.csv","w+",encoding='utf-8') as file:
              csv_writer = csv.writer(file)
              csv_writer.writerow(["Faculty","HA 1","HA 2","HA 3","HA 4","HA 5","HA 6","HA 7","HA 8","HA 9","HA 10","HA 11","HA 12","HA 13","HA 14","HA 15","HA 16","HA 17","HA 18","HA 19"])
-             for a in self.Faculty:
+             for a in Faculty:
                 newlist = []
-                for b in range(0,len(self.ha_goals)):
+                for b in range(0,len(ha_goals)):
                 #--------------------------------------------------------------
-                    ha_file1 = self.ha_goals[b]
+                    ha_file1 = ha_goals[b]
                     ha_file = ha_file1.replace(" ",'')
                     if len(ha_file) == 8:
                         ha_file = ha_file[2:6]
@@ -1678,7 +1678,7 @@ def generate_csv_file_ha(self):
                     else:
                         ha_file = ha_file[2:6]
                     ha_list_id = []
-                    result = collection.find({"Related_HA"+"."+self.ha_goals_no_regex[b]: {'$exists': True}})
+                    result = collection.find({"Related_HA"+"."+ha_goals_no_regex[b]: {'$exists': True}})
                     for i in result:
                         ha_list_id.append(i["Module_ID"])
                     ha_list_faculty = []
@@ -1700,7 +1700,7 @@ def generate_csv_file_ha(self):
         # close SQL
         con_sql.close()
 
-def generate_csv_file_ha_2(self):
+def generate_csv_file_ha_2():
         con_mongo = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
         con_sql = getSQL_connection_for_csv()
         cursor = con_sql.cursor(pymysql.cursors.DiclocalhosttCursor)
@@ -1709,11 +1709,11 @@ def generate_csv_file_ha_2(self):
         with open("ha_csv_new2.csv","w+",encoding='utf-8') as file:
              csv_writer = csv.writer(file)
              csv_writer.writerow(["Faculty","HA 1","HA 2","HA 3","HA 4","HA 5","HA 6","HA 7","HA 8","HA 9","HA 10","HA 11","HA 12","HA 13","HA 14","HA 15","HA 16","HA 17","HA 18","HA 19"])
-             for a in self.Faculty:
+             for a in Faculty:
                 newlist = []
-                for b in range(0,len(self.ha_goals)):
+                for b in range(0,len(ha_goals)):
                 #--------------------------------------------------------------
-                    ha_file1 = self.ha_goals[b]
+                    ha_file1 = ha_goals[b]
                     ha_file = ha_file1.replace(" ",'')
                     if len(ha_file) == 8:
                         ha_file = ha_file[2:6]
@@ -1722,7 +1722,7 @@ def generate_csv_file_ha_2(self):
                     else:
                         ha_file = ha_file[2:6]
                     ha_list_id = []
-                    result = collection.find({"Related_HA"+"."+self.ha_goals_no_regex[b]: {'$exists': True}})
+                    result = collection.find({"Related_HA"+"."+ha_goals_no_regex[b]: {'$exists': True}})
                     for i in result:
                         ha_list_id.append(i["Module_ID"])
                     ha_list_faculty = []
@@ -1756,7 +1756,7 @@ def generate_csv_file_ha_2(self):
         # close SQL
         con_sql.close()
 
-def generate_csv_file_sdg(self):
+def generate_csv_file_sdg():
         con_mongo = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
         con_sql = getSQL_connection_for_csv()
         cursor = con_sql.cursor(pymysql.cursors.DictCursor)
@@ -1765,11 +1765,11 @@ def generate_csv_file_sdg(self):
         with open("sdg_csv_new.csv","w+",encoding='utf-8') as file:
              csv_writer = csv.writer(file)
              csv_writer.writerow(["Faculty","SDG 1","SDG 2","SDG 3","SDG 4","SDG 5","SDG 6","SDG 7","SDG 8","SDG 9","SDG 10","SDG 11","SDG 12","SDG 13","SDG 14","SDG 15","SDG 16","SDG 17","Misc"])
-             for a in self.Faculty:
+             for a in Faculty:
                 newlist = []
-                for b in range(0,len(self.sdg_goals)):
+                for b in range(0,len(sdg_goals)):
                 #--------------------------------------------------------------
-                    sdg_file1 = self.sdg_goals[b]
+                    sdg_file1 = sdg_goals[b]
                     sdg_file = sdg_file1.replace(" ",'')
                     if len(sdg_file) == 8:
                         sdg_file = sdg_file[2:6]
@@ -1778,7 +1778,7 @@ def generate_csv_file_sdg(self):
                     else:
                         sdg_file = sdg_file[2:6]
                     sdg_list_id = []
-                    result = collection.find({"Related_SDG"+"."+self.sdg_goals_no_regex[b]: {'$exists': True}})
+                    result = collection.find({"Related_SDG"+"."+sdg_goals_no_regex[b]: {'$exists': True}})
                     for i in result:
                         sdg_list_id.append(i["Module_ID"])
                     sdg_list_faculty = []
@@ -1800,7 +1800,7 @@ def generate_csv_file_sdg(self):
         # close SQL
         con_sql.close()
 
-def generate_csv_file_sdg_2(self):
+def generate_csv_file_sdg_2():
         con_mongo = pymongo.MongoClient('mongodb+srv://yzyucl:qq8588903@miemie.jbizr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
         con_sql = getSQL_connection_for_csv()
         cursor = con_sql.cursor(pymysql.cursors.DictCursor)
@@ -1809,11 +1809,11 @@ def generate_csv_file_sdg_2(self):
         with open("sdg_csv_new2.csv","w+",encoding='utf-8') as file:
              csv_writer = csv.writer(file)
              csv_writer.writerow(["Faculty","SDG 1","SDG 2","SDG 3","SDG 4","SDG 5","SDG 6","SDG 7","SDG 8","SDG 9","SDG 10","SDG 11","SDG 12","SDG 13","SDG 14","SDG 15","SDG 16","SDG 17","Misc"])
-             for a in self.Faculty:
+             for a in Faculty:
                 newlist = []
-                for b in range(0,len(self.sdg_goals)):
+                for b in range(0,len(sdg_goals)):
                 #--------------------------------------------------------------
-                    sdg_file1 = self.sdg_goals[b]
+                    sdg_file1 = sdg_goals[b]
                     sdg_file = sdg_file1.replace(" ",'')
                     if len(sdg_file) == 8:
                         sdg_file = sdg_file[2:6]
@@ -1822,7 +1822,7 @@ def generate_csv_file_sdg_2(self):
                     else:
                         sdg_file = sdg_file[2:6]
                     sdg_list_id = []
-                    result = collection.find({"Related_SDG"+"."+self.sdg_goals_no_regex[b]: {'$exists': True}})
+                    result = collection.find({"Related_SDG"+"."+sdg_goals_no_regex[b]: {'$exists': True}})
                     for i in result:
                         sdg_list_id.append(i["Module_ID"])
                     sdg_list_faculty = []
